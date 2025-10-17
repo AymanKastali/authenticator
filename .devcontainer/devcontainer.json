@@ -1,0 +1,58 @@
+{
+    "name": "Authenticator Dev Container",
+    "dockerComposeFile": [ "docker-compose.yml" ],
+    "service": "authenticator",
+    "workspaceFolder": "/authenticator",
+    "shutdownAction": "stopCompose",
+    "remoteUser": "root",
+    "containerEnv": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      },
+    // "forwardPorts": [8001]
+    "postStartCommand": "uv sync --locked",
+    "features": {
+    "ghcr.io/devcontainers/features/python:1": {},
+    "ghcr.io/devcontainers-extra/features/mypy:2": {},
+    "ghcr.io/devcontainers-extra/features/pylint:2": {},
+    "ghcr.io/devcontainers-extra/features/ruff:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.pylint",
+        "ms-python.vscode-pylance",
+        "ms-python.debugpy",
+        "charliermarsh.ruff",
+        "mongodb.mongodb-vscode",
+        "streetsidesoftware.code-spell-checker"
+      ],
+      "files.exclude": {
+          "**/*.pyc": true,
+          "**/__pycache__": true
+      },
+      "search.exclude": {
+          "**/*.pyc": true,
+          "**/__pycache__": true
+      },
+      "settings": {
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.fixAll": "always",
+            "source.organizeImports": "explicit"
+          }
+        },
+        "ruff.lineLength": 80,
+        "python.linting.enabled": true,
+        "python.linting.pylintEnabled": true,
+        "python.linting.mypyEnabled": true,
+        "python.linting.mypyArgs": [],
+        "python.analysis.typeCheckingMode": "basic",
+        "python.analysis.autoIndent": true,
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
+      }
+    }
+  }
+}

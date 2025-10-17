@@ -1,0 +1,7 @@
+services:
+  authenticator:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/authenticator:cached
