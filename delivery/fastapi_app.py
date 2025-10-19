@@ -5,7 +5,7 @@ from adapters.gateways.authentication.jwt_service import JwtService
 from adapters.gateways.persistence.in_memory.repositories.in_memory_user_repository import (
     InMemoryUserRepository,
 )
-from application.use_cases.login_user import LoginUserUseCase
+from application.use_cases.login_user_use_case import LoginUserUseCase
 from domain.entities.user import User
 from domain.services.authentication import AuthenticationService
 from domain.value_objects.email_address import EmailAddress

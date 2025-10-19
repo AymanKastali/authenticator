@@ -51,7 +51,7 @@
         "python.linting.mypyArgs": [],
         "python.analysis.typeCheckingMode": "basic",
         "python.analysis.autoIndent": true,
-        "python.defaultInterpreterPath": "/usr/local/bin/python"
+        "python.defaultInterpreterPath": "./.venv/bin/python"
       }
     }
   }

@@ -1,23 +1,19 @@
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 
-from domain.utils.time_utils import utc_now
+from domain.mixins.date_time_mixin import DateTimeMixin, utc_now
+from domain.value_objects.email_address import EmailAddress
+from domain.value_objects.hashed_password import HashedPassword
 from domain.value_objects.user_id import UserId
 
-from ..value_objects.email_address import EmailAddress
-from ..value_objects.hashed_password import HashedPassword
 
-
-@dataclass
-class User:
+@dataclass(kw_only=True)
+class User(DateTimeMixin):
     id: UserId
     email: EmailAddress
     hashed_password: HashedPassword | None
     is_active: bool = True
     active: bool = True
     verified: bool = False
-    created_at: datetime = field(default_factory=utc_now)
-    updated_at: datetime = field(default_factory=utc_now)
 
     # ----- Factory Methods -----
     @staticmethod
