@@ -6,7 +6,7 @@ from fastapi import Response
 from fastapi.datastructures import DefaultPlaceholder
 from fastapi.responses import JSONResponse
 
-from delivery.web.fastapi.api.route_metadata.http_methods import HttpMethod
+from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
 
 
 @dataclass

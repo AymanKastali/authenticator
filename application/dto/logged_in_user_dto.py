@@ -3,8 +3,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class LoggedInUserDTO:
-    id: str
-    email: str
+    uid: str
+    email_address: str
     token: str
 
     # @classmethod
@@ -38,7 +38,7 @@ class LoggedInUserDTO:
     #         data.get("status", BedStatusEnum.AVAILABLE.value)
     #     )
     #     bed_type = BedTypeEnum(data.get("bed_type", BedTypeEnum.SINGLE.value))
-    #     tenant_id = UserId(data["tenant_id"]) if data.get("tenant_id") else None
+    #     tenant_id = UUIDId(data["tenant_id"]) if data.get("tenant_id") else None
 
     #     return BedEntity(
     #         _bed_id=BedId(data["bed_id"]),

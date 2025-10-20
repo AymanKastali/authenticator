@@ -2,5 +2,5 @@ from pydantic import BaseModel, EmailStr
 
 
 class LoginUserModel(BaseModel):
-    email: EmailStr
+    email_address: EmailStr
     password: str

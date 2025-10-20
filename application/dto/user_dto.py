@@ -1,28 +1,38 @@
 from dataclasses import dataclass
 
+from domain.entities.user import User
+
 
 @dataclass(frozen=True)
 class UserDTO:
-    id: str
-    email: str
-    hashed_password: str | None
+    uid: str
+    email_address: str
     is_active: bool
     active: bool
     verified: bool
     created_at: str
     updated_at: str
+    hashed_password: str | None = None
     deleted_at: str | None = None
 
-    # @classmethod
-    # def from_entity(cls, bed: BedEntity) -> "BedDTO":
-    #     return cls(
-    #         bedroom_id=str(bed.bedroom_id.value),
-    #         bed_id=str(bed.bed_id.value),
-    #         bed_type=bed.bed_type.value,
-    #         label=bed.label,
-    #         tenant_id=str(bed.tenant_id.value) if bed.tenant_id else None,
-    #         status=bed.status.value,
-    #     )
+    @classmethod
+    def from_entity(cls, user: User) -> "UserDTO":
+        deleted_at = str(user.deleted_at) if user.deleted_at else None
+        hashed_password = (
+            user.hashed_password.value if user.hashed_password else None
+        )
+
+        return cls(
+            uid=user.uid.value,
+            email_address=user.email_address.value,
+            is_active=user.is_active,
+            active=user.active,
+            verified=user.verified,
+            created_at=str(user.created_at),
+            updated_at=str(user.updated_at),
+            deleted_at=deleted_at,
+            hashed_password=hashed_password,
+        )
 
     # def to_dict(self) -> dict:
     #     return {
@@ -44,7 +54,7 @@ class UserDTO:
     #         data.get("status", BedStatusEnum.AVAILABLE.value)
     #     )
     #     bed_type = BedTypeEnum(data.get("bed_type", BedTypeEnum.SINGLE.value))
-    #     tenant_id = UserId(data["tenant_id"]) if data.get("tenant_id") else None
+    #     tenant_id = UUIDId(data["tenant_id"]) if data.get("tenant_id") else None
 
     #     return BedEntity(
     #         _bed_id=BedId(data["bed_id"]),

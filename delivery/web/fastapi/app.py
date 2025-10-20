@@ -1,6 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from delivery.web.fastapi.utils.exception_handlers_registry import (
+    register_exception_handlers,
+)
 from delivery.web.fastapi.utils.routers_registry import register_routers
 
 
@@ -24,5 +27,6 @@ def create_app() -> FastAPI:
     )
 
     register_routers(app)
+    register_exception_handlers(app)
 
     return app
