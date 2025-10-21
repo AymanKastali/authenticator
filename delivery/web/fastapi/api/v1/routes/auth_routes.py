@@ -64,4 +64,4 @@ routes = [
 
 # POST   /auth/password/forgot          # Request password reset
 # POST   /auth/password/reset           # Reset password with token
-# POST   /auth/verify-email_address             # Verify email_address confirmation token
+# POST   /auth/verify-email             # Verify email confirmation token

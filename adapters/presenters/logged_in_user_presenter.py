@@ -6,6 +6,6 @@ class LoggedInUserPresenter:
     def to_json(dto: LoggedInUserDTO) -> dict:
         return {
             "uid": dto.uid,
-            "email_address": dto.email_address,
+            "email": dto.email,
             "token": dto.token,
         }

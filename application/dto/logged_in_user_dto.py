@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass(frozen=True)
 class LoggedInUserDTO:
     uid: str
-    email_address: str
+    email: str
     token: str
 
     # @classmethod

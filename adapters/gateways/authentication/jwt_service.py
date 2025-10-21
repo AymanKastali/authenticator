@@ -1,4 +1,4 @@
-import jwt
+from jwt import PyJWTError, decode, encode
 
 from adapters.utils.time_utils import (
     expires_after_days,
@@ -6,51 +6,98 @@ from adapters.utils.time_utils import (
     utc_now,
 )
 from application.ports.jwt_token_service import JwtTokenServicePort
+from domain.config.config_models import JwtConfig
+from domain.value_objects.jwt_claims import JwtClaims
+from domain.value_objects.jwt_payload import JwtPayload
 
 
 class JwtService(JwtTokenServicePort):
-    def __init__(
+    def __init__(self, jwt_cfg: JwtConfig):
+        self.jwt_cfg = jwt_cfg
+
+    def generate_access_token(
+        self, user_id: str, claims: JwtClaims | None = None
+    ) -> str:
+        claims = claims or JwtClaims()
+        now = utc_now()
+        payload = JwtPayload(
+            sub=user_id,
+            iat=now,
+            exp=expires_after_minutes(
+                self.jwt_cfg.access_token_expiration_minutes
+            ),
+            type="access",
+            roles=claims.roles or [],
+            email=claims.email,
+            username=claims.username,
+            iss=claims.issuer or self.jwt_cfg.issuer,
+            aud=claims.audience or self.jwt_cfg.audience,
+            nbf=claims.not_before or now,  # use client-provided nbf if given
+        )
+        return encode(
+            payload.to_dict(),
+            self.jwt_cfg.secret_key,
+            algorithm=self.jwt_cfg.algorithm,
+        )
+
+    def generate_refresh_token(
+        self, user_id: str, claims: JwtClaims | None = None
+    ) -> str:
+        claims = claims or JwtClaims()
+        now = utc_now()
+        payload = JwtPayload(
+            sub=user_id,
+            iat=now,
+            exp=expires_after_days(self.jwt_cfg.refresh_token_expiration_days),
+            type="refresh",
+            roles=claims.roles or [],
+            email=claims.email,
+            username=claims.username,
+            iss=claims.issuer or self.jwt_cfg.issuer,
+            aud=claims.audience or self.jwt_cfg.audience,
+            nbf=claims.not_before or now,  # use client-provided nbf if given
+        )
+        return encode(
+            payload.to_dict(),
+            self.jwt_cfg.secret_key,
+            algorithm=self.jwt_cfg.algorithm,
+        )
+
+    def verify_access_token(self, token: str) -> JwtPayload | None:
+        return self._verify_token(token, expected_type="access")
+
+    def verify_refresh_token(self, token: str) -> JwtPayload | None:
+        return self._verify_token(token, expected_type="refresh")
+
+    def _verify_token(
         self,
-        secret: str,
-        access_exp_minutes: int = 15,
-        refresh_exp_days: int = 7,
-    ):
-        self.secret = secret
-        self.access_exp = access_exp_minutes
-        self.refresh_exp = refresh_exp_days
-
-    def generate_access_token(self, user_id: str) -> str:
-        payload = {
-            "sub": user_id,
-            "iat": utc_now(),
-            "exp": expires_after_minutes(self.access_exp),
-            "type": "access",
-        }
-        return jwt.encode(payload, self.secret, algorithm="HS256")
-
-    def generate_refresh_token(self, user_id: str) -> str:
-        payload = {
-            "sub": user_id,
-            "iat": utc_now(),
-            "exp": expires_after_days(self.refresh_exp),
-            "type": "refresh",
-        }
-        return jwt.encode(payload, self.secret, algorithm="HS256")
-
-    def verify_access_token(self, token: str) -> str | None:
+        token: str,
+        expected_type: str,
+        leeway: int = 5,  # allow 5 seconds clock skew
+    ) -> JwtPayload | None:
         try:
-            payload = jwt.decode(token, self.secret, algorithms=["HS256"])
-            if payload.get("type") != "access":
-                return None
-            return payload["sub"]
-        except jwt.PyJWTError:
-            return None
+            payload_dict = decode(
+                token,
+                self.jwt_cfg.secret_key,
+                algorithms=[self.jwt_cfg.algorithm],
+                audience=self.jwt_cfg.audience,
+                issuer=self.jwt_cfg.issuer,
+                options={
+                    "verify_signature": True,
+                    "verify_exp": True,
+                    "verify_nbf": True,
+                    "require": ["sub", "iat", "exp", "type"],
+                },
+                leeway=leeway,
+            )
 
-    def verify_refresh_token(self, token: str) -> str | None:
-        try:
-            payload = jwt.decode(token, self.secret, algorithms=["HS256"])
-            if payload.get("type") != "refresh":
+            payload = JwtPayload(**payload_dict)
+
+            # Ensure token type matches (access/refresh)
+            if payload.type != expected_type:
                 return None
-            return payload["sub"]
-        except jwt.PyJWTError:
+
+            return payload
+
+        except (PyJWTError, TypeError, ValueError):
             return None

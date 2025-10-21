@@ -6,7 +6,7 @@ from domain.entities.user import User
 @dataclass(frozen=True)
 class UserDTO:
     uid: str
-    email_address: str
+    email: str
     is_active: bool
     active: bool
     verified: bool
@@ -24,7 +24,7 @@ class UserDTO:
 
         return cls(
             uid=user.uid.value,
-            email_address=user.email_address.value,
+            email=user.email.value,
             is_active=user.is_active,
             active=user.active,
             verified=user.verified,

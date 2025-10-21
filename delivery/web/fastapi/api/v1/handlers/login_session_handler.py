@@ -15,7 +15,7 @@ class SessionLoginHandler:
         self, body: LoginUserModel, response: Response
     ) -> ItemResponseModel[dict]:
         session_id: str = self._controller.execute(
-            email_address=body.email_address, password=body.password
+            email=body.email, password=body.password
         )
         response.set_cookie(
             key="session_id",
@@ -24,7 +24,6 @@ class SessionLoginHandler:
             secure=True,
             samesite="lax",
         )
-        print("xxxxxxx", response.headers)
         return ItemResponseModel[dict].build(
             data={"session_id": session_id},
             status_code=200,

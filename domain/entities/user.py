@@ -1,16 +1,18 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
+from domain.config.config_models import PasswordConfig
 from domain.utils.date_time import utc_now
-from domain.value_objects.email_address import EmailAddress
+from domain.value_objects.email import EmailAddress
 from domain.value_objects.hashed_password import HashedPassword
+from domain.value_objects.role import Role
 from domain.value_objects.uids import UUIDId
 
 
 @dataclass(kw_only=True)
 class User:
     uid: UUIDId = field(default_factory=UUIDId.new)
-    email_address: EmailAddress
+    email: EmailAddress
     hashed_password: HashedPassword | None = None
     is_active: bool = True
     active: bool = True
@@ -18,23 +20,26 @@ class User:
     created_at: datetime = field(default_factory=utc_now)
     updated_at: datetime = field(default_factory=utc_now)
     deleted_at: datetime | None = None
+    roles: list[Role] = field(default_factory=lambda: [Role.USER])
 
     # ----- Factory Methods -----
     @staticmethod
-    def register_local(email_address: EmailAddress, password: str) -> "User":
-        """Register a user with email_address and password (local credentials)."""
+    def register_local(
+        email: EmailAddress, password: str, password_cfg: PasswordConfig
+    ) -> "User":
+        """Register a user with email and password (local credentials)."""
         return User(
-            email_address=email_address,
-            hashed_password=HashedPassword.from_plain(password),
+            email=email,
+            hashed_password=HashedPassword.from_plain(password, password_cfg),
             active=True,
             verified=False,
         )
 
     @staticmethod
-    def register_external(email_address: EmailAddress) -> "User":
+    def register_external(email: EmailAddress) -> "User":
         """Register a user authenticated via OAuth/SSO."""
         return User(
-            email_address=email_address,
+            email=email,
             hashed_password=None,
             active=True,
             verified=True,  # usually verified by external provider
@@ -46,8 +51,10 @@ class User:
             return False
         return self.hashed_password.verify(password)
 
-    def change_password(self, new_password: str):
-        self.hashed_password = HashedPassword.from_plain(new_password)
+    def change_password(self, new_password: str, password_cfg: PasswordConfig):
+        self.hashed_password = HashedPassword.from_plain(
+            new_password, password_cfg
+        )
         self.updated_at = utc_now()
 
     def deactivate(self):

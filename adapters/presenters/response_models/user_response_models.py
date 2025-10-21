@@ -5,7 +5,7 @@ class RegisteredUserResponseModel(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     uid: str
-    email_address: str
+    email: str
     is_active: bool
     active: bool
     verified: bool

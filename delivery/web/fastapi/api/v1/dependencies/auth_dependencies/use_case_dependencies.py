@@ -1,10 +1,11 @@
 from fastapi import Depends
 
-from application.services.auth_jwt import JwtAuthService
 from application.services.auth_session import SessionAuthService
-from application.use_cases.jwt_login import JwtLoginUseCase
-from application.use_cases.register_user import RegisterUserUseCase
-from application.use_cases.session_login import SessionLoginUseCase
+from application.services.jwt_auth_service import JwtAuthService
+from application.use_cases.jwt_login_uc import JwtLoginUseCase
+from application.use_cases.register_user_uc import RegisterUserUseCase
+from application.use_cases.session_login_uc import SessionLoginUseCase
+from delivery.bootstrap.domain_config_factory import DomainConfigFactory
 from delivery.db.in_memory.repositories import (
     get_in_memory_user_repository,
 )
@@ -31,4 +32,6 @@ def get_session_login_uc(
 def get_register_user_uc(
     user_repo=Depends(get_in_memory_user_repository),
 ) -> RegisterUserUseCase:
-    return RegisterUserUseCase(user_repo)
+    return RegisterUserUseCase(
+        user_repo, DomainConfigFactory.load_password_config()
+    )

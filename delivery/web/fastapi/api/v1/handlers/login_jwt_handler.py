@@ -11,7 +11,7 @@ class JwtLoginHandler:
 
     async def execute(self, body: LoginUserModel) -> ItemResponseModel[dict]:
         jwt_tokens: dict = self._controller.execute(
-            email_address=body.email_address, password=body.password
+            email=body.email, password=body.password
         )
         return ItemResponseModel[dict].build(
             data=jwt_tokens,

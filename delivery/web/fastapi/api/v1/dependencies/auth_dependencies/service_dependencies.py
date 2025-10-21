@@ -2,9 +2,10 @@ from fastapi import Depends
 
 from adapters.gateways.authentication.jwt_service import JwtService
 from application.ports.jwt_token_service import JwtTokenServicePort
-from application.services.auth_jwt import JwtAuthService
 from application.services.auth_session import SessionAuthService
 from application.services.authentication import AuthenticationService
+from application.services.jwt_auth_service import JwtAuthService
+from delivery.bootstrap.domain_config_factory import DomainConfigFactory
 from delivery.db.in_memory.repositories import (
     get_in_memory_session_repository,
     get_in_memory_user_repository,
@@ -12,7 +13,7 @@ from delivery.db.in_memory.repositories import (
 
 
 def get_jwt_service() -> JwtService:
-    return JwtService(secret="supersecretkey")
+    return JwtService(jwt_cfg=DomainConfigFactory.load_jwt_config())
 
 
 def get_jwt_auth_service(

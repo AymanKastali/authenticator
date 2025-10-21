@@ -1,7 +1,8 @@
+from domain.value_objects.email import EmailAddress
+
 from application.ports.session_repository import SessionRepositoryPort
 from application.ports.user_repository import UserRepositoryPort
 from domain.entities.user import User
-from domain.value_objects.email_address import EmailAddress
 
 
 class SessionAuthService:
@@ -12,9 +13,9 @@ class SessionAuthService:
         self.session_repo = session_repo
 
     def authenticate_local(
-        self, email_address: EmailAddress, password: str
+        self, email: EmailAddress, password: str
     ) -> User | None:
-        user = self.user_repo.find_by_email(email_address)
+        user = self.user_repo.find_by_email(email)
         if not user or not user.is_active or not user.verify_password(password):
             return None
         return user
