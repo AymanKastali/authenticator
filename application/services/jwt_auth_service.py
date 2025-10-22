@@ -28,10 +28,10 @@ class JwtAuthService:
         claims = claims or JwtClaims()
         return {
             "access_token": self.jwt_service.generate_access_token(
-                user_id.value, claims
+                str(user_id.value), claims
             ),
             "refresh_token": self.jwt_service.generate_refresh_token(
-                user_id.value, claims
+                str(user_id.value), claims
             ),
         }
 

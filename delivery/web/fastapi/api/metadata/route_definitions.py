@@ -4,6 +4,7 @@ from typing import Any, Callable, Sequence
 
 from fastapi import Response
 from fastapi.datastructures import DefaultPlaceholder
+from fastapi.params import Depends
 from fastapi.responses import JSONResponse
 
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
@@ -27,3 +28,4 @@ class Route:
     description: str | None = None
     response_class: type[Response] | DefaultPlaceholder = JSONResponse
     responses: dict[int | str, dict[str, Any]] | None = None
+    dependencies: Sequence[Depends] | None = None

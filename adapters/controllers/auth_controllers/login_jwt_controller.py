@@ -3,7 +3,7 @@ from fastapi import HTTPException
 from adapters.presenters.response_models.jwt_response_model import (
     JwtResponseResponseModel,
 )
-from application.use_cases.jwt_login_uc import JwtLoginUseCase
+from application.use_cases.auth_use_cases.jwt_login_uc import JwtLoginUseCase
 
 
 class JwtLoginController:

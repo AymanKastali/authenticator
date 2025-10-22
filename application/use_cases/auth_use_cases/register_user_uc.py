@@ -1,4 +1,4 @@
-from application.dto.user_dto import UserDTO
+from application.dto.user_dto.user_dto import UserDTO
 from application.ports.user_repository import UserRepositoryPort
 from domain.config.config_models import PasswordConfig
 from domain.entities.user import User

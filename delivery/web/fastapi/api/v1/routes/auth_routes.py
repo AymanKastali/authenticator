@@ -25,7 +25,7 @@ routes = [
     ),
     Route(
         name="jwt_login_user",
-        path="/login",
+        path="/login/jwt",
         status_code=200,
         methods=[HttpMethod.POST],
         endpoint=jwt_login_endpoint,

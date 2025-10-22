@@ -1,8 +1,10 @@
 from adapters.presenters.response_models.user_response_models import (
     RegisteredUserResponseModel,
 )
-from application.dto.user_dto import UserDTO
-from application.use_cases.register_user_uc import RegisterUserUseCase
+from application.dto.user_dto.user_dto import UserDTO
+from application.use_cases.auth_use_cases.register_user_uc import (
+    RegisterUserUseCase,
+)
 
 
 class RegisterUserController:

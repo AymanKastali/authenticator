@@ -1,17 +1,17 @@
 import base64
 import os
-import uuid
 from dataclasses import dataclass
 from typing import ClassVar
+from uuid import UUID, uuid4
 
 
 @dataclass(frozen=True)
 class UUIDId:
-    value: str
+    value: UUID
 
     @staticmethod
     def new() -> "UUIDId":
-        return UUIDId(str(uuid.uuid4()))
+        return UUIDId(uuid4())
 
 
 @dataclass(frozen=True)

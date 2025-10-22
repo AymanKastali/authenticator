@@ -1,6 +1,8 @@
 from fastapi import HTTPException
 
-from application.use_cases.session_login_uc import SessionLoginUseCase
+from application.use_cases.auth_use_cases.session_login_uc import (
+    SessionLoginUseCase,
+)
 
 
 class SessionLoginController:

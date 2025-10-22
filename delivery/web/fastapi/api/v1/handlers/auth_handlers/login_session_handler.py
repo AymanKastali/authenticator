@@ -1,6 +1,8 @@
 from fastapi import Response
 
-from adapters.controllers.login_session_controller import SessionLoginController
+from adapters.controllers.auth_controllers.login_session_controller import (
+    SessionLoginController,
+)
 from adapters.presenters.request_models.login_user_model import LoginUserModel
 from adapters.presenters.response_models.success_item_response_model import (
     ItemResponseModel,

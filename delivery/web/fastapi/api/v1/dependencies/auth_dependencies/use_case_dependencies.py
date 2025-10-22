@@ -2,9 +2,13 @@ from fastapi import Depends
 
 from application.services.auth_session import SessionAuthService
 from application.services.jwt_auth_service import JwtAuthService
-from application.use_cases.jwt_login_uc import JwtLoginUseCase
-from application.use_cases.register_user_uc import RegisterUserUseCase
-from application.use_cases.session_login_uc import SessionLoginUseCase
+from application.use_cases.auth_use_cases.jwt_login_uc import JwtLoginUseCase
+from application.use_cases.auth_use_cases.register_user_uc import (
+    RegisterUserUseCase,
+)
+from application.use_cases.auth_use_cases.session_login_uc import (
+    SessionLoginUseCase,
+)
 from delivery.bootstrap.domain_config_factory import DomainConfigFactory
 from delivery.db.in_memory.repositories import (
     get_in_memory_user_repository,

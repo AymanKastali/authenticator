@@ -23,7 +23,7 @@ class UserDTO:
         )
 
         return cls(
-            uid=user.uid.value,
+            uid=str(user.uid.value),
             email=user.email.value,
             is_active=user.is_active,
             active=user.active,

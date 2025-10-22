@@ -6,13 +6,13 @@ from delivery.web.fastapi.api.v1.dependencies.auth_dependencies.handler_dependen
     get_register_user_handler,
     get_session_login_handler,
 )
-from delivery.web.fastapi.api.v1.handlers.login_jwt_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_jwt_handler import (
     JwtLoginHandler,
 )
-from delivery.web.fastapi.api.v1.handlers.login_session_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_session_handler import (
     SessionLoginHandler,
 )
-from delivery.web.fastapi.api.v1.handlers.register_user_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.register_user_handler import (
     RegisterUserHandler,
 )
 

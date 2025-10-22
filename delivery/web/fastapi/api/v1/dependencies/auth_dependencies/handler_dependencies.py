@@ -1,20 +1,26 @@
 from fastapi import Depends
 
-from adapters.controllers.login_jwt_controller import JwtLoginController
-from adapters.controllers.login_session_controller import SessionLoginController
-from adapters.controllers.register_user_controller import RegisterUserController
+from adapters.controllers.auth_controllers.login_jwt_controller import (
+    JwtLoginController,
+)
+from adapters.controllers.auth_controllers.login_session_controller import (
+    SessionLoginController,
+)
+from adapters.controllers.auth_controllers.register_user_controller import (
+    RegisterUserController,
+)
 from delivery.web.fastapi.api.v1.dependencies.auth_dependencies.controller_dependencies import (
     get_jwt_login_controller,
     get_register_user_controller,
     get_session_login_controller,
 )
-from delivery.web.fastapi.api.v1.handlers.login_jwt_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_jwt_handler import (
     JwtLoginHandler,
 )
-from delivery.web.fastapi.api.v1.handlers.login_session_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_session_handler import (
     SessionLoginHandler,
 )
-from delivery.web.fastapi.api.v1.handlers.register_user_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.register_user_handler import (
     RegisterUserHandler,
 )
 

@@ -12,7 +12,7 @@ from delivery.db.in_memory.repositories import (
 )
 
 
-def get_jwt_service() -> JwtService:
+def get_jwt_service():
     return JwtService(jwt_cfg=DomainConfigFactory.load_jwt_config())
 
 

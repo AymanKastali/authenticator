@@ -18,4 +18,5 @@ class JwtLoginUseCase:
         claims: JwtClaims = JwtClaims(
             roles=[role.value for role in user.roles], email=user.email.value
         )
-        return self.jwt_auth_service.generate_tokens(user.uid, claims)
+        tokens: dict = self.jwt_auth_service.generate_tokens(user.uid, claims)
+        return tokens

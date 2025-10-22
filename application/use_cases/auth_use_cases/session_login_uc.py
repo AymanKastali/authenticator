@@ -1,7 +1,6 @@
-from domain.value_objects.email import EmailAddress
-
 from application.services.auth_session import SessionAuthService
 from domain.entities.user import User
+from domain.value_objects.email import EmailAddress
 
 
 class SessionLoginUseCase:

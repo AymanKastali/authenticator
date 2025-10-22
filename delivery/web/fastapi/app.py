@@ -12,7 +12,7 @@ def create_app() -> FastAPI:
     Initialize and configure the FastAPI application.
     """
     app = FastAPI(
-        title="Property Assets Builder",
+        title="Authenticator Service API",
         version="1.0.0",
         # default_response_class=SuccessJSONResponse,
     )
