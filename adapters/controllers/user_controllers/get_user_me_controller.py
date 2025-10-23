@@ -11,6 +11,6 @@ class GetUserMeController:
     def __init__(self, use_case: GetUserMeUseCase):
         self.use_case = use_case
 
-    def execute(self, user_id: UUID) -> dict:
+    def execute(self, user_id: UUID) -> UserResponseModel:
         user: UserDTO = self.use_case.execute(user_id)
-        return UserResponseModel.model_validate(user).model_dump()
+        return UserResponseModel.model_validate(user)

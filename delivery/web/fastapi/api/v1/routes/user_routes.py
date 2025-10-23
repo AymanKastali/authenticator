@@ -4,50 +4,55 @@ from adapters.presenters.response_models.success_item_response_model import (
 from adapters.presenters.response_models.success_paginated_response_model import (
     PaginatedResponseModel,
 )
+from adapters.presenters.response_models.user_response_models import (
+    PublicUserResponseModel,
+    UserResponseModel,
+)
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
-from delivery.web.fastapi.api.metadata.route_definitions import Route
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
 from delivery.web.fastapi.api.v1.endpoints.user_endpoints import (
     get_all_users_endpoint,
     get_me_endpoint,
     get_user_by_id_endpoint,
 )
+from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
+
+_GET_ME = "/me"
+_GET_USER_BY_ID = "/{user_id}"
+_GET_ALL_USERS = "/"
 
 routes = [
-    Route(
+    create_route(
         name="get_me",
-        path="/me",
+        path=_GET_ME,
         status_code=200,
         methods=[HttpMethod.GET],
         endpoint=get_me_endpoint,
-        tags=[RouteTag.USERS],
+        tag=RouteTag.USERS,
         summary="Get my User info",
-        deprecated=False,
-        response_model=ItemResponseModel[dict],
+        response_model=ItemResponseModel[UserResponseModel],
         description="Endpoint to get my own User info.",
     ),
-    Route(
+    create_route(
         name="get_user_by_id",
-        path="/{user_id}",
+        path=_GET_USER_BY_ID,
         status_code=200,
         methods=[HttpMethod.GET],
         endpoint=get_user_by_id_endpoint,
-        tags=[RouteTag.USERS],
+        tag=RouteTag.USERS,
         summary="Get User info by ID",
-        deprecated=False,
-        response_model=ItemResponseModel[dict],
+        response_model=ItemResponseModel[PublicUserResponseModel],
         description="Endpoint to get User info by ID.",
     ),
-    Route(
+    create_route(
         name="get_all_users",
-        path="/",
+        path=_GET_ALL_USERS,
         status_code=200,
         methods=[HttpMethod.GET],
         endpoint=get_all_users_endpoint,
-        tags=[RouteTag.USERS],
+        tag=RouteTag.USERS,
         summary="Get all Users info",
-        deprecated=False,
-        response_model=PaginatedResponseModel[dict],
+        response_model=PaginatedResponseModel[PublicUserResponseModel],
         description="Endpoint to get all Users info.",
     ),
 ]

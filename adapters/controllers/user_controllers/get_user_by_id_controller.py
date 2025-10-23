@@ -13,6 +13,6 @@ class GetUserByIdController:
     def __init__(self, use_case: GetUserByIdUseCase):
         self.use_case = use_case
 
-    def execute(self, user_id: UUID) -> dict:
+    def execute(self, user_id: UUID) -> PublicUserResponseModel:
         user: PublicUserDTO = self.use_case.execute(user_id)
-        return PublicUserResponseModel.model_validate(user).model_dump()
+        return PublicUserResponseModel.model_validate(user)

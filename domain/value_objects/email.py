@@ -6,7 +6,7 @@ from domain.exceptions.domain_exceptions import InvalidValueError
 
 
 @dataclass(frozen=True)
-class EmailAddress:
+class Email:
     value: str
 
     # ----- Regex pattern as a class constant -----
@@ -32,3 +32,11 @@ class EmailAddress:
             raise InvalidValueError(
                 field_name="email", message="Invalid email format."
             )
+
+    @classmethod
+    def from_string(cls, email_str: str) -> "Email":
+        """
+        Validate the string and return an Email object.
+        """
+        cls._validate(email_str)
+        return cls(value=email_str)

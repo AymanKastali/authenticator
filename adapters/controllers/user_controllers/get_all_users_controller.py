@@ -11,9 +11,6 @@ class GetAllUsersController:
     def __init__(self, use_case: GetAllUsersUseCase):
         self.use_case = use_case
 
-    def execute(self) -> list[dict]:
+    def execute(self) -> list[PublicUserResponseModel]:
         users: list[PublicUserDTO] = self.use_case.execute()
-        return [
-            PublicUserResponseModel.model_validate(user).model_dump()
-            for user in users
-        ]
+        return [PublicUserResponseModel.model_validate(user) for user in users]

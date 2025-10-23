@@ -3,7 +3,7 @@ from datetime import datetime
 
 from domain.config.config_models import PasswordConfig
 from domain.utils.date_time import utc_now
-from domain.value_objects.email import EmailAddress
+from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
 from domain.value_objects.role import Role
 from domain.value_objects.uids import UUIDId
@@ -12,9 +12,8 @@ from domain.value_objects.uids import UUIDId
 @dataclass(kw_only=True)
 class User:
     uid: UUIDId = field(default_factory=UUIDId.new)
-    email: EmailAddress
+    email: Email
     hashed_password: HashedPassword | None = None
-    is_active: bool = True
     active: bool = True
     verified: bool = False
     created_at: datetime = field(default_factory=utc_now)
@@ -25,7 +24,7 @@ class User:
     # ----- Factory Methods -----
     @staticmethod
     def register_local(
-        email: EmailAddress, password: str, password_cfg: PasswordConfig
+        email: Email, password: str, password_cfg: PasswordConfig
     ) -> "User":
         """Register a user with email and password (local credentials)."""
         return User(
@@ -36,7 +35,7 @@ class User:
         )
 
     @staticmethod
-    def register_external(email: EmailAddress) -> "User":
+    def register_external(email: Email) -> "User":
         """Register a user authenticated via OAuth/SSO."""
         return User(
             email=email,

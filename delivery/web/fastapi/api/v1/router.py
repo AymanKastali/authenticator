@@ -20,8 +20,3 @@ for route in user_routes:
 
 v1_router.include_router(auth_router)
 v1_router.include_router(users_router)
-
-# for route in routes:
-#     route_dict = dict(vars(route).items())
-
-#     v1_router.add_api_route(**route_dict)

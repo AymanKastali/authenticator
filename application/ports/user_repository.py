@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from domain.entities.user import User
-from domain.value_objects.email import EmailAddress
+from domain.value_objects.email import Email
 from domain.value_objects.uids import UUIDId
 
 
@@ -10,7 +10,7 @@ class UserRepositoryPort(ABC):
     def get_user_by_id(self, user_id: UUIDId) -> User | None: ...
 
     @abstractmethod
-    def find_by_email(self, email: EmailAddress) -> User | None: ...
+    def get_user_by_email(self, email: Email) -> User | None: ...
 
     @abstractmethod
     def save(self, user: User) -> None: ...

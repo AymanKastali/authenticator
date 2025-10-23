@@ -4,15 +4,18 @@ from adapters.controllers.user_controllers.get_all_users_controller import (
 from adapters.presenters.response_models.success_paginated_response_model import (
     PaginatedResponseModel,
 )
+from adapters.presenters.response_models.user_response_models import (
+    PublicUserResponseModel,
+)
 
 
 class GetAllUsersHandler:
     def __init__(self, controller: GetAllUsersController):
         self._controller = controller
 
-    def execute(self) -> PaginatedResponseModel[dict]:
-        users: list[dict] = self._controller.execute()
-        return PaginatedResponseModel[dict].build(
+    def execute(self) -> PaginatedResponseModel[PublicUserResponseModel]:
+        users: list[PublicUserResponseModel] = self._controller.execute()
+        return PaginatedResponseModel[PublicUserResponseModel].build(
             data=users,
             status_code=200,
             message="users data retrieved successfully",

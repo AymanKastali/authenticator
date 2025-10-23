@@ -2,7 +2,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel, Field
 
-T = TypeVar("T", bound=dict)
+T = TypeVar("T", bound=BaseModel)
 
 
 class PaginationModel(BaseModel):

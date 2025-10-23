@@ -1,6 +1,6 @@
 from application.services.jwt_auth_service import JwtAuthService
 from domain.entities.user import User
-from domain.value_objects.email import EmailAddress
+from domain.value_objects.email import Email
 from domain.value_objects.jwt_claims import JwtClaims
 
 
@@ -10,7 +10,7 @@ class JwtLoginUseCase:
 
     def execute(self, email: str, password: str) -> dict:
         user: User | None = self.jwt_auth_service.authenticate_local(
-            EmailAddress(email), password
+            Email(email), password
         )
         if not user:
             raise ValueError("Invalid credentials")
@@ -19,4 +19,8 @@ class JwtLoginUseCase:
             roles=[role.value for role in user.roles], email=user.email.value
         )
         tokens: dict = self.jwt_auth_service.generate_tokens(user.uid, claims)
-        return tokens
+        raw_tokens: dict = {
+            "access_token": tokens["access_token"].get_value(),
+            "refresh_token": tokens["refresh_token"].get_value(),
+        }
+        return raw_tokens

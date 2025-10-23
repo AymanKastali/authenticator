@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass, field
+from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Literal
 
@@ -23,4 +23,16 @@ class JwtPayload:
     username: str | None = None
 
     def to_dict(self) -> dict:
-        return asdict(self)
+        return {
+            "sub": self.sub,
+            "iat": self.iat,
+            "exp": self.exp,
+            "jti": self.jti,
+            "iss": self.iss,
+            "aud": self.aud,
+            "nbf": self.nbf,
+            "type": self.type,
+            "roles": self.roles,
+            "email": self.email,
+            "username": self.username,
+        }

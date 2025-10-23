@@ -21,7 +21,7 @@ async def get_me_endpoint(
     ],
     handler=Depends(lambda: user_container.get_user_me_handler),
 ):
-    return handler.execute(user_id=UUID(current_user.uid))
+    return handler.execute(user_id=current_user.uid_as_uuid())
 
 
 async def get_user_by_id_endpoint(
@@ -33,7 +33,6 @@ async def get_user_by_id_endpoint(
 
 
 async def get_all_users_endpoint(
-    _: Request,
-    handler=Depends(lambda: user_container.get_all_users_handler),
+    _: Request, handler=Depends(lambda: user_container.get_all_users_handler)
 ):
     return handler.execute()

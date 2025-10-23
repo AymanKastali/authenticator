@@ -11,6 +11,6 @@ class RegisterUserController:
     def __init__(self, use_case: RegisterUserUseCase):
         self.use_case = use_case
 
-    def execute(self, email: str, password: str) -> dict:
+    def execute(self, email: str, password: str) -> RegisteredUserResponseModel:
         user: UserDTO = self.use_case.execute(email, password)
-        return RegisteredUserResponseModel.model_validate(user).model_dump()
+        return RegisteredUserResponseModel.model_validate(user)

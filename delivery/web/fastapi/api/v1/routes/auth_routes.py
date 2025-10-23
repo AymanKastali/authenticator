@@ -1,50 +1,60 @@
+from adapters.presenters.response_models.jwt_response_model import (
+    JwtResponseResponseModel,
+)
+from adapters.presenters.response_models.session_response_model import (
+    SessionResponseModel,
+)
 from adapters.presenters.response_models.success_item_response_model import (
     ItemResponseModel,
 )
+from adapters.presenters.response_models.user_response_models import (
+    RegisteredUserResponseModel,
+)
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
-from delivery.web.fastapi.api.metadata.route_definitions import Route
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
 from delivery.web.fastapi.api.v1.endpoints.auth_endpoints import (
     jwt_login_endpoint,
     register_user_endpoint,
     session_login_endpoint,
 )
+from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
+
+_REGISTER = "/register"
+_LOGIN_JWT = "/login/jwt"
+_LOGIN_SESSION = "/login/session"
 
 routes = [
-    Route(
+    create_route(
         name="register_user",
-        path="/register",
+        path=_REGISTER,
         status_code=201,
         methods=[HttpMethod.POST],
         endpoint=register_user_endpoint,
-        tags=[RouteTag.AUTH],
+        tag=RouteTag.AUTH,
         summary="Login User via Session",
-        deprecated=False,
-        response_model=ItemResponseModel[dict],
+        response_model=ItemResponseModel[RegisteredUserResponseModel],
         description="Endpoint to login a user and receive a Session token.",
     ),
-    Route(
+    create_route(
         name="jwt_login_user",
-        path="/login/jwt",
+        path=_LOGIN_JWT,
         status_code=200,
         methods=[HttpMethod.POST],
         endpoint=jwt_login_endpoint,
-        tags=[RouteTag.AUTH],
+        tag=RouteTag.AUTH,
         summary="Login User via JWT",
-        deprecated=False,
-        response_model=ItemResponseModel[dict],
+        response_model=ItemResponseModel[JwtResponseResponseModel],
         description="Endpoint to login a user and receive a JWT token.",
     ),
-    Route(
+    create_route(
         name="session_login_user",
-        path="/login/session",
+        path=_LOGIN_SESSION,
         status_code=200,
         methods=[HttpMethod.POST],
         endpoint=session_login_endpoint,
-        tags=[RouteTag.AUTH],
+        tag=RouteTag.AUTH,
         summary="Login User via Session",
-        deprecated=False,
-        response_model=ItemResponseModel[dict],
+        response_model=ItemResponseModel[SessionResponseModel],
         description="Endpoint to login a user and receive a Session token.",
     ),
 ]
