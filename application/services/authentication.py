@@ -1,7 +1,6 @@
-from domain.value_objects.email import EmailAddress
-
 from application.ports.user_repository import UserRepositoryPort
 from domain.entities.user import User
+from domain.value_objects.email import EmailAddress
 
 
 class AuthenticationService:

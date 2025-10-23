@@ -11,7 +11,7 @@ class JwtPayload:
     sub: str  # user ID
     iat: datetime  # issued at
     exp: datetime  # expiration
-    jti: str = field(default_factory=lambda: str(UUIDId.new().value))
+    jti: str = field(default_factory=lambda: UUIDId.new().to_string())
     iss: str | None = None  # issuer
     aud: str | None = None  # audience
     nbf: datetime | None = None  # not before

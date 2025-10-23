@@ -8,9 +8,9 @@ from application.use_cases.auth_use_cases.register_user_uc import (
 
 
 class RegisterUserController:
-    def __init__(self, register_user_uc: RegisterUserUseCase):
-        self.register_user_uc = register_user_uc
+    def __init__(self, use_case: RegisterUserUseCase):
+        self.use_case = use_case
 
     def execute(self, email: str, password: str) -> dict:
-        user: UserDTO = self.register_user_uc.execute(email, password)
+        user: UserDTO = self.use_case.execute(email, password)
         return RegisteredUserResponseModel.model_validate(user).model_dump()

@@ -9,7 +9,7 @@ from delivery.bootstrap.domain_config_factory import DomainConfigFactory
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
 
 
-class Container:
+class JwtAuthContainer:
     def __init__(self):
         # Repositories
         self.user_repo = get_in_memory_user_repository()
@@ -26,6 +26,3 @@ class Container:
         self.jwt_service = JwtService(
             jwt_cfg=DomainConfigFactory.load_jwt_config()
         )
-
-
-container = Container()

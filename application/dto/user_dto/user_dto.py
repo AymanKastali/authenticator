@@ -18,12 +18,10 @@ class UserDTO:
     @classmethod
     def from_entity(cls, user: User) -> "UserDTO":
         deleted_at = str(user.deleted_at) if user.deleted_at else None
-        hashed_password = (
-            user.hashed_password.value if user.hashed_password else None
-        )
+        hashed_password = user.hashed_password.value if user.hashed_password else None
 
         return cls(
-            uid=str(user.uid.value),
+            uid=user.uid.to_string(),
             email=user.email.value,
             is_active=user.is_active,
             active=user.active,

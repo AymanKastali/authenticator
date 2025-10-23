@@ -11,7 +11,7 @@ class GetRequestUserUseCase:
         self.user_repo = user_repo
 
     def execute(self, user_id: UUID) -> UserDTO:
-        user_id_vo = UUIDId(user_id)
+        user_id_vo = UUIDId.from_uuid(user_id)
         user: User | None = self.user_repo.get_user_by_id(user_id_vo)
         if user is None:
             raise ValueError("User not found")

@@ -9,7 +9,7 @@ class InMemoryUserRepository(UserRepositoryPort):
         self.users: dict[str, User] = {}
 
     def get_user_by_id(self, user_id: UUIDId) -> User | None:
-        return self.users.get(str(user_id.value))
+        return self.users.get(user_id.to_string())
 
     def find_by_email(self, email: EmailAddress) -> User | None:
         return next(

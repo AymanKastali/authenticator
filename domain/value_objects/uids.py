@@ -13,6 +13,17 @@ class UUIDId:
     def new() -> "UUIDId":
         return UUIDId(uuid4())
 
+    @classmethod
+    def from_string(cls, value: str) -> "UUIDId":
+        return cls(UUID(value))
+
+    @classmethod
+    def from_uuid(cls, value: UUID) -> "UUIDId":
+        return cls(value)
+
+    def to_string(self) -> str:
+        return str(self.value)
+
 
 @dataclass(frozen=True)
 class SessionId:
