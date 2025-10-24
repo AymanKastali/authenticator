@@ -40,3 +40,6 @@ class Email:
         """
         cls._validate(email_str)
         return cls(value=email_str)
+
+    def to_string(self) -> str:
+        return self.value

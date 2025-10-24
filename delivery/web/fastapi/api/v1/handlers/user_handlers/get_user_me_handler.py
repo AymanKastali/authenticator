@@ -17,6 +17,7 @@ class GetUserMeHandler:
 
     def execute(self, user_id: UUID) -> ItemResponseModel[UserResponseModel]:
         user: UserResponseModel = self._controller.execute(user_id)
+        print("xxxxx", user)
         return ItemResponseModel[UserResponseModel].build(
             data=user,
             status_code=200,

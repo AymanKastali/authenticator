@@ -5,7 +5,7 @@ from adapters.gateways.authentication.jwt_service import JwtService
 from application.use_cases.user_use_cases.get_request_user_uc import (
     GetRequestUserUseCase,
 )
-from delivery.bootstrap.domain_config_factory import DomainConfigFactory
+from delivery.bootstrap.adapters_config_factory import AdaptersConfigFactory
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
 
 
@@ -24,5 +24,5 @@ class JwtAuthContainer:
 
         # Infrastructure
         self.jwt_service = JwtService(
-            jwt_cfg=DomainConfigFactory.load_jwt_config()
+            jwt_cfg=AdaptersConfigFactory.load_jwt_config()
         )

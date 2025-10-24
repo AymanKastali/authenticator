@@ -1,10 +1,13 @@
-from application.ports.jwt_token_service import JwtTokenServicePort
+from application.ports.jwt_token_service_port import JwtTokenServicePort
 from application.ports.user_repository import UserRepositoryPort
+from domain.entities.jwt_token_payload import JwtTokenPayload
 from domain.entities.user import User
+from domain.utils.date_time_utils import (
+    expires_after_days,
+    expires_after_minutes,
+)
 from domain.value_objects.email import Email
-from domain.value_objects.jwt_claims import JwtClaims
-from domain.value_objects.jwt_payload import JwtPayload
-from domain.value_objects.uids import UUIDId
+from domain.value_objects.jwt_token_type import JwtTokenType
 
 
 class JwtAuthService:
@@ -14,41 +17,41 @@ class JwtAuthService:
         self.user_repo = user_repo
         self.jwt_service = jwt_service
 
-    def authenticate_local(self, email: Email, password: str) -> User | None:
+    def _authenticate_user_local(self, email: Email, password: str) -> User:
         user = self.user_repo.get_user_by_email(email)
         if not user or not user.active or not user.verify_password(password):
-            return None
+            raise ValueError("Invalid credentials")
         return user
 
-    def generate_tokens(
-        self, user_id: UUIDId, claims: JwtClaims | None = None
-    ) -> dict:
-        claims = claims or JwtClaims()
-        return {
-            "access_token": self.jwt_service.generate_access_token(
-                user_id=user_id.to_string(), claims=claims
-            ),
-            "refresh_token": self.jwt_service.generate_refresh_token(
-                user_id=user_id.to_string(), claims=claims
-            ),
-        }
-
-    def refresh_access_token(self, refresh_token: str) -> dict | None:
-        payload: JwtPayload | None = self.jwt_service.verify_refresh_token(
-            refresh_token
+    def generate_access_token(self, user: User) -> str:
+        payload = JwtTokenPayload.create(
+            sub=user.uid,
+            email=user.email,
+            typ=JwtTokenType.ACCESS,
+            roles=list(user.roles),
+            exp=expires_after_minutes(7),
         )
-        if not payload:
-            return None
+        access_token: str = self.jwt_service.sign(payload)
+        return access_token
 
-        claims = JwtClaims(
-            roles=payload.roles or [],
-            email=payload.email,
-            username=payload.username,
-            issuer=payload.iss,
-            audience=payload.aud,
+    def generate_refresh_token(self, user: User) -> str:
+        payload = JwtTokenPayload.create(
+            sub=user.uid,
+            email=user.email,
+            typ=JwtTokenType.REFRESH,
+            roles=list(user.roles),
+            exp=expires_after_days(7),
         )
-        return {
-            "access_token": self.jwt_service.generate_access_token(
-                payload.sub, claims
-            )
-        }
+        refresh_token: str = self.jwt_service.sign(payload)
+        return refresh_token
+
+    def generate_jwt_tokens(self, user: User) -> dict[str, str]:
+        at = self.generate_access_token(user)
+        rt = self.generate_refresh_token(user)
+        return {"access_token": at, "refresh_token": rt}
+
+    def execute(self, email: str, password: str):
+        user: User = self._authenticate_user_local(
+            email=Email.from_string(email), password=password
+        )
+        return self.generate_jwt_tokens(user)

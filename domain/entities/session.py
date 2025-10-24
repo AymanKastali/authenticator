@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from domain.utils.date_time import utc_now
+from domain.utils.date_time_utils import utc_now
 from domain.value_objects.uids import SessionId, UUIDId
 
 

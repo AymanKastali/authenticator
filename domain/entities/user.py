@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from domain.config.config_models import PasswordConfig
-from domain.utils.date_time import utc_now
+from domain.utils.date_time_utils import utc_now
 from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
 from domain.value_objects.role import Role

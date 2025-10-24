@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 
@@ -14,13 +12,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login/jwt")
 def get_current_user(
     token: str = Depends(oauth2_scheme),
 ) -> AuthenticatedUserResponseModel:
-    payload = jwt_auth_container.jwt_service.verify_access_token(token)
+    payload = jwt_auth_container.jwt_service.verify(token)
     if not payload:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
         )
-    user = jwt_auth_container.get_user_controller.execute(UUID(payload.sub))
+    user = jwt_auth_container.get_user_controller.execute(payload.sub.to_uuid())
     return user
 
 

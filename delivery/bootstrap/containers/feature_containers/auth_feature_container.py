@@ -7,11 +7,10 @@ from adapters.controllers.auth_controllers.login_session_controller import (
 from adapters.controllers.auth_controllers.register_user_controller import (
     RegisterUserController,
 )
-from application.ports.jwt_token_service import JwtTokenServicePort
+from application.ports.jwt_token_service_port import JwtTokenServicePort
 from application.services.auth_session import SessionAuthService
 from application.services.authentication import AuthenticationService
 from application.services.jwt_auth_service import JwtAuthService
-from application.use_cases.auth_use_cases.jwt_login_uc import JwtLoginUseCase
 from application.use_cases.auth_use_cases.register_user_uc import (
     RegisterUserUseCase,
 )
@@ -54,9 +53,9 @@ class AuthFeatureContainer:
         self.auth_service = AuthenticationService(user_repo=self.user_repo)
 
         # Use Cases
-        self.jwt_login_uc = JwtLoginUseCase(
-            jwt_auth_service=self.jwt_auth_service
-        )
+        # self.jwt_login_uc = JwtLoginUseCase(
+        #     jwt_auth_service=self.jwt_auth_service
+        # )
         self.session_login_uc = SessionLoginUseCase(
             session_auth_service=self.session_auth_service
         )
@@ -67,7 +66,7 @@ class AuthFeatureContainer:
 
         # Controllers
         self.jwt_login_controller = JwtLoginController(
-            use_case=self.jwt_login_uc
+            service=self.jwt_auth_service
         )
         self.session_login_controller = SessionLoginController(
             use_case=self.session_login_uc

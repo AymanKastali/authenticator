@@ -24,6 +24,9 @@ class UUIDId:
     def to_string(self) -> str:
         return str(self.value)
 
+    def to_uuid(self) -> UUID:
+        return self.value
+
 
 @dataclass(frozen=True)
 class SessionId:
