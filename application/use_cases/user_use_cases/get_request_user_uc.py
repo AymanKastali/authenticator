@@ -14,5 +14,7 @@ class GetRequestUserUseCase:
         if user is None:
             raise ValueError("User not found")
 
-        user_dto: UserDto = UserMapper.to_user_dto_from_persistence(user)
+        user_dto: UserDto = UserMapper.to_user_dto_from_entity_from_persistence(
+            user
+        )
         return user_dto

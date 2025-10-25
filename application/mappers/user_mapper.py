@@ -3,22 +3,14 @@ from datetime import datetime
 from application.dto.user_dto import PersistenceUserDto, PublicUserDto, UserDto
 from domain.entities.user import User
 from domain.value_objects.email import Email
+from domain.value_objects.hashed_password import HashedPassword
 from domain.value_objects.identifiers import UUIDId
 from domain.value_objects.role import Role
 
 
 class UserMapper:
     @staticmethod
-    def to_public_dto(user: User) -> PublicUserDto:
-        return PublicUserDto(
-            uid=user.uid.to_string(),
-            email=user.email.to_string(),
-            active=user.active,
-            verified=user.verified,
-        )
-
-    @staticmethod
-    def to_user_dto(user: User) -> UserDto:
+    def to_user_dto_from_entity(user: User) -> UserDto:
         return UserDto(
             uid=user.uid.to_string(),
             email=user.email.to_string(),
@@ -29,7 +21,7 @@ class UserMapper:
         )
 
     @staticmethod
-    def to_persistence_dto(user: User) -> PersistenceUserDto:
+    def to_persistence_dto_from_entity(user: User) -> PersistenceUserDto:
         return PersistenceUserDto(
             uid=user.uid.to_string(),
             email=user.email.to_string(),
@@ -46,42 +38,47 @@ class UserMapper:
 
     @staticmethod
     def to_public_dto_from_persistence(
-        user: PersistenceUserDto,
+        dto: PersistenceUserDto,
     ) -> PublicUserDto:
         return PublicUserDto(
-            uid=user.uid,
-            email=user.email,
-            active=user.active,
-            verified=user.verified,
+            uid=dto.uid,
+            email=dto.email,
+            active=dto.active,
+            verified=dto.verified,
         )
 
     @staticmethod
-    def to_user_dto_from_persistence(user: PersistenceUserDto) -> UserDto:
+    def to_user_dto_from_entity_from_persistence(
+        dto: PersistenceUserDto,
+    ) -> UserDto:
         return UserDto(
-            uid=user.uid,
-            email=user.email,
-            active=user.active,
-            verified=user.verified,
-            created_at=user.created_at,
-            updated_at=user.updated_at,
+            uid=dto.uid,
+            email=dto.email,
+            active=dto.active,
+            verified=dto.verified,
+            created_at=dto.created_at,
+            updated_at=dto.updated_at,
         )
 
     @staticmethod
-    def to_entity_from_persistence(user: PersistenceUserDto) -> User:
+    def to_entity_from_persistence(dto: PersistenceUserDto) -> User:
         """
         Convert a PersistenceUserDto back into a domain User entity.
         """
         return User(
-            uid=UUIDId.from_string(user.uid),
-            email=Email.from_string(user.email),
-            active=user.active,
-            verified=user.verified,
-            created_at=datetime.fromisoformat(user.created_at),
-            updated_at=datetime.fromisoformat(user.updated_at),
-            deleted_at=datetime.fromisoformat(user.deleted_at)
-            if user.deleted_at
+            uid=UUIDId.from_string(dto.uid),
+            email=Email.from_string(dto.email),
+            hashed_password=HashedPassword(dto.hashed_password)
+            if dto.hashed_password
             else None,
-            roles=[Role[name] for name in user.roles]
-            if user.roles
+            active=dto.active,
+            verified=dto.verified,
+            created_at=datetime.fromisoformat(dto.created_at),
+            updated_at=datetime.fromisoformat(dto.updated_at),
+            deleted_at=datetime.fromisoformat(dto.deleted_at)
+            if dto.deleted_at
+            else None,
+            roles=[Role[name] for name in dto.roles]
+            if dto.roles
             else [Role.USER],
         )

@@ -7,17 +7,23 @@ from adapters.controllers.auth_controllers.login_session_controller import (
 from adapters.controllers.auth_controllers.register_user_controller import (
     RegisterUserController,
 )
+from adapters.validators.password_validators.complexity_password_validator import (
+    ComplexityPasswordValidator,
+)
+from adapters.validators.password_validators.length_password_validator import (
+    LengthPasswordValidator,
+)
 from application.ports.jwt_token_service_port import JwtTokenServicePort
 from application.services.auth_session import SessionAuthService
 from application.services.authentication import AuthenticationService
 from application.services.jwt_auth_service import JwtAuthService
+from application.services.password_service import PasswordService
 from application.use_cases.auth_use_cases.register_user_uc import (
     RegisterUserUseCase,
 )
 from application.use_cases.auth_use_cases.session_login_uc import (
     SessionLoginUseCase,
 )
-from delivery.bootstrap.domain_config_factory import DomainConfigFactory
 from delivery.db.in_memory.repositories import (
     get_in_memory_session_repository,
     get_in_memory_user_repository,
@@ -51,17 +57,18 @@ class AuthFeatureContainer:
             session_repo=self.session_repo,
         )
         self.auth_service = AuthenticationService(user_repo=self.user_repo)
+        validators = [
+            LengthPasswordValidator(min_length=8, max_length=128),
+            ComplexityPasswordValidator(),
+        ]
+        self.password_service = PasswordService(validators=validators)
 
         # Use Cases
-        # self.jwt_login_uc = JwtLoginUseCase(
-        #     jwt_auth_service=self.jwt_auth_service
-        # )
         self.session_login_uc = SessionLoginUseCase(
             session_auth_service=self.session_auth_service
         )
         self.register_user_uc = RegisterUserUseCase(
-            user_repo=self.user_repo,
-            password_cfg=DomainConfigFactory.load_password_config(),
+            user_repo=self.user_repo, password_service=self.password_service
         )
 
         # Controllers

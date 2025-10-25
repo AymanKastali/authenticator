@@ -1,18 +1,19 @@
-from application.dto.user_dto import PersistenceUserDto, UserDto
+from application.dto.user_dto import UserDto
 from application.mappers.user_mapper import UserMapper
 from application.ports.user_repository import UserRepositoryPort
-from domain.config.config_models import PasswordConfig
+from application.services.password_service import PasswordService
 from domain.entities.user import User
 from domain.exceptions.domain_exceptions import InvalidValueError
 from domain.value_objects.email import Email
+from domain.value_objects.hashed_password import HashedPassword
 
 
 class RegisterUserUseCase:
     def __init__(
-        self, user_repo: UserRepositoryPort, password_cfg: PasswordConfig
+        self, user_repo: UserRepositoryPort, password_service: PasswordService
     ):
-        self.user_repo = user_repo
-        self.password_cfg = password_cfg
+        self._user_repo = user_repo
+        self._password_service = password_service
 
     def _validate_email(self, email: str) -> Email:
         try:
@@ -21,23 +22,26 @@ class RegisterUserUseCase:
             raise ValueError(f"Invalid email: {e}") from e
 
     def _ensure_email_available(self, email: str) -> None:
-        if self.user_repo.get_user_by_email(email):
+        if self._user_repo.get_user_by_email(email):
             raise ValueError(f"Email '{email}' is already registered.")
 
-    def _create_user(self, email_vo: Email, password: str) -> User:
+    def _create_user(
+        self, email_vo: Email, hashed_password: HashedPassword
+    ) -> User:
         return User.register_local(
-            email=email_vo, password=password, password_cfg=self.password_cfg
+            email=email_vo, hashed_password=hashed_password
         )
-
-    def _save_user(self, user: PersistenceUserDto) -> None:
-        self.user_repo.save(user)
-
-    def _to_dto(self, user: User) -> UserDto:
-        return UserMapper.to_user_dto(user)
 
     def execute(self, email: str, password: str) -> UserDto:
         self._ensure_email_available(email)
-        email_vo: Email = self._validate_email(email)
-        user: User = self._create_user(email_vo, password)
-        self._save_user(UserMapper.to_persistence_dto(user))
-        return self._to_dto(user)
+        email_vo = self._validate_email(email)
+
+        hashed_password = self._password_service.create_hashed_password(
+            password
+        )
+
+        user = self._create_user(email_vo, hashed_password)
+
+        self._user_repo.save(UserMapper.to_persistence_dto_from_entity(user))
+
+        return UserMapper.to_user_dto_from_entity(user)

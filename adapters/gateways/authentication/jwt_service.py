@@ -13,7 +13,7 @@ class JwtService(JwtTokenServicePort):
     def sign(self, payload: JwtTokenPayloadDto) -> str:
         token = encode(
             payload=JwtTokenPayloadMapper.to_dict_from_dto(payload),
-            key=self.jwt_cfg.secret_key,
+            key=self.jwt_cfg.secret_key.get_secret_value(),
             algorithm=self.jwt_cfg.algorithm,
         )
         return token
@@ -33,7 +33,7 @@ class JwtService(JwtTokenServicePort):
 
             decoded = decode(
                 jwt=token,
-                key=self.jwt_cfg.secret_key,
+                key=self.jwt_cfg.secret_key.get_secret_value(),
                 algorithms=[self.jwt_cfg.algorithm],
                 audience=self.jwt_cfg.audience
                 if self.jwt_cfg.audience
