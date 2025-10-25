@@ -1,13 +1,13 @@
-from adapters.presenters.response_models.jwt_response_model import (
+from adapters.dto.response_dto.jwt_response_model import (
     JwtResponseResponseModel,
 )
-from adapters.presenters.response_models.session_response_model import (
+from adapters.dto.response_dto.session_response_model import (
     SessionResponseModel,
 )
-from adapters.presenters.response_models.success_item_response_model import (
+from adapters.dto.response_dto.success_item_response_model import (
     ItemResponseModel,
 )
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     RegisteredUserResponseModel,
 )
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod

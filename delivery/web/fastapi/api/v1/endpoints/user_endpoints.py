@@ -3,7 +3,7 @@ from uuid import UUID
 
 from fastapi import Depends, Request
 
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     AuthenticatedUserResponseModel,
 )
 from delivery.bootstrap.containers import (
@@ -21,7 +21,7 @@ async def get_me_endpoint(
     ],
     handler=Depends(lambda: user_container.get_user_me_handler),
 ):
-    return handler.execute(user_id=current_user.uid_as_uuid())
+    return handler.execute(user_id=current_user.as_uuid())
 
 
 async def get_user_by_id_endpoint(

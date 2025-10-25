@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from adapters.presenters.response_models.jwt_response_model import (
+from adapters.dto.response_dto.jwt_response_model import (
     JwtResponseResponseModel,
 )
 from application.services.jwt_auth_service import JwtAuthService

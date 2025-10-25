@@ -1,13 +1,13 @@
 from abc import ABC, abstractmethod
 
-from domain.entities.jwt_token_payload import JwtTokenPayload
+from application.dto.jwt_dto import JwtTokenPayloadDto
 
 
 class JwtTokenServicePort(ABC):
     """Port for token generation and verification."""
 
     @abstractmethod
-    def sign(self, payload: JwtTokenPayload) -> str: ...
+    def sign(self, payload: JwtTokenPayloadDto) -> str: ...
 
     @abstractmethod
-    def verify(self, token: str) -> JwtTokenPayload: ...
+    def verify(self, token: str) -> JwtTokenPayloadDto: ...

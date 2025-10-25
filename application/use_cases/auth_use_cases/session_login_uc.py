@@ -1,6 +1,5 @@
 from application.services.auth_session import SessionAuthService
 from domain.entities.user import User
-from domain.value_objects.email import Email
 
 
 class SessionLoginUseCase:
@@ -13,7 +12,7 @@ class SessionLoginUseCase:
         Returns session ID if successful, else None.
         """
         user: User | None = self.session_auth_service.authenticate_local(
-            Email(email), password
+            email, password
         )
         if not user:
             return None

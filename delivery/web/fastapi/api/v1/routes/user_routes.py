@@ -1,10 +1,10 @@
-from adapters.presenters.response_models.success_item_response_model import (
+from adapters.dto.response_dto.success_item_response_model import (
     ItemResponseModel,
 )
-from adapters.presenters.response_models.success_paginated_response_model import (
+from adapters.dto.response_dto.success_paginated_response_model import (
     PaginatedResponseModel,
 )
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     PublicUserResponseModel,
     UserResponseModel,
 )

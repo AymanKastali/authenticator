@@ -3,10 +3,10 @@ from uuid import UUID
 from adapters.controllers.user_controllers.get_user_me_controller import (
     GetUserMeController,
 )
-from adapters.presenters.response_models.success_item_response_model import (
+from adapters.dto.response_dto.success_item_response_model import (
     ItemResponseModel,
 )
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     UserResponseModel,
 )
 
@@ -17,7 +17,6 @@ class GetUserMeHandler:
 
     def execute(self, user_id: UUID) -> ItemResponseModel[UserResponseModel]:
         user: UserResponseModel = self._controller.execute(user_id)
-        print("xxxxx", user)
         return ItemResponseModel[UserResponseModel].build(
             data=user,
             status_code=200,

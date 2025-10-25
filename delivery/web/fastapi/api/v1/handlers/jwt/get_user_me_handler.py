@@ -3,7 +3,7 @@ from uuid import UUID
 from adapters.controllers.jwt.get_request_user_controller import (
     GetRequestUserController,
 )
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     AuthenticatedUserResponseModel,
 )
 

@@ -1,6 +1,6 @@
 from fastapi import Depends, Request, Response
 
-from adapters.presenters.request_models.login_user_model import LoginUserModel
+from adapters.dto.request_dto.login_user_model import LoginUserModel
 from delivery.bootstrap.containers import (
     feature_auth_container as auth_controller,
 )

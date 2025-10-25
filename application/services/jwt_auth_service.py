@@ -1,12 +1,16 @@
+from application.dto.user_dto import PersistenceUserDto
+from application.mappers.jwt_mapper import JwtTokenPayloadMapper
+from application.mappers.user_mapper import UserMapper
 from application.ports.jwt_token_service_port import JwtTokenServicePort
 from application.ports.user_repository import UserRepositoryPort
+
+# from domain.entities.user import User
 from domain.entities.jwt_token_payload import JwtTokenPayload
 from domain.entities.user import User
 from domain.utils.date_time_utils import (
     expires_after_days,
     expires_after_minutes,
 )
-from domain.value_objects.email import Email
 from domain.value_objects.jwt_token_type import JwtTokenType
 
 
@@ -17,9 +21,18 @@ class JwtAuthService:
         self.user_repo = user_repo
         self.jwt_service = jwt_service
 
-    def _authenticate_user_local(self, email: Email, password: str) -> User:
-        user = self.user_repo.get_user_by_email(email)
-        if not user or not user.active or not user.verify_password(password):
+    def _authenticate_user_local(
+        self, email: str, password: str
+    ) -> PersistenceUserDto:
+        user: PersistenceUserDto | None = self.user_repo.get_user_by_email(
+            email
+        )
+
+        if user is None:
+            raise ValueError("User Not Found")
+
+        user_entity: User = UserMapper.to_entity_from_persistence(user)
+        if not user.active or user_entity.verify_password(password):
             raise ValueError("Invalid credentials")
         return user
 
@@ -31,7 +44,8 @@ class JwtAuthService:
             roles=list(user.roles),
             exp=expires_after_minutes(7),
         )
-        access_token: str = self.jwt_service.sign(payload)
+        payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
+        access_token: str = self.jwt_service.sign(payload_dto)
         return access_token
 
     def generate_refresh_token(self, user: User) -> str:
@@ -42,7 +56,8 @@ class JwtAuthService:
             roles=list(user.roles),
             exp=expires_after_days(7),
         )
-        refresh_token: str = self.jwt_service.sign(payload)
+        payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
+        refresh_token: str = self.jwt_service.sign(payload_dto)
         return refresh_token
 
     def generate_jwt_tokens(self, user: User) -> dict[str, str]:
@@ -51,7 +66,8 @@ class JwtAuthService:
         return {"access_token": at, "refresh_token": rt}
 
     def execute(self, email: str, password: str):
-        user: User = self._authenticate_user_local(
-            email=Email.from_string(email), password=password
+        user: PersistenceUserDto = self._authenticate_user_local(
+            email=email, password=password
         )
-        return self.generate_jwt_tokens(user)
+        user_entity: User = UserMapper.to_entity_from_persistence(user)
+        return self.generate_jwt_tokens(user_entity)

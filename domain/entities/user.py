@@ -5,8 +5,8 @@ from domain.config.config_models import PasswordConfig
 from domain.utils.date_time_utils import utc_now
 from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
+from domain.value_objects.identifiers import UUIDId
 from domain.value_objects.role import Role
-from domain.value_objects.uids import UUIDId
 
 
 @dataclass(kw_only=True)

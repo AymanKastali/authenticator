@@ -3,9 +3,9 @@ from datetime import datetime
 
 from domain.utils.date_time_utils import make_aware, utc_now
 from domain.value_objects.email import Email
+from domain.value_objects.identifiers import UUIDId
 from domain.value_objects.jwt_token_type import JwtTokenType
 from domain.value_objects.role import Role
-from domain.value_objects.uids import UUIDId
 
 
 @dataclass(frozen=True, kw_only=True)

@@ -3,11 +3,11 @@ from fastapi import Response
 from adapters.controllers.auth_controllers.login_session_controller import (
     SessionLoginController,
 )
-from adapters.presenters.request_models.login_user_model import LoginUserModel
-from adapters.presenters.response_models.session_response_model import (
+from adapters.dto.request_dto.login_user_model import LoginUserModel
+from adapters.dto.response_dto.session_response_model import (
     SessionResponseModel,
 )
-from adapters.presenters.response_models.success_item_response_model import (
+from adapters.dto.response_dto.success_item_response_model import (
     ItemResponseModel,
 )
 

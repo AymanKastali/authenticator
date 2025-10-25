@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from domain.utils.date_time_utils import utc_now
-from domain.value_objects.uids import SessionId, UUIDId
+from domain.value_objects.identifiers import SessionId, UUIDId
 
 
 @dataclass(kw_only=True)

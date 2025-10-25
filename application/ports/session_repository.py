@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from domain.entities.session import Session
-from domain.value_objects.uids import UUIDId
+from domain.value_objects.identifiers import UUIDId
 
 
 class SessionRepositoryPort(ABC):

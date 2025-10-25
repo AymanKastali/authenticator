@@ -1,15 +1,15 @@
-from application.dto.user_dto.public_user_dto import PublicUserDTO
+from application.dto.user_dto import PersistenceUserDto, PublicUserDto
+from application.mappers.user_mapper import UserMapper
 from application.ports.user_repository import UserRepositoryPort
-from domain.entities.user import User
 
 
 class GetAllUsersUseCase:
     def __init__(self, user_repo: UserRepositoryPort):
         self.user_repo = user_repo
 
-    def execute(self) -> list[PublicUserDTO]:
-        users: list[User] = self.user_repo.get_all_users()
-        users_dto: list[PublicUserDTO] = [
-            PublicUserDTO.from_entity(user) for user in users
+    def execute(self) -> list[PublicUserDto]:
+        users: list[PersistenceUserDto] = self.user_repo.get_all_users()
+        users_dto: list[PublicUserDto] = [
+            UserMapper.to_public_dto_from_persistence(user) for user in users
         ]
         return users_dto

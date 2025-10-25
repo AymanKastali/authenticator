@@ -1,7 +1,7 @@
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from adapters.presenters.response_models.error_response_model import (
+from adapters.dto.response_dto.error_response_model import (
     ErrorResponseModel,
 )
 

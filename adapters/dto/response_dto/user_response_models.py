@@ -41,5 +41,5 @@ class AuthenticatedUserResponseModel(BaseModel):
     updated_at: str
     deleted_at: str | None = None
 
-    def uid_as_uuid(self) -> UUID:
+    def as_uuid(self) -> UUID:
         return UUID(self.uid)

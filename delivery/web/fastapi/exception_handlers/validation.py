@@ -3,7 +3,7 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from adapters.presenters.response_models.error_response_model import (
+from adapters.dto.response_dto.error_response_model import (
     ErrorResponseModel,
 )
 

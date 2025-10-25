@@ -1,24 +1,26 @@
 from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 
 from adapters.config.jwt_config import JwtConfig
-from application.dto.jwt_dto import JwtTokenPayloadDTO
+from application.dto.jwt_dto import JwtTokenPayloadDto
+from application.mappers.jwt_mapper import JwtTokenPayloadMapper
 from application.ports.jwt_token_service_port import JwtTokenServicePort
-from domain.entities.jwt_token_payload import JwtTokenPayload
 
 
 class JwtService(JwtTokenServicePort):
     def __init__(self, jwt_cfg: JwtConfig):
         self.jwt_cfg = jwt_cfg
 
-    def sign(self, payload: JwtTokenPayload) -> str:
+    def sign(self, payload: JwtTokenPayloadDto) -> str:
         token = encode(
-            payload=JwtTokenPayloadDTO.entity_to_dict(payload),
+            payload=JwtTokenPayloadMapper.to_dict_from_dto(payload),
             key=self.jwt_cfg.secret_key,
             algorithm=self.jwt_cfg.algorithm,
         )
         return token
 
-    def verify(self, token: str, subject: str | None = None) -> JwtTokenPayload:
+    def verify(
+        self, token: str, subject: str | None = None
+    ) -> JwtTokenPayloadDto:
         try:
             options = {
                 "verify_signature": True,
@@ -47,4 +49,4 @@ class JwtService(JwtTokenServicePort):
             print("exc: ", exc)
             raise Exception("Invalid token") from exc
 
-        return JwtTokenPayloadDTO.dict_to_entity(decoded)
+        return JwtTokenPayloadMapper.to_dto_from_dict(decoded)

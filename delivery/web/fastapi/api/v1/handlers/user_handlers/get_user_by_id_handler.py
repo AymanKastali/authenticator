@@ -3,10 +3,10 @@ from uuid import UUID
 from adapters.controllers.user_controllers.get_user_by_id_controller import (
     GetUserByIdController,
 )
-from adapters.presenters.response_models.success_item_response_model import (
+from adapters.dto.response_dto.success_item_response_model import (
     ItemResponseModel,
 )
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     PublicUserResponseModel,
 )
 

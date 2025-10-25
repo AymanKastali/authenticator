@@ -1,7 +1,7 @@
-from adapters.presenters.response_models.user_response_models import (
+from adapters.dto.response_dto.user_response_models import (
     RegisteredUserResponseModel,
 )
-from application.dto.user_dto.user_dto import UserDTO
+from application.dto.user_dto import UserDto
 from application.use_cases.auth_use_cases.register_user_uc import (
     RegisterUserUseCase,
 )
@@ -12,5 +12,5 @@ class RegisterUserController:
         self.use_case = use_case
 
     def execute(self, email: str, password: str) -> RegisteredUserResponseModel:
-        user: UserDTO = self.use_case.execute(email, password)
+        user: UserDto = self.use_case.execute(email, password)
         return RegisteredUserResponseModel.model_validate(user)

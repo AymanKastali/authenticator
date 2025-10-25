@@ -1,6 +1,6 @@
 from fastapi import HTTPException
 
-from adapters.presenters.response_models.session_response_model import (
+from adapters.dto.response_dto.session_response_model import (
     SessionResponseModel,
 )
 from application.use_cases.auth_use_cases.session_login_uc import (

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 from application.ports.session_repository import SessionRepositoryPort
 from domain.entities.session import Session
-from domain.value_objects.uids import SessionId, UUIDId
+from domain.value_objects.identifiers import SessionId, UUIDId
 
 
 class InMemorySessionRepository(SessionRepositoryPort):
