@@ -2,7 +2,7 @@ import re
 from dataclasses import dataclass
 from typing import ClassVar
 
-from domain.exceptions.domain_exceptions import InvalidValueError
+from domain.exceptions.domain_errors import InvalidValueError
 
 
 @dataclass(frozen=True)

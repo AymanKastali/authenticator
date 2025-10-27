@@ -3,7 +3,7 @@ from application.mappers.user_mapper import UserMapper
 from application.ports.user_repository import UserRepositoryPort
 from application.services.password_service import PasswordService
 from domain.entities.user import User
-from domain.exceptions.domain_exceptions import InvalidValueError
+from domain.exceptions.domain_errors import InvalidValueError
 from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
 

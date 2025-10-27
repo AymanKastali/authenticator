@@ -1,4 +1,4 @@
-from http.client import HTTPException
+from http.client import HTTPException as HTTPClientException
 
 from fastapi.exceptions import (
     RequestValidationError,
@@ -7,47 +7,56 @@ from fastapi.exceptions import (
 from pydantic import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from adapters.exceptions.adapters_errors import (
+    AdaptersError,
+    DatabaseConnectionError,
+    JWTExpiredError,
+    JWTInvalidError,
+)
 from delivery.web.fastapi.exception_handlers.architecture import (
     architecture_exception_handler,
 )
-from delivery.web.fastapi.exception_handlers.built_in import (
-    bad_request_exception_handler,
-    file_not_found_exception_handler,
-    not_implemented_exception_handler,
-    permission_exception_handler,
+from delivery.web.fastapi.exception_handlers.generic import (
+    generic_exception_handler,
 )
 from delivery.web.fastapi.exception_handlers.http import (
     http_exception_handler,
-)
-from delivery.web.fastapi.exception_handlers.internal import (
-    internal_server_exception_handler,
 )
 from delivery.web.fastapi.exception_handlers.validation import (
     response_validation_handler,
     validation_exception_handler,
 )
-from domain.exceptions.domain_exceptions import DomainError
+from domain.exceptions.domain_errors import (
+    DomainError,
+    DomainRuleViolationError,
+)
 
 EXCEPTION_HANDLERS = {
-    # Standard Python Exceptions (400)
-    ValueError: bad_request_exception_handler,
-    TypeError: bad_request_exception_handler,
-    KeyError: bad_request_exception_handler,
-    IndexError: bad_request_exception_handler,
-    ZeroDivisionError: bad_request_exception_handler,
-    # Standard Python Exceptions (Other)
-    PermissionError: permission_exception_handler,
-    FileNotFoundError: file_not_found_exception_handler,
-    NotImplementedError: not_implemented_exception_handler,
-    AttributeError: internal_server_exception_handler,  # Treat as 500 error
-    # Custom Application Exceptions
-    DomainError: architecture_exception_handler,
-    # FastAPI / Pydantic Exceptions
-    HTTPException: http_exception_handler,
-    StarletteHTTPException: http_exception_handler,
-    ValidationError: validation_exception_handler,
-    RequestValidationError: validation_exception_handler,
-    ResponseValidationError: response_validation_handler,
-    # Generic Fallback (Catches all unhandled Exception types)
-    Exception: internal_server_exception_handler,
+    # 1. Adapter errors
+    JWTExpiredError: http_exception_handler,  # 401 → could use custom handler if needed
+    JWTInvalidError: http_exception_handler,  # 401
+    DatabaseConnectionError: generic_exception_handler,  # 500
+    AdaptersError: architecture_exception_handler,  # 400 fallback
+    # 2. Domain errors
+    DomainRuleViolationError: architecture_exception_handler,  # 403
+    DomainError: architecture_exception_handler,  # 400 fallback
+    # 3. Validation errors
+    ValidationError: validation_exception_handler,  # 422
+    RequestValidationError: validation_exception_handler,  # 422
+    ResponseValidationError: response_validation_handler,  # 500
+    # 4. Delivery / HTTP errors
+    HTTPClientException: http_exception_handler,  # 500
+    StarletteHTTPException: http_exception_handler,  # 500
+    # 5. Standard Python exceptions (client errors first)
+    ValueError: generic_exception_handler,  # 400
+    TypeError: generic_exception_handler,  # 400
+    KeyError: generic_exception_handler,  # 400
+    IndexError: generic_exception_handler,  # 400
+    PermissionError: generic_exception_handler,  # 403
+    FileNotFoundError: generic_exception_handler,  # 404
+    NotImplementedError: generic_exception_handler,  # 501
+    ZeroDivisionError: generic_exception_handler,  # 500
+    AttributeError: generic_exception_handler,  # 500
+    # 6. Generic fallback
+    Exception: generic_exception_handler,  # 500
 }

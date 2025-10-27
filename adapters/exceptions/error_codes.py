@@ -1,0 +1,13 @@
+from enum import StrEnum
+
+
+class AdaptersErrorCodeEnum(StrEnum):
+    """Machine-readable error codes for adapter-level errors."""
+
+    GENERAL = "ADAPTER_GENERAL_ERROR"
+    JWT_EXPIRED = "ADAPTER_JWT_EXPIRED"
+    JWT_INVALID = "ADAPTER_JWT_INVALID"
+    DB_CONNECTION = "ADAPTER_DB_CONNECTION_ERROR"
+    DB_INTEGRITY = "ADAPTER_DB_INTEGRITY_ERROR"
+    DB_NOT_FOUND = "ADAPTER_DB_NOT_FOUND"
+    DB_OPERATION = "ADAPTER_DB_OPERATION_ERROR"

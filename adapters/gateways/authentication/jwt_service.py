@@ -1,6 +1,7 @@
 from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 
 from adapters.config.jwt_config import JwtConfig
+from adapters.exceptions.adapters_errors import JWTExpiredError, JWTInvalidError
 from application.dto.jwt_dto import JwtTokenPayloadDto
 from application.mappers.jwt_mapper import JwtTokenPayloadMapper
 from application.ports.jwt_token_service_port import JwtTokenServicePort
@@ -18,9 +19,7 @@ class JwtService(JwtTokenServicePort):
         )
         return token
 
-    def verify(
-        self, token: str, subject: str | None = None
-    ) -> JwtTokenPayloadDto:
+    def verify(self, token: str, subject: str | None = None) -> JwtTokenPayloadDto:
         try:
             options = {
                 "verify_signature": True,
@@ -35,18 +34,15 @@ class JwtService(JwtTokenServicePort):
                 jwt=token,
                 key=self.jwt_cfg.secret_key.get_secret_value(),
                 algorithms=[self.jwt_cfg.algorithm],
-                audience=self.jwt_cfg.audience
-                if self.jwt_cfg.audience
-                else None,
+                audience=self.jwt_cfg.audience if self.jwt_cfg.audience else None,
                 issuer=self.jwt_cfg.issuer if self.jwt_cfg.issuer else None,
                 subject=subject,
                 leeway=self.jwt_cfg.leeway,
                 options=options,
             )
-        except ExpiredSignatureError as exc:
-            raise Exception("Token expired") from exc
-        except InvalidTokenError as exc:
-            print("exc: ", exc)
-            raise Exception("Invalid token") from exc
+        except ExpiredSignatureError as e:
+            raise JWTExpiredError() from e
+        except InvalidTokenError as e:
+            raise JWTInvalidError(message=str(e)) from e
 
         return JwtTokenPayloadMapper.to_dto_from_dict(decoded)

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from domain.exceptions.domain_exceptions import PasswordError
+from domain.exceptions.domain_errors import PasswordError
 
 
 class AbstractPasswordValidator(ABC):

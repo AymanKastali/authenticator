@@ -1,0 +1,7 @@
+from enum import StrEnum
+
+
+class ApplicationErrorCodeEnum(StrEnum):
+    GENERAL = "APP_GENERAL"
+    SERVICE_EXECUTION_ERROR = "APP_SERVICE_EXECUTION_ERROR"
+    TRANSACTION_FAILED = "APP_TRANSACTION_FAILED"

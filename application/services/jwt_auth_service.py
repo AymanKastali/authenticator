@@ -5,10 +5,7 @@ from application.ports.jwt_token_service_port import JwtTokenServicePort
 from application.ports.user_repository import UserRepositoryPort
 from domain.entities.jwt_token_payload import JwtTokenPayload
 from domain.entities.user import User
-from domain.utils.date_time_utils import (
-    expires_after_days,
-    expires_after_minutes,
-)
+from domain.utils.date_time_utils import expires_after
 from domain.value_objects.jwt_token_type import JwtTokenType
 
 
@@ -46,7 +43,7 @@ class JwtAuthService:
             email=user.email,
             typ=JwtTokenType.ACCESS,
             roles=list(user.roles),
-            exp=expires_after_minutes(7),
+            exp=expires_after(minutes=30),
         )
         payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
         return self._jwt_service.sign(payload_dto)
@@ -57,7 +54,7 @@ class JwtAuthService:
             email=user.email,
             typ=JwtTokenType.REFRESH,
             roles=list(user.roles),
-            exp=expires_after_days(7),
+            exp=expires_after(days=7),
         )
         payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
         return self._jwt_service.sign(payload_dto)
