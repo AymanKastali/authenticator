@@ -1,15 +1,15 @@
-from adapters.controllers.auth_controllers.login_session_controller import (
+from adapters.controllers.auth.session.login import (
     SessionLoginController,
 )
 from application.services.auth_session import SessionAuthService
-from application.use_cases.auth_use_cases.session_login_uc import (
+from application.use_cases.auth.session.login import (
     SessionLoginUseCase,
 )
 from delivery.db.in_memory.repositories import (
     get_in_memory_session_repository,
     get_in_memory_user_repository,
 )
-from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_session_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth.session.login import (
     SessionLoginHandler,
 )
 

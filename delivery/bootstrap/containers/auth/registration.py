@@ -1,4 +1,4 @@
-from adapters.controllers.auth_controllers.register_user_controller import (
+from adapters.controllers.auth.registration.register import (
     RegisterUserController,
 )
 from adapters.validators.password_validators.complexity_password_validator import (
@@ -8,11 +8,11 @@ from adapters.validators.password_validators.length_password_validator import (
     LengthPasswordValidator,
 )
 from application.services.password_service import PasswordService
-from application.use_cases.auth_use_cases.register_user_uc import (
+from application.use_cases.auth.registration.register import (
     RegisterUserUseCase,
 )
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
-from delivery.web.fastapi.api.v1.handlers.auth_handlers.register_user_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
     RegisterUserHandler,
 )
 

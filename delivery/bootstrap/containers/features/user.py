@@ -1,28 +1,16 @@
-from adapters.controllers.user_controllers.get_all_users_controller import (
-    GetAllUsersController,
-)
-from adapters.controllers.user_controllers.get_user_by_id_controller import (
-    GetUserByIdController,
-)
-from adapters.controllers.user_controllers.get_user_me_controller import (
-    GetUserMeController,
-)
-from application.use_cases.user_use_cases.get_all_users_uc import (
-    GetAllUsersUseCase,
-)
-from application.use_cases.user_use_cases.get_user_by_id_uc import (
-    GetUserByIdUseCase,
-)
-from application.use_cases.user_use_cases.get_user_me_uc import GetUserMeUseCase
+from adapters.controllers.user.get_all import GetAllUsersController
+from adapters.controllers.user.get_by_id import GetUserByIdController
+from adapters.controllers.user.get_me import GetRequestUserController
+from application.use_cases.user.get_all import GetAllUsersUseCase
+from application.use_cases.user.get_by_id import GetUserByIdUseCase
+from application.use_cases.user.get_request_user import GetRequestUserUseCase
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
-from delivery.web.fastapi.api.v1.handlers.user_handlers.get_all_users_handler import (
-    GetAllUsersHandler,
-)
-from delivery.web.fastapi.api.v1.handlers.user_handlers.get_user_by_id_handler import (
+from delivery.web.fastapi.api.v1.handlers.user.get_all import GetAllUsersHandler
+from delivery.web.fastapi.api.v1.handlers.user.get_by_id import (
     GetUserByIdHandler,
 )
-from delivery.web.fastapi.api.v1.handlers.user_handlers.get_user_me_handler import (
-    GetUserMeHandler,
+from delivery.web.fastapi.api.v1.handlers.user.get_me import (
+    GetRequestUserHandler,
 )
 
 
@@ -34,7 +22,9 @@ class UserFeatureContainer:
         # Use cases
         self.get_user_by_id_uc = GetUserByIdUseCase(user_repo=self.user_repo)
         self.get_all_users_uc = GetAllUsersUseCase(user_repo=self.user_repo)
-        self.get_user_me_uc = GetUserMeUseCase(user_repo=self.user_repo)
+        self.get_request_user_uc = GetRequestUserUseCase(
+            user_repo=self.user_repo
+        )
 
         # Controllers
         self.get_user_by_id_controller = GetUserByIdController(
@@ -43,8 +33,8 @@ class UserFeatureContainer:
         self.get_all_users_controller = GetAllUsersController(
             use_case=self.get_all_users_uc
         )
-        self.get_user_me_controller = GetUserMeController(
-            use_case=self.get_user_me_uc
+        self.get_request_user_controller = GetRequestUserController(
+            use_case=self.get_request_user_uc
         )
 
         # Handlers
@@ -54,6 +44,6 @@ class UserFeatureContainer:
         self.get_all_users_handler = GetAllUsersHandler(
             controller=self.get_all_users_controller
         )
-        self.get_user_me_handler = GetUserMeHandler(
-            controller=self.get_user_me_controller
+        self.get_request_user_handler = GetRequestUserHandler(
+            controller=self.get_request_user_controller
         )

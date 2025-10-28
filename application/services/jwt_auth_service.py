@@ -87,3 +87,11 @@ class JwtAuthService:
         user: User = UserMapper.to_entity_from_persistence(user_persistence_dto)
 
         return self._generate_jwt_tokens(user)
+
+    def verify_jwt_token(
+        self, token: str, subject: str | None = None
+    ) -> JwtTokenPayloadDto:
+        jwt_token_payload_dto: JwtTokenPayloadDto = self._jwt_service.verify(
+            token, subject
+        )
+        return jwt_token_payload_dto

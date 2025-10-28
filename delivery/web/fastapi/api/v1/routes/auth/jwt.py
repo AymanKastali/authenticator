@@ -1,0 +1,76 @@
+from adapters.dto.response_dto.jwt_response_model import (
+    JwtResponseResponseModel,
+    JwtTokenPayloadOutDto,
+)
+from adapters.dto.response_dto.success_item_response_model import (
+    ItemResponseModel,
+)
+from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
+from delivery.web.fastapi.api.metadata.route_tags import RouteTag
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.login import (
+    jwt_login_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.refresh_token import (
+    refresh_jwt_token_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.verify_token import (
+    verify_jwt_token_endpoint,
+)
+from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
+
+_LOGIN = "/jwt/login"
+_REFRESH_TOKEN = "/jwt/token/refresh"
+_VERIFY_TOKEN = "/jwt/token/verify"
+
+routes = [
+    create_route(
+        name="jwt_login_user",
+        path=_LOGIN,
+        status_code=200,
+        methods=[HttpMethod.POST],
+        endpoint=jwt_login_endpoint,
+        tag=RouteTag.AUTH,
+        summary="Login User via JWT",
+        response_model=ItemResponseModel[JwtResponseResponseModel],
+        description="Endpoint to login a user and receive a JWT tokens.",
+    ),
+    create_route(
+        name="jwt_refresh_token",
+        path=_REFRESH_TOKEN,
+        status_code=200,
+        methods=[HttpMethod.POST],
+        endpoint=refresh_jwt_token_endpoint,
+        tag=RouteTag.AUTH,
+        summary="Refresh JWT Token",
+        response_model=ItemResponseModel[JwtResponseResponseModel],
+        description="Endpoint to refresh a JWT Token and receive a JWT tokens.",
+    ),
+    create_route(
+        name="jwt_verify_token",
+        path=_VERIFY_TOKEN,
+        status_code=200,
+        methods=[HttpMethod.POST],
+        endpoint=verify_jwt_token_endpoint,
+        tag=RouteTag.AUTH,
+        summary="Verify JWT Token",
+        response_model=ItemResponseModel[JwtTokenPayloadOutDto],
+        description="Endpoint to Verify a JWT Token and receive a JWT Token Payload.",
+    ),
+]
+
+# POST   /auth/register                 # Register new user
+# POST   /auth/login                    # Local login → JWT
+# POST   /auth/login/session            # Local login → Session cookie
+# POST   /auth/token/refresh            # Refresh JWT
+# POST   /auth/token/verify             # Verify JWT validity
+
+# POST   /auth/logout                   # Logout (JWT or session)
+# GET    /auth/me                       # Current authenticated user
+
+# GET    /auth/oauth/{provider}/login   # OAuth redirect (Google, GitHub, etc.)
+# GET    /auth/oauth/{provider}/callback# OAuth callback
+# POST   /auth/oauth/{provider}/link    # Link OAuth account to existing user
+
+# POST   /auth/password/forgot          # Request password reset
+# POST   /auth/password/reset           # Reset password with token
+# POST   /auth/verify-email             # Verify email confirmation token

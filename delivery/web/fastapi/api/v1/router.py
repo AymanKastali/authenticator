@@ -1,7 +1,13 @@
 from fastapi import APIRouter
 
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
-from delivery.web.fastapi.api.v1.routes.auth_routes import routes as auth_routes
+from delivery.web.fastapi.api.v1.routes.auth.jwt import routes as jwt_routes
+from delivery.web.fastapi.api.v1.routes.auth.registration import (
+    routes as registration_routes,
+)
+from delivery.web.fastapi.api.v1.routes.auth.session import (
+    routes as session_routes,
+)
 from delivery.web.fastapi.api.v1.routes.user_routes import routes as user_routes
 
 v1_router = APIRouter(prefix="/api/v1")
@@ -9,6 +15,7 @@ v1_router = APIRouter(prefix="/api/v1")
 auth_router = APIRouter(prefix="/auth", tags=[RouteTag.AUTH])
 users_router = APIRouter(prefix="/users", tags=[RouteTag.USERS])
 
+auth_routes = jwt_routes + session_routes + registration_routes
 
 for route in auth_routes:
     route_dict = dict(vars(route).items())

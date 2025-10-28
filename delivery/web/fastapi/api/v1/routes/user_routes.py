@@ -16,20 +16,22 @@ from delivery.web.fastapi.api.v1.endpoints.user.get_all import (
 from delivery.web.fastapi.api.v1.endpoints.user.get_by_id import (
     get_user_by_id_endpoint,
 )
-from delivery.web.fastapi.api.v1.endpoints.user.get_me import get_me_endpoint
+from delivery.web.fastapi.api.v1.endpoints.user.get_request_user import (
+    get_request_user_endpoint,
+)
 from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
 
-_GET_ME = "/me"
+_GET_REQUEST_USER = "/me"
 _GET_USER_BY_ID = "/{user_id}"
 _GET_ALL_USERS = "/"
 
 routes = [
     create_route(
-        name="get_me",
-        path=_GET_ME,
+        name="get_request_user",
+        path=_GET_REQUEST_USER,
         status_code=200,
         methods=[HttpMethod.GET],
-        endpoint=get_me_endpoint,
+        endpoint=get_request_user_endpoint,
         tag=RouteTag.USERS,
         summary="Get my User info",
         response_model=ItemResponseModel[UserResponseModel],
