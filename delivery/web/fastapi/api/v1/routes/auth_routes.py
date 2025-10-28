@@ -12,10 +12,16 @@ from adapters.dto.response_dto.user_response_models import (
 )
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
-from delivery.web.fastapi.api.v1.endpoints.auth_endpoints import (
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.login import (
     jwt_login_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.refresh_token import (
     jwt_refresh_token_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.auth.registration.register import (
     register_user_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.auth.session.login import (
     session_login_endpoint,
 )
 from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
@@ -75,9 +81,9 @@ routes = [
 # POST   /auth/register                 # Register new user
 # POST   /auth/login                    # Local login → JWT
 # POST   /auth/login/session            # Local login → Session cookie
+# POST   /auth/token/refresh            # Refresh JWT
 
 # POST   /auth/logout                   # Logout (JWT or session)
-# POST   /auth/token/refresh            # Refresh JWT
 # POST   /auth/token/verify             # Verify JWT validity
 # GET    /auth/me                       # Current authenticated user
 

@@ -10,11 +10,13 @@ from adapters.dto.response_dto.user_response_models import (
 )
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
-from delivery.web.fastapi.api.v1.endpoints.user_endpoints import (
+from delivery.web.fastapi.api.v1.endpoints.user.get_all import (
     get_all_users_endpoint,
-    get_me_endpoint,
+)
+from delivery.web.fastapi.api.v1.endpoints.user.get_by_id import (
     get_user_by_id_endpoint,
 )
+from delivery.web.fastapi.api.v1.endpoints.user.get_me import get_me_endpoint
 from delivery.web.fastapi.api.v1.utils.routes_utils import create_route
 
 _GET_ME = "/me"
