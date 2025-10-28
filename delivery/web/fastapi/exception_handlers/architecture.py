@@ -3,21 +3,15 @@ from logging import Logger
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from adapters.dto.response_dto.error_response_model import (
-    ErrorResponseModel,
-)
-from adapters.exceptions.adapters_errors import (
-    AdaptersError,
-)
+from adapters.dto.response_dto.error_response_model import ErrorResponseModel
+from adapters.exceptions.adapters_errors import AdaptersError
 from adapters.gateways.logging.json_console_logger import (
     get_json_console_logger,
 )
 from delivery.web.fastapi.utils.exception_status_mapper import (
     get_http_status_for_exception,
 )
-from domain.exceptions.domain_errors import (
-    DomainError,
-)
+from domain.exceptions.domain_errors import DomainError
 
 CUSTOM_ARCHITECTURE_EXCEPTIONS = (DomainError, AdaptersError)
 

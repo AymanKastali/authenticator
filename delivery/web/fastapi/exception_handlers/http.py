@@ -3,9 +3,7 @@ from logging import Logger
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from adapters.dto.response_dto.error_response_model import (
-    ErrorResponseModel,
-)
+from adapters.dto.response_dto.error_response_model import ErrorResponseModel
 from adapters.gateways.logging.json_console_logger import (
     get_json_console_logger,
 )
