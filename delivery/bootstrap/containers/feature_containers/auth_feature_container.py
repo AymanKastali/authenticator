@@ -1,5 +1,8 @@
-from adapters.controllers.auth_controllers.login_jwt_controller import (
+from adapters.controllers.auth_controllers.jwt_login_controller import (
     JwtLoginController,
+)
+from adapters.controllers.auth_controllers.jwt_refresh_token_controller import (
+    JwtRefreshTokenController,
 )
 from adapters.controllers.auth_controllers.login_session_controller import (
     SessionLoginController,
@@ -28,8 +31,11 @@ from delivery.db.in_memory.repositories import (
     get_in_memory_session_repository,
     get_in_memory_user_repository,
 )
-from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_jwt_handler import (
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.jwt_login_handler import (
     JwtLoginHandler,
+)
+from delivery.web.fastapi.api.v1.handlers.auth_handlers.jwt_refresh_token_handler import (
+    JwtRefreshTokenHandler,
 )
 from delivery.web.fastapi.api.v1.handlers.auth_handlers.login_session_handler import (
     SessionLoginHandler,
@@ -75,6 +81,9 @@ class AuthFeatureContainer:
         self.jwt_login_controller = JwtLoginController(
             service=self.jwt_auth_service
         )
+        self.jwt_refresh_token_controller = JwtRefreshTokenController(
+            service=self.jwt_auth_service
+        )
         self.session_login_controller = SessionLoginController(
             use_case=self.session_login_uc
         )
@@ -85,6 +94,9 @@ class AuthFeatureContainer:
         # Handlers
         self.jwt_login_handler = JwtLoginHandler(
             controller=self.jwt_login_controller
+        )
+        self.jwt_refresh_token_handler = JwtRefreshTokenHandler(
+            controller=self.jwt_refresh_token_controller
         )
         self.session_login_handler = SessionLoginHandler(
             controller=self.session_login_controller

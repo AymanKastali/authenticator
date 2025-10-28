@@ -1,4 +1,4 @@
-from adapters.controllers.auth_controllers.login_jwt_controller import (
+from adapters.controllers.auth_controllers.jwt_login_controller import (
     JwtLoginController,
 )
 from adapters.dto.request_dto.login_user_model import LoginUserModel
@@ -21,7 +21,5 @@ class JwtLoginHandler:
             email=body.email, password=body.password
         )
         return ItemResponseModel[JwtResponseResponseModel].build(
-            data=jwt_tokens,
-            status_code=200,
-            message="Login successful",
+            data=jwt_tokens, status_code=200, message="Login successful"
         )

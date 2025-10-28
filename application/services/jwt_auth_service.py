@@ -1,3 +1,6 @@
+from uuid import UUID
+
+from application.dto.jwt_dto import JwtTokenPayloadDto
 from application.dto.user_dto import PersistenceUserDto
 from application.mappers.jwt_mapper import JwtTokenPayloadMapper
 from application.mappers.user_mapper import UserMapper
@@ -11,9 +14,7 @@ from domain.value_objects.jwt_token_type import JwtTokenType
 
 class JwtAuthService:
     def __init__(
-        self,
-        user_repo: UserRepositoryPort,
-        jwt_service: JwtTokenServicePort,
+        self, user_repo: UserRepositoryPort, jwt_service: JwtTokenServicePort
     ):
         self._user_repo = user_repo
         self._jwt_service = jwt_service
@@ -28,7 +29,6 @@ class JwtAuthService:
 
         user_entity = UserMapper.to_entity_from_persistence(user_dto)
 
-        # ✅ Corrected logic — reject inactive or invalid password
         if not user_entity.active:
             raise ValueError("User account is inactive")
 
@@ -37,7 +37,7 @@ class JwtAuthService:
 
         return user_dto
 
-    def generate_access_token(self, user: User) -> str:
+    def _generate_access_token(self, user: User) -> str:
         payload = JwtTokenPayload.create(
             sub=user.uid,
             email=user.email,
@@ -48,7 +48,7 @@ class JwtAuthService:
         payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
         return self._jwt_service.sign(payload_dto)
 
-    def generate_refresh_token(self, user: User) -> str:
+    def _generate_refresh_token(self, user: User) -> str:
         payload = JwtTokenPayload.create(
             sub=user.uid,
             email=user.email,
@@ -59,14 +59,31 @@ class JwtAuthService:
         payload_dto = JwtTokenPayloadMapper.to_dto_from_entity(payload)
         return self._jwt_service.sign(payload_dto)
 
-    def generate_jwt_tokens(self, user: User) -> dict[str, str]:
+    def _generate_jwt_tokens(self, user: User) -> dict[str, str]:
         return {
-            "access_token": self.generate_access_token(user),
-            "refresh_token": self.generate_refresh_token(user),
+            "access_token": self._generate_access_token(user),
+            "refresh_token": self._generate_refresh_token(user),
         }
 
-    def execute(self, email: str, password: str) -> dict[str, str]:
+    def login_user(self, email: str, password: str) -> dict[str, str]:
         """Authenticate and return JWT tokens."""
         user_dto = self._authenticate_user_local(email, password)
         user_entity = UserMapper.to_entity_from_persistence(user_dto)
-        return self.generate_jwt_tokens(user_entity)
+        return self._generate_jwt_tokens(user_entity)
+
+    def refresh_jwt_token(self, refresh_token: str) -> dict[str, str]:
+        """Validate refresh token and return a new access+refresh token pair."""
+
+        token_payload_dto: JwtTokenPayloadDto = (
+            self._jwt_service.verify_refresh_token(refresh_token)
+        )
+
+        user_persistence_dto: PersistenceUserDto | None = (
+            self._user_repo.get_user_by_id(UUID(token_payload_dto.sub))
+        )
+        if user_persistence_dto is None:
+            raise ValueError("User not found")
+
+        user: User = UserMapper.to_entity_from_persistence(user_persistence_dto)
+
+        return self._generate_jwt_tokens(user)

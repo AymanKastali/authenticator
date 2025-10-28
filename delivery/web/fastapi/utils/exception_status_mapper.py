@@ -54,6 +54,9 @@ def get_http_status_for_exception(exc: Exception) -> int:
     Uses the EXCEPTION_STATUS_MAP and supports subclass checks.
     Fallbacks to 500 for unknown exceptions.
     """
+    if hasattr(exc, "status_code"):
+        return getattr(exc, "status_code")
+
     for exc_type, status in EXCEPTION_STATUS_MAP.items():
         if isinstance(exc, exc_type):
             return status

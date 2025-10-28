@@ -11,7 +11,7 @@ class JwtLoginController:
         self.service = service
 
     def execute(self, email: str, password: str) -> JwtResponseResponseModel:
-        jwt_tokens: dict = self.service.execute(email, password)
+        jwt_tokens: dict = self.service.login_user(email, password)
         if not jwt_tokens:
             raise HTTPException(status_code=401, detail="Invalid credentials")
         return JwtResponseResponseModel(**jwt_tokens)

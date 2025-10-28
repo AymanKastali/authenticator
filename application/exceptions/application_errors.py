@@ -27,7 +27,6 @@ class ApplicationError(Exception):
         return error_data.to_dict()
 
 
-# Example specific errors
 class ServiceExecutionError(ApplicationError):
     code = ApplicationErrorCodeEnum.SERVICE_EXECUTION_ERROR
 
