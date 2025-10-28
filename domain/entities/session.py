@@ -18,11 +18,11 @@ class Session:
     revoked_at: datetime | None = None
     last_activity: datetime | None = None
 
-    @staticmethod
-    def new(
-        user_id: UUIDId, duration_seconds: int = 1209600, **metadata
+    @classmethod
+    def create(
+        cls, user_id: UUIDId, duration_seconds: int = 1209600, **metadata
     ) -> "Session":
-        return Session(
+        return cls(
             user_id=user_id,
             expires_at=utc_now() + timedelta(seconds=duration_seconds),
             **metadata,

@@ -1,8 +1,9 @@
+from application.dto.session import PersistenceSessionDto
 from application.dto.user_dto import PersistenceUserDto
 from application.mappers.user_mapper import UserMapper
 from application.ports.session_repository import SessionRepositoryPort
 from application.ports.user_repository import UserRepositoryPort
-from domain.entities.user import User
+from domain.entities.session import Session
 
 
 class SessionAuthService:
@@ -12,7 +13,7 @@ class SessionAuthService:
         self._user_repo = user_repo
         self.session_repo = session_repo
 
-    def authenticate_user_local(
+    def _authenticate_user_local(
         self, email: str, password: str
     ) -> PersistenceUserDto:
         """Authenticate a user using local credentials."""
@@ -30,6 +31,18 @@ class SessionAuthService:
 
         return user_dto
 
-    def create_session(self, user: User, data: dict | None = None) -> str:
-        session = self.session_repo.create_session(user.uid, data)
-        return session.uid.value
+    def create_session(self, email: str, password: str) -> str:
+        user_dto: PersistenceUserDto | None = self._authenticate_user_local(
+            email, password
+        )
+        if not user_dto:
+            return None
+
+        user = UserMapper.to_entity_from_persistence(user_dto)
+
+        session: Session = Session.create(user_id=user.uid)
+        session_dto = PersistenceSessionDto(
+            session_id=session.uid.value, user_id=user.uid.to_string()
+        )
+        created_session = self.session_repo.create_session(session_dto)
+        return created_session.session_id
