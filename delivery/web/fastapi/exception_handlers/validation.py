@@ -5,7 +5,7 @@ from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
-from adapters.dto.response_dto.error_response_model import ErrorResponseModel
+from adapters.dto.responses.generic.errors.error import ErrorOutDto
 from adapters.gateways.logging.json_console_logger import (
     get_json_console_logger,
 )
@@ -30,7 +30,7 @@ async def validation_exception_handler(
 
     logger.error(exc)
 
-    response = ErrorResponseModel(
+    response = ErrorOutDto(
         status_code=status_code, error=exc.__class__.__name__, details=details
     )
     return JSONResponse(status_code=status_code, content=response.model_dump())
@@ -50,7 +50,7 @@ async def response_validation_handler(
     )
     logger.exception(exc, extra={"status_code": status_code})
 
-    response = ErrorResponseModel(
+    response = ErrorOutDto(
         status_code=status_code, error=exc.__class__.__name__, details=details
     )
     return JSONResponse(status_code=status_code, content=response.model_dump())

@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
-from adapters.dto.response_dto.session_response_dto import SessionOutDto
-from application.services.auth_session import SessionAuthService
+from adapters.dto.responses.auth.session.session import SessionOutDto
+from application.services.auth.session import SessionAuthService
 
 
 class SessionLoginController:

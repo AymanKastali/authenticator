@@ -1,13 +1,9 @@
 from adapters.controllers.auth.registration.register import (
     RegisterUserController,
 )
-from adapters.dto.request_dto.login_user_model import LoginUserModel
-from adapters.dto.response_dto.success_item_response_model import (
-    ItemResponseModel,
-)
-from adapters.dto.response_dto.user_response_models import (
-    RegisteredUserResponseModel,
-)
+from adapters.dto.requests.auth.registration.login import LoginUserInDto
+from adapters.dto.responses.generic.success.item import ItemOutDto
+from adapters.dto.responses.user.registered import RegisteredUserOutDto
 
 
 class RegisterUserHandler:
@@ -15,13 +11,13 @@ class RegisterUserHandler:
         self._controller = controller
 
     async def execute(
-        self, body: LoginUserModel
-    ) -> ItemResponseModel[RegisteredUserResponseModel]:
-        user: RegisteredUserResponseModel = self._controller.execute(
+        self, body: LoginUserInDto
+    ) -> ItemOutDto[RegisteredUserOutDto]:
+        user: RegisteredUserOutDto = self._controller.execute(
             email=body.email, password=body.password
         )
-        return ItemResponseModel[RegisteredUserResponseModel].build(
+        return ItemOutDto[RegisteredUserOutDto].build(
             data=user,
             status_code=201,
-            message="User registered successfully",
+            message="UserEntity registered successfully",
         )

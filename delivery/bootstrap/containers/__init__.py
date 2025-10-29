@@ -1,3 +1,3 @@
-from .features.user import UserFeatureContainer
+from .user import UserContainer
 
-user_feature_container = UserFeatureContainer()
+user_container = UserContainer()

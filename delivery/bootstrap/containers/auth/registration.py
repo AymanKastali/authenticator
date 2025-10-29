@@ -7,7 +7,9 @@ from adapters.validators.password_validators.complexity_password_validator impor
 from adapters.validators.password_validators.length_password_validator import (
     LengthPasswordValidator,
 )
-from application.services.password_service import PasswordService
+from application.services.auth.registration.password_service import (
+    PasswordService,
+)
 from application.use_cases.auth.registration.register import (
     RegisterUserUseCase,
 )

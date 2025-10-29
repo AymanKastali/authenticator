@@ -1,8 +1,10 @@
-from application.dto.user_dto import UserDto
-from application.mappers.user_mapper import UserMapper
-from application.ports.user_repository import UserRepositoryPort
-from application.services.password_service import PasswordService
-from domain.entities.user import User
+from application.dto.user.me import CurrentUserDto
+from application.mappers.user import UserMapper
+from application.ports.repositories.user import UserRepositoryPort
+from application.services.auth.registration.password_service import (
+    PasswordService,
+)
+from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import InvalidValueError
 from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
@@ -27,12 +29,12 @@ class RegisterUserUseCase:
 
     def _create_user(
         self, email_vo: Email, hashed_password: HashedPassword
-    ) -> User:
-        return User.register_local(
+    ) -> UserEntity:
+        return UserEntity.register_local(
             email=email_vo, hashed_password=hashed_password
         )
 
-    def execute(self, email: str, password: str) -> UserDto:
+    def execute(self, email: str, password: str) -> CurrentUserDto:
         self._ensure_email_available(email)
         email_vo = self._validate_email(email)
 

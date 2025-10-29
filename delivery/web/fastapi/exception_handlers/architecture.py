@@ -3,7 +3,7 @@ from logging import Logger
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
-from adapters.dto.response_dto.error_response_model import ErrorResponseModel
+from adapters.dto.responses.generic.errors.error import ErrorOutDto
 from adapters.exceptions.adapters_errors import AdaptersError
 from adapters.gateways.logging.json_console_logger import (
     get_json_console_logger,
@@ -37,7 +37,7 @@ async def architecture_exception_handler(
 
     logger.exception(exc)
 
-    response_model = ErrorResponseModel(
+    response_model = ErrorOutDto(
         status_code=status_code, error=error_name, details=details
     )
     return JSONResponse(

@@ -1,13 +1,13 @@
 from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 
-from adapters.config.jwt_config import JwtConfig
+from adapters.config.jwt import JwtConfig
 from adapters.exceptions.adapters_errors import JWTExpiredError, JWTInvalidError
-from application.dto.jwt_dto import JwtTokenPayloadDto
-from application.mappers.jwt_mapper import JwtTokenPayloadMapper
-from application.ports.jwt_token_service_port import JwtTokenServicePort
+from application.dto.auth.jwt.token import JwtTokenPayloadDto
+from application.mappers.jwt import JwtTokenPayloadMapper
+from application.ports.services.jwt import JwtServicePort
 
 
-class JwtService(JwtTokenServicePort):
+class JwtService(JwtServicePort):
     def __init__(self, jwt_cfg: JwtConfig):
         self.jwt_cfg = jwt_cfg
 

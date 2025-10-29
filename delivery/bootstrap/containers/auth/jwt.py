@@ -1,8 +1,6 @@
-from adapters.config.jwt_config import JwtConfig
-from adapters.controllers.auth.jwt.get_request_user import (
-    GetRequestUserController,
-)
+from adapters.config.jwt import JwtConfig
 from adapters.controllers.auth.jwt.login import LoginJwtController
+from adapters.controllers.auth.jwt.me import ReadMeController
 from adapters.controllers.auth.jwt.refresh_token import (
     RefreshJwtTokenController,
 )
@@ -10,12 +8,11 @@ from adapters.controllers.auth.jwt.verify_token import (
     VerifyJwtTokenController,
 )
 from adapters.gateways.authentication.jwt_service import JwtService
-from application.ports.jwt_token_service_port import JwtTokenServicePort
-from application.services.jwt_auth_service import JwtAuthService
-from application.use_cases.user.get_request_user import (
-    GetRequestUserUseCase,
-)
+from application.ports.services.jwt import JwtServicePort
+from application.services.auth.jwt import JwtAuthService
+from application.use_cases.auth.jwt.me import ReadMeUseCase
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
+from delivery.web.fastapi.api.v1.handlers.auth.jwt.get_me import ReadMeHandler
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.login import JwtLoginHandler
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.refresh_token import (
     RefreshJwtTokenHandler,
@@ -31,7 +28,7 @@ class JwtAuthContainer:
     def __init__(self):
         # Infrastructure
         jwt_cfg = JwtConfig()
-        self.jwt_service: JwtTokenServicePort = JwtService(jwt_cfg)
+        self.jwt_service: JwtServicePort = JwtService(jwt_cfg)
 
         # Repositories
         self.user_repo = get_in_memory_user_repository()
@@ -42,12 +39,10 @@ class JwtAuthContainer:
         )
 
         # Use cases
-        self.get_user_use_case = GetRequestUserUseCase(user_repo=self.user_repo)
+        self.get_user_use_case = ReadMeUseCase(user_repo=self.user_repo)
+        self.read_me_uc = ReadMeUseCase(user_repo=self.user_repo)
 
         # Controllers
-        self.get_user_controller = GetRequestUserController(
-            use_case=self.get_user_use_case
-        )
         self.jwt_login_controller = LoginJwtController(
             service=self.jwt_auth_service
         )
@@ -57,6 +52,7 @@ class JwtAuthContainer:
         self.verify_jwt_token_controller = VerifyJwtTokenController(
             service=self.jwt_auth_service
         )
+        self.read_me_controller = ReadMeController(use_case=self.read_me_uc)
 
         # Handlers
         self.jwt_login_handler = JwtLoginHandler(
@@ -68,3 +64,4 @@ class JwtAuthContainer:
         self.verify_jwt_token_handler = VerifyJwtTokenHandler(
             controller=self.verify_jwt_token_controller
         )
+        self.read_me_handler = ReadMeHandler(controller=self.read_me_controller)

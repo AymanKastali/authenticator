@@ -1,7 +1,7 @@
 from uuid import UUID
 
-from application.dto.user_dto import PersistenceUserDto
-from application.ports.user_repository import UserRepositoryPort
+from application.dto.user.persistence import PersistenceUserDto
+from application.ports.repositories.user import UserRepositoryPort
 
 
 class InMemoryUserRepository(UserRepositoryPort):

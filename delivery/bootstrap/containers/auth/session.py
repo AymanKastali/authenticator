@@ -1,7 +1,7 @@
 from adapters.controllers.auth.session.login import (
     SessionLoginController,
 )
-from application.services.auth_session import SessionAuthService
+from application.services.auth.session import SessionAuthService
 from delivery.db.in_memory.repositories import (
     get_in_memory_session_repository,
     get_in_memory_user_repository,

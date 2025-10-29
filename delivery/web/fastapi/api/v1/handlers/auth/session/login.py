@@ -1,13 +1,9 @@
 from fastapi import Response
 
-from adapters.controllers.auth.session.login import (
-    SessionLoginController,
-)
-from adapters.dto.request_dto.session_request_dto import SessionLoginInDto
-from adapters.dto.response_dto.session_response_dto import SessionOutDto
-from adapters.dto.response_dto.success_item_response_model import (
-    ItemResponseModel,
-)
+from adapters.controllers.auth.session.login import SessionLoginController
+from adapters.dto.requests.auth.session.login import SessionLoginInDto
+from adapters.dto.responses.auth.session.session import SessionOutDto
+from adapters.dto.responses.generic.success.item import ItemOutDto
 
 
 class SessionLoginHandler:
@@ -16,7 +12,7 @@ class SessionLoginHandler:
 
     async def execute(
         self, body: SessionLoginInDto, response: Response
-    ) -> ItemResponseModel[SessionOutDto]:
+    ) -> ItemOutDto[SessionOutDto]:
         session: SessionOutDto = self._controller.execute(
             email=body.email, password=body.password
         )
@@ -27,7 +23,7 @@ class SessionLoginHandler:
             secure=True,
             samesite="lax",
         )
-        return ItemResponseModel[SessionOutDto].build(
+        return ItemOutDto[SessionOutDto].build(
             data=session,
             status_code=200,
             message="Login successful",

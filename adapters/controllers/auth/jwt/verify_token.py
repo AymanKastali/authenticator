@@ -1,6 +1,6 @@
-from adapters.dto.response_dto.jwt_response_model import JwtTokenPayloadOutDto
-from application.dto.jwt_dto import JwtTokenPayloadDto
-from application.services.jwt_auth_service import JwtAuthService
+from adapters.dto.responses.auth.jwt.payload import JwtTokenPayloadOutDto
+from application.dto.auth.jwt.token import JwtTokenPayloadDto
+from application.services.auth.jwt import JwtAuthService
 
 
 class VerifyJwtTokenController:

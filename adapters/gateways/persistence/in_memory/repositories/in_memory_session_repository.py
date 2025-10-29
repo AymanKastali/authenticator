@@ -1,5 +1,5 @@
-from application.dto.session import PersistenceSessionDto
-from application.ports.session_repository import SessionRepositoryPort
+from application.dto.auth.session.persistence import PersistenceSessionDto
+from application.ports.repositories.session import SessionRepositoryPort
 
 
 class InMemorySessionRepository(SessionRepositoryPort):

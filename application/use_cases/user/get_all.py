@@ -1,6 +1,7 @@
-from application.dto.user_dto import PersistenceUserDto, PublicUserDto
-from application.mappers.user_mapper import UserMapper
-from application.ports.user_repository import UserRepositoryPort
+from application.dto.user.persistence import PersistenceUserDto
+from application.dto.user.public import PublicUserDto
+from application.mappers.user import UserMapper
+from application.ports.repositories.user import UserRepositoryPort
 
 
 class GetAllUsersUseCase:

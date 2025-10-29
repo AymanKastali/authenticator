@@ -1,6 +1,6 @@
 from fastapi import Depends, Request
 
-from adapters.dto.request_dto.login_user_model import LoginUserModel
+from adapters.dto.requests.auth.registration.login import LoginUserInDto
 from delivery.bootstrap.containers.auth import registration_container
 from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
     RegisterUserHandler,
@@ -9,7 +9,7 @@ from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
 
 async def register_user_endpoint(
     _: Request,
-    body: LoginUserModel,
+    body: LoginUserInDto,
     handler: RegisterUserHandler = Depends(
         lambda: registration_container.register_user_handler
     ),

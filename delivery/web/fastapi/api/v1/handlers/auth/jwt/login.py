@@ -1,11 +1,7 @@
 from adapters.controllers.auth.jwt.login import LoginJwtController
-from adapters.dto.request_dto.login_user_model import LoginUserModel
-from adapters.dto.response_dto.jwt_response_model import (
-    JwtResponseResponseModel,
-)
-from adapters.dto.response_dto.success_item_response_model import (
-    ItemResponseModel,
-)
+from adapters.dto.requests.auth.registration.login import LoginUserInDto
+from adapters.dto.responses.auth.jwt.tokens import JwtTokensOutDto
+from adapters.dto.responses.generic.success.item import ItemOutDto
 
 
 class JwtLoginHandler:
@@ -13,11 +9,11 @@ class JwtLoginHandler:
         self._controller = controller
 
     async def execute(
-        self, body: LoginUserModel
-    ) -> ItemResponseModel[JwtResponseResponseModel]:
-        jwt_tokens: JwtResponseResponseModel = self._controller.execute(
+        self, body: LoginUserInDto
+    ) -> ItemOutDto[JwtTokensOutDto]:
+        jwt_tokens: JwtTokensOutDto = self._controller.execute(
             email=body.email, password=body.password
         )
-        return ItemResponseModel[JwtResponseResponseModel].build(
+        return ItemOutDto[JwtTokensOutDto].build(
             data=jwt_tokens, status_code=200, message="Login successful"
         )

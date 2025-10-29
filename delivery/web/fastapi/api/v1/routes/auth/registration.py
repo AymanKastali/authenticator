@@ -1,9 +1,5 @@
-from adapters.dto.response_dto.success_item_response_model import (
-    ItemResponseModel,
-)
-from adapters.dto.response_dto.user_response_models import (
-    RegisteredUserResponseModel,
-)
+from adapters.dto.responses.generic.success.item import ItemOutDto
+from adapters.dto.responses.user.registered import RegisteredUserOutDto
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
 from delivery.web.fastapi.api.v1.endpoints.auth.registration.register import (
@@ -21,8 +17,8 @@ routes = [
         methods=[HttpMethod.POST],
         endpoint=register_user_endpoint,
         tag=RouteTag.AUTH,
-        summary="Login User via Session",
-        response_model=ItemResponseModel[RegisteredUserResponseModel],
-        description="Endpoint to login a user and receive a Session token.",
+        summary="Login UserEntity via SessionEntity",
+        response_model=ItemOutDto[RegisteredUserOutDto],
+        description="Endpoint to login a user and receive a SessionEntity token.",
     )
 ]

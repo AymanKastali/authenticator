@@ -1,6 +1,6 @@
 import re
 
-from application.abstracts.abstract_password_validator import (
+from application.abstracts.password_validator import (
     AbstractPasswordValidator,
 )
 

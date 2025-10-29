@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from domain.utils.date_time_utils import utc_now
+from domain.utils.time import utc_now
 from domain.value_objects.email import Email
 from domain.value_objects.hashed_password import HashedPassword
 from domain.value_objects.identifiers import UUIDId
@@ -9,7 +9,7 @@ from domain.value_objects.role import Role
 
 
 @dataclass(kw_only=True)
-class User:
+class UserEntity:
     uid: UUIDId = field(default_factory=UUIDId.new)
     email: Email
     hashed_password: HashedPassword | None = None
@@ -22,9 +22,11 @@ class User:
 
     # ----- Factory Methods -----
     @staticmethod
-    def register_local(email: Email, hashed_password: HashedPassword) -> "User":
+    def register_local(
+        email: Email, hashed_password: HashedPassword
+    ) -> "UserEntity":
         """Register a user with local credentials."""
-        return User(
+        return UserEntity(
             email=email,
             hashed_password=hashed_password,
             active=True,
@@ -32,9 +34,9 @@ class User:
         )
 
     @staticmethod
-    def register_external(email: Email) -> "User":
+    def register_external(email: Email) -> "UserEntity":
         """Register a user authenticated via an external provider."""
-        return User(
+        return UserEntity(
             email=email,
             hashed_password=None,
             active=True,

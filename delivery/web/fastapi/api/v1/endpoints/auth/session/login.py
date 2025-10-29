@@ -1,6 +1,6 @@
 from fastapi import Depends, Request, Response
 
-from adapters.dto.request_dto.session_request_dto import SessionLoginInDto
+from adapters.dto.requests.auth.session.login import SessionLoginInDto
 from delivery.bootstrap.containers.auth import session_auth_container
 from delivery.web.fastapi.api.v1.handlers.auth.session.login import (
     SessionLoginHandler,

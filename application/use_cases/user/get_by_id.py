@@ -1,8 +1,9 @@
 from uuid import UUID
 
-from application.dto.user_dto import PersistenceUserDto, PublicUserDto
-from application.mappers.user_mapper import UserMapper
-from application.ports.user_repository import UserRepositoryPort
+from application.dto.user.persistence import PersistenceUserDto
+from application.dto.user.public import PublicUserDto
+from application.mappers.user import UserMapper
+from application.ports.repositories.user import UserRepositoryPort
 
 
 class GetUserByIdUseCase:
@@ -12,7 +13,7 @@ class GetUserByIdUseCase:
     def execute(self, user_id: UUID) -> PublicUserDto:
         user: PersistenceUserDto | None = self.user_repo.get_user_by_id(user_id)
         if user is None:
-            raise ValueError("User not found")
+            raise ValueError("UserEntity not found")
 
         user_dto: PublicUserDto = UserMapper.to_public_dto_from_persistence(
             user
