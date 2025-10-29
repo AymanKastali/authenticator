@@ -25,23 +25,28 @@ class PaginatedResponseModel[T](BaseModel):
     @classmethod
     def build(
         cls,
-        data: list[T] | None,
+        data: list[T] | None = None,
         message: str | None = None,
         status_code: int = 200,
         page: int = 1,
         per_page: int = 10,
     ) -> "PaginatedResponseModel[T]":
         total_items = len(data) if data else 0
-        start_idx = (page - 1) * per_page
-        end_idx = start_idx + per_page
-        paginated_data = data[start_idx:end_idx] if data else []
+        total_pages = (
+            (total_items + per_page - 1) // per_page if per_page else 1
+        )
 
-        total_pages = (total_items + per_page - 1) // per_page
+        paginated_data = []
+        if data:
+            start_idx = max((page - 1) * per_page, 0)
+            end_idx = start_idx + per_page
+            paginated_data = data[start_idx:end_idx]
+
         pagination = PaginationModel(
             page=page,
             per_page=per_page,
-            total_pages=total_pages,
             total_items=total_items,
+            total_pages=total_pages,
         )
 
         return cls(

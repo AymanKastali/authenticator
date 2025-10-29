@@ -5,16 +5,16 @@ from pydantic import BaseModel
 T = TypeVar("T", bound=BaseModel)
 
 
-class ItemOutDto[T](BaseModel):
+class ListOutDto[T](BaseModel):
     status_code: int = 200
     message: str | None = None
-    data: T | None = None
+    data: list[T] | None = None
 
     @classmethod
     def build(
         cls,
-        data: T | None = None,
+        data: list[T] | None = None,
         message: str | None = None,
         status_code: int = 200,
-    ) -> "ItemOutDto[T]":
+    ) -> "ListOutDto[T]":
         return cls(data=data, message=message, status_code=status_code)

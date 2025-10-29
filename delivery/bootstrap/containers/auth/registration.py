@@ -1,6 +1,7 @@
 from adapters.controllers.auth.registration.register import (
     RegisterUserController,
 )
+from application.dto.policies.password import PasswordPolicyConfigDto
 from application.services.auth.registration.password_service import (
     PasswordService,
 )
@@ -11,8 +12,6 @@ from delivery.db.in_memory.repositories import get_in_memory_user_repository
 from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
     RegisterUserHandler,
 )
-from domain.policies.password.complexity import PasswordComplexityPolicy
-from domain.policies.password.length import PasswordLengthPolicy
 
 
 class RegistrationContainer:
@@ -23,11 +22,15 @@ class RegistrationContainer:
         self.user_repo = get_in_memory_user_repository()
 
         # Services
-        policies = [
-            PasswordLengthPolicy(min_length=8, max_length=128),
-            PasswordComplexityPolicy(),
-        ]
-        self.password_service = PasswordService(policies)
+        policy_dto = PasswordPolicyConfigDto(
+            min_length=8,
+            max_length=128,
+            require_upper=True,
+            require_lower=True,
+            require_digit=True,
+            require_special=True,
+        )
+        self.password_service = PasswordService(policy_config=policy_dto)
 
         # Use Cases
         self.register_user_uc = RegisterUserUseCase(
