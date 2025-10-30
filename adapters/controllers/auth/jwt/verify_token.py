@@ -1,5 +1,5 @@
 from adapters.dto.responses.auth.jwt.payload import JwtTokenPayloadOutDto
-from application.dto.auth.jwt.token import JwtTokenPayloadDto
+from application.dto.auth.jwt.token import JwtPayloadDto
 from application.services.auth.jwt import JwtAuthService
 
 
@@ -10,8 +10,8 @@ class VerifyJwtTokenController:
     def execute(
         self, token: str, subject: str | None = None
     ) -> JwtTokenPayloadOutDto:
-        jwt_token_payload_dto: JwtTokenPayloadDto = (
-            self.service.verify_jwt_token(token, subject)
+        jwt_token_payload_dto: JwtPayloadDto = self.service.verify_jwt_token(
+            token, subject
         )
         jwt_token_payload_response_dto = JwtTokenPayloadOutDto(
             user_id=jwt_token_payload_dto.sub,

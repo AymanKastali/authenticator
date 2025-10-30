@@ -7,6 +7,9 @@ from delivery.web.fastapi.api.metadata.route_tags import RouteTag
 from delivery.web.fastapi.api.v1.endpoints.auth.jwt.login import (
     jwt_login_endpoint,
 )
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.logout import (
+    jwt_logout_endpoint,
+)
 from delivery.web.fastapi.api.v1.endpoints.auth.jwt.me import (
     read_me_endpoint,
 )
@@ -23,6 +26,7 @@ _LOGIN = f"{_BASE}/login"
 _REFRESH_TOKEN = f"{_BASE}/token/refresh"
 _VERIFY_TOKEN = f"{_BASE}/token/verify"
 _READ_ME = f"{_BASE}/me"
+_LOGOUT = f"{_BASE}/logout"
 
 routes = [
     create_route(
@@ -69,16 +73,27 @@ routes = [
         response_model=ItemOutDto[ReadMeOutDto],
         description="Endpoint to get my own UserEntity info.",
     ),
+    create_route(
+        name="jwt_logout_user",
+        path=_LOGOUT,
+        status_code=204,
+        methods=[HttpMethod.POST],
+        endpoint=jwt_logout_endpoint,
+        tag=RouteTag.AUTH,
+        summary="Logout User via JWT",
+        response_model=None,
+        description="Endpoint to Logout a user.",
+    ),
 ]
 
 # POST   /auth/register                 # Register new user
 # POST   /auth/login                    # Local login → JWT
 # POST   /auth/token/refresh            # Refresh JWT
 # POST   /auth/token/verify             # Verify JWT validity
+# GET    /auth/me                       # Current authenticated user
 # POST   /auth/login/session            # Local login → SessionEntity cookie
 
 # POST   /auth/logout                   # Logout (JWT or session)
-# GET    /auth/me                       # Current authenticated user
 
 # GET    /auth/oauth/{provider}/login   # OAuth redirect (Google, GitHub, etc.)
 # GET    /auth/oauth/{provider}/callback# OAuth callback

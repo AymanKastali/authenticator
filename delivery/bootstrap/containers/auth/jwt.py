@@ -1,5 +1,6 @@
 from adapters.config.jwt import JwtConfig
 from adapters.controllers.auth.jwt.login import LoginJwtController
+from adapters.controllers.auth.jwt.logout import LogoutJwtController
 from adapters.controllers.auth.jwt.me import ReadMeController
 from adapters.controllers.auth.jwt.refresh_token import (
     RefreshJwtTokenController,
@@ -12,9 +13,15 @@ from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
 from application.services.auth.jwt import JwtAuthService
 from application.use_cases.auth.jwt.me import ReadMeUseCase
-from delivery.db.in_memory.repositories import get_in_memory_user_repository
+from delivery.db.in_memory.repositories import (
+    get_in_memory_jwt_repository,
+    get_in_memory_user_repository,
+)
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.get_me import ReadMeHandler
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.login import JwtLoginHandler
+from delivery.web.fastapi.api.v1.handlers.auth.jwt.logout import (
+    JwtLogoutHandler,
+)
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.refresh_token import (
     RefreshJwtTokenHandler,
 )
@@ -36,10 +43,13 @@ class JwtAuthContainer:
 
         # Repositories
         self.user_repo = get_in_memory_user_repository()
+        self.jwt_repo = get_in_memory_jwt_repository()
 
         # Services
         self.jwt_auth_service = JwtAuthService(
-            user_repo=self.user_repo, jwt_service=self.jwt_service
+            user_repo=self.user_repo,
+            jwt_repo=self.jwt_repo,
+            jwt_service=self.jwt_service,
         )
 
         # Use cases
@@ -57,6 +67,9 @@ class JwtAuthContainer:
             service=self.jwt_auth_service
         )
         self.read_me_controller = ReadMeController(use_case=self.read_me_uc)
+        self.jwt_logout_controller = LogoutJwtController(
+            service=self.jwt_auth_service
+        )
 
         # Handlers
         self.jwt_login_handler = JwtLoginHandler(
@@ -70,4 +83,7 @@ class JwtAuthContainer:
         )
         self.read_me_handler = ReadMeHandler(
             controller=self.read_me_controller, logger=self.logger
+        )
+        self.jwt_logout_handler = JwtLogoutHandler(
+            controller=self.jwt_logout_controller, logger=self.logger
         )

@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from application.dto.auth.jwt.token import JwtTokenPayloadDto
+from application.dto.auth.jwt.token import JwtPayloadDto
 from domain.entities.auth.jwt.token_payload import JwtTokenPayloadEntity
 from domain.utils.time import utc_now
 from domain.value_objects.email import Email
@@ -11,10 +11,10 @@ from domain.value_objects.role import Role
 
 
 @dataclass
-class JwtTokenPayloadMapper:
+class JwtPayloadMapper:
     @staticmethod
-    def to_dto_from_entity(token: JwtTokenPayloadEntity) -> JwtTokenPayloadDto:
-        return JwtTokenPayloadDto(
+    def to_dto_from_entity(token: JwtTokenPayloadEntity) -> JwtPayloadDto:
+        return JwtPayloadDto(
             sub=token.sub.to_string(),
             typ=token.typ.name,
             exp=token.exp.timestamp(),
@@ -29,7 +29,7 @@ class JwtTokenPayloadMapper:
         )
 
     @staticmethod
-    def to_dict_from_dto(token: JwtTokenPayloadDto) -> dict:
+    def to_dict_from_dto(token: JwtPayloadDto) -> dict:
         """Convert the DTO to a dict suitable for JSON encoding or JWT payload."""
         data = {
             "sub": token.sub,
@@ -53,11 +53,11 @@ class JwtTokenPayloadMapper:
         return data
 
     @staticmethod
-    def to_dto_from_dict(data: dict) -> JwtTokenPayloadDto:
+    def to_dto_from_dict(data: dict) -> JwtPayloadDto:
         """
-        Convert a dictionary (decoded JWT payload) to JwtTokenPayloadDto.
+        Convert a dictionary (decoded JWT payload) to JwtPayloadDto.
         """
-        return JwtTokenPayloadDto(
+        return JwtPayloadDto(
             sub=data["sub"],
             typ=data["type"],
             exp=data["exp"],

@@ -1,8 +1,12 @@
 from datetime import datetime, timedelta, timezone
 
 
-def utc_now() -> "datetime":
+def utc_now() -> datetime:
     return datetime.now(timezone.utc)
+
+
+def utc_now_time_stamp() -> float:
+    return datetime.now(timezone.utc).timestamp()
 
 
 def expires_after(

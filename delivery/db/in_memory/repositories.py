@@ -6,11 +6,19 @@ from adapters.gateways.persistence.in_memory.repositories.in_memory_session_repo
 from adapters.gateways.persistence.in_memory.repositories.in_memory_user_repository import (
     InMemoryUserRepository,
 )
+from adapters.gateways.persistence.in_memory.repositories.jwt import (
+    InMemoryJwtRepository,
+)
 
 
 @lru_cache()
 def get_in_memory_user_repository() -> InMemoryUserRepository:
     return InMemoryUserRepository()
+
+
+@lru_cache()
+def get_in_memory_jwt_repository() -> InMemoryJwtRepository:
+    return InMemoryJwtRepository()
 
 
 @lru_cache()
