@@ -13,7 +13,7 @@ routes = [
     create_route(
         name="session_login_user",
         path=_LOGIN,
-        status_code=200,
+        status_code=501,
         methods=[HttpMethod.POST],
         endpoint=deprecated_endpoint,
         tag=RouteTag.AUTH,

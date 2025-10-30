@@ -9,6 +9,7 @@ from adapters.controllers.auth.jwt.verify_token import (
 )
 from adapters.gateways.authentication.jwt_service import JwtService
 from application.ports.services.jwt import JwtServicePort
+from application.ports.services.logger import LoggerPort
 from application.services.auth.jwt import JwtAuthService
 from application.use_cases.auth.jwt.me import ReadMeUseCase
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
@@ -25,7 +26,10 @@ from delivery.web.fastapi.api.v1.handlers.auth.jwt.verify_token import (
 class JwtAuthContainer:
     """Container for jwt-based authentication"""
 
-    def __init__(self):
+    def __init__(self, logger: LoggerPort):
+        # Logger
+        self.logger = logger
+
         # Infrastructure
         jwt_cfg = JwtConfig()
         self.jwt_service: JwtServicePort = JwtService(jwt_cfg)
@@ -56,12 +60,14 @@ class JwtAuthContainer:
 
         # Handlers
         self.jwt_login_handler = JwtLoginHandler(
-            controller=self.jwt_login_controller
+            controller=self.jwt_login_controller, logger=self.logger
         )
         self.jwt_refresh_token_handler = RefreshJwtTokenHandler(
-            controller=self.jwt_refresh_token_controller
+            controller=self.jwt_refresh_token_controller, logger=self.logger
         )
         self.verify_jwt_token_handler = VerifyJwtTokenHandler(
-            controller=self.verify_jwt_token_controller
+            controller=self.verify_jwt_token_controller, logger=self.logger
         )
-        self.read_me_handler = ReadMeHandler(controller=self.read_me_controller)
+        self.read_me_handler = ReadMeHandler(
+            controller=self.read_me_controller, logger=self.logger
+        )

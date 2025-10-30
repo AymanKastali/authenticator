@@ -2,6 +2,7 @@ from adapters.controllers.auth.registration.register import (
     RegisterUserController,
 )
 from application.dto.policies.password import PasswordPolicyConfigDto
+from application.ports.services.logger import LoggerPort
 from application.services.auth.registration.password_service import (
     PasswordService,
 )
@@ -17,7 +18,10 @@ from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
 class RegistrationContainer:
     """Container for user registration and password validation"""
 
-    def __init__(self):
+    def __init__(self, logger: LoggerPort):
+        # Logger
+        self.logger = logger
+
         # Repository
         self.user_repo = get_in_memory_user_repository()
 
@@ -45,5 +49,5 @@ class RegistrationContainer:
 
         # Handlers
         self.register_user_handler = RegisterUserHandler(
-            controller=self.register_user_controller
+            controller=self.register_user_controller, logger=self.logger
         )

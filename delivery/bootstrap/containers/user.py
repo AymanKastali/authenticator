@@ -1,5 +1,6 @@
 from adapters.controllers.user.get_all import GetAllUsersController
 from adapters.controllers.user.get_by_id import GetUserByIdController
+from application.ports.services.logger import LoggerPort
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
@@ -10,7 +11,9 @@ from delivery.web.fastapi.api.v1.handlers.user.get_by_id import (
 
 
 class UserContainer:
-    def __init__(self):
+    def __init__(self, logger: LoggerPort):
+        # Logger
+        self.logger = logger
         # Repositories
         self.user_repo = get_in_memory_user_repository()
 
@@ -28,8 +31,8 @@ class UserContainer:
 
         # Handlers
         self.get_user_by_id_handler = GetUserByIdHandler(
-            controller=self.get_user_by_id_controller
+            controller=self.get_user_by_id_controller, logger=self.logger
         )
         self.get_all_users_handler = GetAllUsersHandler(
-            controller=self.get_all_users_controller
+            controller=self.get_all_users_controller, logger=self.logger
         )
