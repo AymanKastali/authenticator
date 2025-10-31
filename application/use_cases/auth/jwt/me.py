@@ -15,7 +15,7 @@ class ReadMeUseCase:
         if user is None:
             raise ValueError("UserEntity not found")
 
-        user_dto: CurrentUserDto = (
-            UserMapper.to_user_dto_from_entity_from_persistence(user)
+        user_dto: CurrentUserDto = UserMapper.to_user_dto_from_persistence_dto(
+            user
         )
         return user_dto

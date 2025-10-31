@@ -11,9 +11,6 @@ class InMemoryUserRepository(UserRepositoryPort):
     def save(self, user: PersistenceUserDto) -> None:
         self.users[user.uid] = user
 
-    def get_request_user(self, user_id: UUID) -> PersistenceUserDto | None:
-        return self.users.get(str(user_id))
-
     def get_user_by_id(self, user_id: UUID) -> PersistenceUserDto | None:
         return self.users.get(str(user_id))
 

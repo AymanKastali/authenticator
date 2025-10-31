@@ -50,7 +50,7 @@ class UserMapper:
         )
 
     @staticmethod
-    def to_user_dto_from_entity_from_persistence(
+    def to_user_dto_from_persistence_dto(
         dto: PersistenceUserDto,
     ) -> CurrentUserDto:
         return CurrentUserDto(

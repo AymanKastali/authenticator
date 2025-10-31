@@ -1,9 +1,9 @@
 from adapters.dto.responses.auth.jwt.tokens import JwtTokensOutDto
-from application.services.auth.jwt import JwtAuthService
+from application.services.auth.jwt.facade import JwtAuthFacade
 
 
 class RefreshJwtTokenController:
-    def __init__(self, service: JwtAuthService):
+    def __init__(self, service: JwtAuthFacade):
         self.service = service
 
     def execute(self, token: str) -> JwtTokensOutDto:

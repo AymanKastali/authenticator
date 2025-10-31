@@ -91,9 +91,9 @@ routes = [
 # POST   /auth/token/refresh            # Refresh JWT
 # POST   /auth/token/verify             # Verify JWT validity
 # GET    /auth/me                       # Current authenticated user
-# POST   /auth/login/session            # Local login → SessionEntity cookie
-
 # POST   /auth/logout                   # Logout (JWT or session)
+
+# POST   /auth/login/session            # Local login → SessionEntity cookie
 
 # GET    /auth/oauth/{provider}/login   # OAuth redirect (Google, GitHub, etc.)
 # GET    /auth/oauth/{provider}/callback# OAuth callback

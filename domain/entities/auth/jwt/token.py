@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from domain.utils.time import utc_now
 from domain.value_objects.jwt_payload import JwtPayloadVo
 
 
@@ -22,7 +23,7 @@ class JwtEntity:
     # --- domain behavior ---
     def is_expired(self) -> bool:
         """Check if token is expired."""
-        return self.payload.is_expired()
+        return utc_now() >= self.payload.exp
 
     def to_primitives(self) -> dict:
         """Return serializable representation for infrastructure use."""

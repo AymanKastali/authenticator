@@ -21,6 +21,23 @@ class UserEntity:
     roles: list[Role] = field(default_factory=lambda: [Role.USER])
 
     # ----- Factory Methods -----
+    def authenticate(self, raw_password: str) -> bool:
+        """
+        Authenticate the user against a raw password.
+
+        Raises:
+            ValueError: If the user is inactive or password is invalid.
+        """
+        if not self.active:
+            raise ValueError("User account is inactive")
+
+        if not self.hashed_password or not self.hashed_password.verify(
+            raw_password
+        ):
+            raise ValueError("Invalid credentials")
+
+        return True
+
     @staticmethod
     def register_local(
         email: Email, hashed_password: HashedPassword

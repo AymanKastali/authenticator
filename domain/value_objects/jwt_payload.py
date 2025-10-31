@@ -38,10 +38,6 @@ class JwtPayloadVo:
         if self.iat > utc_now():
             raise ValueError("iat cannot be in the future")
 
-    # --- domain behavior ---
-    def is_expired(self) -> bool:
-        return utc_now() >= self.exp
-
     def to_primitives(self) -> dict:
         """Return primitive representation for serialization (infra use)."""
         return {

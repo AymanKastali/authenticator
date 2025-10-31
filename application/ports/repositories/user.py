@@ -9,9 +9,6 @@ class UserRepositoryPort(ABC):
     def save(self, user: PersistenceUserDto) -> None: ...
 
     @abstractmethod
-    def get_request_user(self, user_id: UUID) -> PersistenceUserDto | None: ...
-
-    @abstractmethod
     def get_user_by_id(self, user_id: UUID) -> PersistenceUserDto | None: ...
 
     @abstractmethod

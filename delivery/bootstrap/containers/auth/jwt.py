@@ -11,7 +11,9 @@ from adapters.controllers.auth.jwt.verify_token import (
 from adapters.gateways.authentication.jwt_service import JwtService
 from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
-from application.services.auth.jwt import JwtAuthService
+from application.services.auth.authentication import AuthService
+from application.services.auth.jwt.auth import JwtAuthService
+from application.services.auth.jwt.facade import JwtAuthFacade
 from application.use_cases.auth.jwt.me import ReadMeUseCase
 from delivery.db.in_memory.repositories import (
     get_in_memory_jwt_repository,
@@ -46,10 +48,12 @@ class JwtAuthContainer:
         self.jwt_repo = get_in_memory_jwt_repository()
 
         # Services
-        self.jwt_auth_service = JwtAuthService(
-            user_repo=self.user_repo,
+        self.auth_service = AuthService(self.user_repo)
+        self.jwt_auth_service = JwtAuthService(self.jwt_service)
+        self.jwt_facade_service = JwtAuthFacade(
+            auth_service=self.auth_service,
+            jwt_auth_service=self.jwt_auth_service,
             jwt_repo=self.jwt_repo,
-            jwt_service=self.jwt_service,
         )
 
         # Use cases
@@ -58,17 +62,17 @@ class JwtAuthContainer:
 
         # Controllers
         self.jwt_login_controller = LoginJwtController(
-            service=self.jwt_auth_service
+            service=self.jwt_facade_service
         )
         self.jwt_refresh_token_controller = RefreshJwtTokenController(
-            service=self.jwt_auth_service
+            service=self.jwt_facade_service
         )
         self.verify_jwt_token_controller = VerifyJwtTokenController(
-            service=self.jwt_auth_service
+            service=self.jwt_facade_service
         )
         self.read_me_controller = ReadMeController(use_case=self.read_me_uc)
         self.jwt_logout_controller = LogoutJwtController(
-            service=self.jwt_auth_service
+            service=self.jwt_facade_service
         )
 
         # Handlers
