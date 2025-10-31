@@ -1,5 +1,5 @@
 from adapters.dto.responses.auth.jwt.payload import JwtTokenPayloadOutDto
-from application.dto.auth.jwt.token import JwtPayloadDto
+from application.dto.auth.jwt.token import JwtDto
 from application.services.auth.jwt import JwtAuthService
 
 
@@ -10,15 +10,14 @@ class VerifyJwtTokenController:
     def execute(
         self, token: str, subject: str | None = None
     ) -> JwtTokenPayloadOutDto:
-        jwt_token_payload_dto: JwtPayloadDto = self.service.verify_jwt_token(
-            token, subject
-        )
+        token_dto: JwtDto = self.service.verify_jwt_token(token, subject)
+        payload_dto = token_dto.payload
         jwt_token_payload_response_dto = JwtTokenPayloadOutDto(
-            user_id=jwt_token_payload_dto.sub,
-            token_type=jwt_token_payload_dto.typ,
-            expires_at=jwt_token_payload_dto.exp,
-            email=jwt_token_payload_dto.email,
-            username=jwt_token_payload_dto.username,
-            roles=jwt_token_payload_dto.roles,
+            user_id=payload_dto.sub,
+            token_type=payload_dto.typ,
+            expires_at=payload_dto.exp,
+            email=payload_dto.email,
+            username=payload_dto.username,
+            roles=payload_dto.roles,
         )
         return jwt_token_payload_response_dto

@@ -10,6 +10,16 @@ class InMemoryJwtRepository(JwtRepositoryPort):
     def add_token(self, jti: str, expires_at: datetime) -> None:
         self._tokens[jti] = expires_at
 
+    def is_token_blacklisted(self, jti: str) -> bool:
+        expires_at = self._tokens.get(jti)
+        if not expires_at:
+            return False
+        # Optional: cleanup expired tokens
+        if expires_at < datetime.now(timezone.utc):
+            del self._tokens[jti]
+            return False
+        return True
+
     def get_revoked_tokens(self) -> set[str]:
         now = datetime.now(timezone.utc)
         # cleanup expired tokens

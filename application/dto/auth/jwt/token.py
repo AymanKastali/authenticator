@@ -1,17 +1,12 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
+
+from application.dto.auth.jwt.payload import JwtPayloadDto
 
 
 @dataclass(frozen=True, kw_only=True)
-class JwtPayloadDto:
-    sub: str
-    typ: str
-    exp: float
+class JwtDto:
+    """DTO representing the full JWT (header + payload + signature)."""
 
-    jti: str
-    iat: float
-    nbf: float
-    iss: str | None = None
-    aud: str | None = None
-    roles: list[str] = field(default_factory=list)
-    email: str | None = None
-    username: str | None = None
+    payload: JwtPayloadDto
+    headers: dict[str, str]
+    signature: str

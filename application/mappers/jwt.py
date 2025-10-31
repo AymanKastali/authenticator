@@ -1,93 +1,74 @@
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 
-from application.dto.auth.jwt.token import JwtPayloadDto
-from domain.entities.auth.jwt.token_payload import JwtTokenPayloadEntity
-from domain.utils.time import utc_now
+from application.dto.auth.jwt.payload import JwtPayloadDto
+from application.dto.auth.jwt.token import JwtDto
+from domain.entities.auth.jwt.token import JwtEntity
 from domain.value_objects.email import Email
 from domain.value_objects.identifiers import UUIDId
+from domain.value_objects.jwt_payload import JwtPayloadVo
 from domain.value_objects.jwt_token_type import JwtTokenType
 from domain.value_objects.role import Role
 
 
 @dataclass
-class JwtPayloadMapper:
+class JwtMapper:
     @staticmethod
-    def to_dto_from_entity(token: JwtTokenPayloadEntity) -> JwtPayloadDto:
+    def to_payload_dto_from_vo(vo: JwtPayloadVo) -> JwtPayloadDto:
         return JwtPayloadDto(
-            sub=token.sub.to_string(),
-            typ=token.typ.name,
-            exp=token.exp.timestamp(),
-            jti=token.jti.to_string(),
-            iat=token.iat.timestamp(),
-            iss=token.iss if token.iss else None,
-            aud=token.aud if token.aud else None,
-            nbf=token.nbf.timestamp(),
-            roles=[role.name for role in token.roles] if token.roles else [],
-            email=token.email.to_string() if token.email else None,
-            username=token.username if token.username else None,
+            sub=vo.sub.to_string(),
+            typ=vo.typ.name,
+            exp=vo.exp.timestamp(),
+            jti=vo.jti.to_string(),
+            iat=vo.iat.timestamp(),
+            iss=vo.iss if vo.iss else None,
+            aud=vo.aud if vo.aud else None,
+            nbf=vo.nbf.timestamp(),
+            roles=[role.name for role in vo.roles] if vo.roles else [],
+            email=vo.email.to_string() if vo.email else None,
+            username=vo.username if vo.username else None,
         )
 
     @staticmethod
-    def to_dict_from_dto(token: JwtPayloadDto) -> dict:
-        """Convert the DTO to a dict suitable for JSON encoding or JWT payload."""
-        data = {
-            "sub": token.sub,
-            "type": token.typ,
-            "jti": token.jti,
-            "iat": token.iat,
-            "exp": token.exp,
-            "nbf": token.nbf,
-            "roles": token.roles or [],
-        }
+    def to_payload_vo_from_dto(dto: JwtPayloadDto) -> JwtPayloadVo:
+        return JwtPayloadVo(
+            sub=UUIDId.from_string(dto.sub),
+            typ=JwtTokenType[dto.typ],
+            exp=datetime.fromtimestamp(dto.exp, tz=timezone.utc),
+            jti=UUIDId.from_string(dto.jti),
+            iat=datetime.fromtimestamp(dto.iat, tz=timezone.utc),
+            nbf=datetime.fromtimestamp(dto.nbf, tz=timezone.utc),
+            roles=[Role[r] for r in dto.roles],
+            email=Email(dto.email) if dto.email else None,
+            username=dto.username,
+            iss=dto.iss,
+            aud=dto.aud,
+        )
 
-        if token.iss is not None:
-            data["iss"] = token.iss
-        if token.aud is not None:
-            data["aud"] = token.aud
-        if token.email is not None:
-            data["email"] = token.email
-        if token.username is not None:
-            data["username"] = token.username
-
-        return data
-
+    # ---------------- Full JWT ----------------
     @staticmethod
-    def to_dto_from_dict(data: dict) -> JwtPayloadDto:
-        """
-        Convert a dictionary (decoded JWT payload) to JwtPayloadDto.
-        """
-        return JwtPayloadDto(
-            sub=data["sub"],
-            typ=data["type"],
-            exp=data["exp"],
-            jti=data.get("jti", ""),
-            iat=data.get("iat", 0),
-            iss=data.get("iss"),
-            aud=data.get("aud"),
-            nbf=data.get("nbf", 0),
-            roles=data.get("roles", []),
-            email=data.get("email"),
-            username=data.get("username"),
+    def to_entity_from_jwt_dto(dto: JwtDto) -> "JwtEntity":
+        """Map application JwtDto → domain JwtEntity."""
+        payload_vo = JwtMapper.to_payload_vo_from_dto(dto.payload)
+        return JwtEntity.create_signed(
+            payload=payload_vo, signature=dto.signature, header=dto.headers
         )
 
     @staticmethod
-    def to_entity_from_dict(data: dict) -> JwtTokenPayloadEntity:
-        """
-        Convert a dict (decoded JWT) back to a JwtTokenPayloadEntity entity.
-        """
-        return JwtTokenPayloadEntity(
-            sub=UUIDId.from_string(data["sub"]),
-            typ=JwtTokenType[data["type"]],
-            exp=datetime.fromtimestamp(data["exp"]),
-            jti=UUIDId.from_string(data.get("jti", UUIDId.new().to_string())),
-            iat=datetime.fromtimestamp(data.get("iat", utc_now().timestamp())),
-            iss=data.get("iss"),
-            aud=data.get("aud"),
-            nbf=datetime.fromtimestamp(data.get("nbf", utc_now().timestamp())),
-            roles=[Role[name] for name in data.get("roles", [])],
-            email=Email.from_string(data["email"])
-            if data.get("email")
-            else None,
-            username=data.get("username"),
+    def to_jwt_dto_from_entity(entity: JwtEntity) -> JwtDto:
+        """Map domain JwtEntity → application JwtDto."""
+        payload_dto = JwtMapper.to_payload_dto_from_vo(entity.payload)
+        return JwtDto(
+            payload=payload_dto,
+            headers=entity.header,
+            signature=entity.signature,
         )
+
+    @staticmethod
+    def to_payload_dto_from_dict(decoded: dict) -> JwtPayloadDto:
+        """
+        Convert a decoded JWT dictionary into a JwtPayloadDto,
+        enforcing domain VO invariants.
+        """
+        vo = JwtMapper.to_payload_vo_from_dto(JwtPayloadDto(**decoded))
+        return JwtMapper.to_payload_dto_from_vo(vo)

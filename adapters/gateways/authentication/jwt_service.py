@@ -2,8 +2,9 @@ from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 
 from adapters.config.jwt import JwtConfig
 from adapters.exceptions.adapters_errors import JWTExpiredError, JWTInvalidError
-from application.dto.auth.jwt.token import JwtPayloadDto
-from application.mappers.jwt import JwtPayloadMapper
+from application.dto.auth.jwt.payload import JwtPayloadDto
+from application.dto.auth.jwt.token import JwtDto
+from application.mappers.jwt import JwtMapper
 from application.ports.services.jwt import JwtServicePort
 
 
@@ -11,15 +12,17 @@ class JwtService(JwtServicePort):
     def __init__(self, jwt_cfg: JwtConfig):
         self.jwt_cfg = jwt_cfg
 
-    def sign(self, payload: JwtPayloadDto) -> str:
-        token = encode(
-            payload=JwtPayloadMapper.to_dict_from_dto(payload),
+    def sign(self, payload: JwtPayloadDto) -> JwtDto:
+        headers: dict = {"alg": self.jwt_cfg.algorithm, "typ": "JWT"}
+        token_str: str = encode(
+            payload=payload.__dict__,
             key=self.jwt_cfg.secret_key.get_secret_value(),
             algorithm=self.jwt_cfg.algorithm,
+            headers=headers,
         )
-        return token
+        return JwtDto(payload=payload, headers=headers, signature=token_str)
 
-    def verify(self, token: str, subject: str | None = None) -> JwtPayloadDto:
+    def verify(self, token: str, subject: str | None = None) -> JwtDto:
         try:
             options = {
                 "require": ["exp", "iat"],
@@ -48,10 +51,15 @@ class JwtService(JwtServicePort):
         except InvalidTokenError as e:
             raise JWTInvalidError(message=str(e)) from e
 
-        return JwtPayloadMapper.to_dto_from_dict(decoded)
+        payload_dto = JwtMapper.to_payload_dto_from_dict(decoded)
+        headers = {
+            "alg": self.jwt_cfg.algorithm,
+            "typ": "JWT",
+        }  # optionally extract from token
+        return JwtDto(payload=payload_dto, headers=headers, signature=token)
 
-    def verify_refresh_token(self, token: str) -> JwtPayloadDto:
-        jwt_token_payload_dto: JwtPayloadDto = self.verify(token)
-        if jwt_token_payload_dto.typ != "REFRESH":
+    def verify_refresh_token(self, token: str) -> JwtDto:
+        token_dto: JwtDto = self.verify(token)
+        if token_dto.payload.typ != "REFRESH":
             raise JWTInvalidError(message="Token type must be 'refresh'")
-        return jwt_token_payload_dto
+        return token_dto
