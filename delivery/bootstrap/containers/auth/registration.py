@@ -18,23 +18,14 @@ from delivery.web.fastapi.api.v1.handlers.auth.registration.register import (
 class RegistrationContainer:
     """Container for user registration and password validation"""
 
-    def __init__(self, logger: LoggerPort):
-        # Logger
-        self.logger = logger
-
+    def __init__(
+        self, logger: LoggerPort, password_policy: PasswordPolicyConfigDto
+    ):
         # Repository
         self.user_repo = get_in_memory_user_repository()
 
         # Services
-        policy_dto = PasswordPolicyConfigDto(
-            min_length=8,
-            max_length=128,
-            require_upper=True,
-            require_lower=True,
-            require_digit=True,
-            require_special=True,
-        )
-        self.password_service = PasswordService(policy_config=policy_dto)
+        self.password_service = PasswordService(policy_config=password_policy)
 
         # Use Cases
         self.register_user_uc = RegisterUserUseCase(
@@ -49,5 +40,5 @@ class RegistrationContainer:
 
         # Handlers
         self.register_user_handler = RegisterUserHandler(
-            controller=self.register_user_controller, logger=self.logger
+            controller=self.register_user_controller, logger=logger
         )

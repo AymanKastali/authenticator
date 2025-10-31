@@ -12,5 +12,5 @@ def create_logger_adapter() -> LoggerPort:
     Creates a LoggerPort adapter wrapping the JSON console logger.
     This can be injected anywhere in the application.
     """
-    raw_logger: Logger = get_json_console_logger()
-    return LoggerAdapter(raw_logger)
+    loggerizer: Logger = get_json_console_logger()
+    return LoggerAdapter(loggerizer)

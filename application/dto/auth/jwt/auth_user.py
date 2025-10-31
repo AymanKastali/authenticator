@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
-class CurrentUserDto:
+class AuthUserDto:
     uid: str
     email: str
     active: bool

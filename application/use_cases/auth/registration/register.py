@@ -1,4 +1,4 @@
-from application.dto.user.me import CurrentUserDto
+from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
 from application.ports.repositories.user import UserRepositoryPort
 from application.services.auth.registration.password_service import (
@@ -34,7 +34,7 @@ class RegisterUserUseCase:
             email=email_vo, hashed_password=hashed_password
         )
 
-    def execute(self, email: str, password: str) -> CurrentUserDto:
+    def execute(self, email: str, password: str) -> AuthUserDto:
         self._ensure_email_available(email)
         email_vo = self._validate_email(email)
 
@@ -46,4 +46,4 @@ class RegisterUserUseCase:
 
         self._user_repo.save(UserMapper.to_persistence_dto_from_entity(user))
 
-        return UserMapper.to_user_dto_from_entity(user)
+        return UserMapper.to_auth_user_dto_from_entity(user)

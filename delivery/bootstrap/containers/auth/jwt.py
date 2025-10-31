@@ -5,6 +5,7 @@ from adapters.controllers.auth.jwt.me import ReadMeController
 from adapters.controllers.auth.jwt.refresh_token import (
     RefreshJwtTokenController,
 )
+from adapters.controllers.auth.jwt.token_user import GetTokenUserController
 from adapters.controllers.auth.jwt.verify_token import (
     VerifyJwtTokenController,
 )
@@ -15,6 +16,7 @@ from application.services.auth.authentication import AuthService
 from application.services.auth.jwt.auth import JwtAuthService
 from application.services.auth.jwt.facade import JwtAuthFacade
 from application.use_cases.auth.jwt.me import ReadMeUseCase
+from application.use_cases.auth.jwt.token_user import GetTokenUserUseCase
 from delivery.db.in_memory.repositories import (
     get_in_memory_jwt_repository,
     get_in_memory_user_repository,
@@ -59,6 +61,7 @@ class JwtAuthContainer:
         # Use cases
         self.get_user_use_case = ReadMeUseCase(user_repo=self.user_repo)
         self.read_me_uc = ReadMeUseCase(user_repo=self.user_repo)
+        self.get_token_user_uc = GetTokenUserUseCase(user_repo=self.user_repo)
 
         # Controllers
         self.jwt_login_controller = LoginJwtController(
@@ -71,6 +74,9 @@ class JwtAuthContainer:
             service=self.jwt_facade_service
         )
         self.read_me_controller = ReadMeController(use_case=self.read_me_uc)
+        self.token_user_controller = GetTokenUserController(
+            use_case=self.get_token_user_uc
+        )
         self.jwt_logout_controller = LogoutJwtController(
             service=self.jwt_facade_service
         )

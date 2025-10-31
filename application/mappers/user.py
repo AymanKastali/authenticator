@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from application.dto.user.me import CurrentUserDto
+from application.dto.auth.jwt.auth_user import AuthUserDto
+from application.dto.auth.jwt.token_user import TokenUserDto
 from application.dto.user.persistence import PersistenceUserDto
 from application.dto.user.public import PublicUserDto
 from domain.entities.user import UserEntity
@@ -12,8 +13,8 @@ from domain.value_objects.role import Role
 
 class UserMapper:
     @staticmethod
-    def to_user_dto_from_entity(user: UserEntity) -> CurrentUserDto:
-        return CurrentUserDto(
+    def to_auth_user_dto_from_entity(user: UserEntity) -> AuthUserDto:
+        return AuthUserDto(
             uid=user.uid.to_string(),
             email=user.email.to_string(),
             active=user.active,
@@ -52,14 +53,29 @@ class UserMapper:
     @staticmethod
     def to_user_dto_from_persistence_dto(
         dto: PersistenceUserDto,
-    ) -> CurrentUserDto:
-        return CurrentUserDto(
+    ) -> AuthUserDto:
+        return AuthUserDto(
             uid=dto.uid,
             email=dto.email,
             active=dto.active,
             verified=dto.verified,
             created_at=dto.created_at,
             updated_at=dto.updated_at,
+        )
+
+    @staticmethod
+    def to_token_user_dto_from_persistence_dto(
+        dto: PersistenceUserDto,
+    ) -> TokenUserDto:
+        return TokenUserDto(
+            uid=dto.uid,
+            email=dto.email,
+            active=dto.active,
+            verified=dto.verified,
+            created_at=dto.created_at,
+            updated_at=dto.updated_at,
+            deleted_at=dto.deleted_at if dto.deleted_at else None,
+            roles=dto.roles,
         )
 
     @staticmethod

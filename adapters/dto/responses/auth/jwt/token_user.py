@@ -1,9 +1,7 @@
-from uuid import UUID
-
 from pydantic import BaseModel, ConfigDict
 
 
-class ReadMeOutDto(BaseModel):
+class TokenUserOutDto(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     uid: str
@@ -12,6 +10,5 @@ class ReadMeOutDto(BaseModel):
     verified: bool
     created_at: str
     updated_at: str
-
-    def as_uuid(self) -> UUID:
-        return UUID(self.uid)
+    deleted_at: str | None = None
+    roles: list[str] = []
