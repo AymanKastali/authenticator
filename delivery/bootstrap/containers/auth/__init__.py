@@ -16,7 +16,7 @@ password_policy_dto = PasswordPolicyConfigDto(
     require_digit=True,
     require_special=True,
 )
-
+# FIXME
 jwt_auth_container = JwtAuthContainer(logger)
 registration_container = RegistrationContainer(logger, password_policy_dto)
 session_auth_container = SessionAuthContainer()

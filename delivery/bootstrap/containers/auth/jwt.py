@@ -7,9 +7,7 @@ from adapters.controllers.auth.jwt.logout import LogoutJwtController
 from adapters.controllers.auth.jwt.refresh_token import (
     RefreshJwtTokenController,
 )
-from adapters.controllers.auth.jwt.verify_token import (
-    VerifyJwtTokenController,
-)
+from adapters.controllers.auth.jwt.verify_token import VerifyJwtTokenController
 from adapters.gateways.authentication.jwt_service import JwtService
 from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
@@ -19,10 +17,7 @@ from application.services.auth.jwt.facade import JwtAuthFacade
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
-from delivery.db.in_memory.repositories import (
-    get_in_memory_jwt_repository,
-    get_in_memory_user_repository,
-)
+from delivery.db.in_memory.repositories import get_in_memory_user_repository
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.login import JwtLoginHandler
 from delivery.web.fastapi.api.v1.handlers.auth.jwt.logout import (
     JwtLogoutHandler,
@@ -36,19 +31,29 @@ from delivery.web.fastapi.api.v1.handlers.auth.jwt.verify_token import (
 
 
 class JwtAuthContainer:
-    """Container for jwt-based authentication"""
+    """Container for JWT-based authentication (sync __init__)"""
 
+    # def __init__(self, logger: LoggerPort, redis_client: Redis):
+    # FIXME inject redis client
     def __init__(self, logger: LoggerPort):
         # Logger
         self.logger = logger
+
+        # Redis client (already connected)
+        # redis_manager = get_redis_connection_manager()
+        # self.redis_client = redis_manager.get_client()
 
         # Infrastructure
         jwt_cfg = JwtConfig()
         self.jwt_service: JwtServicePort = JwtService(jwt_cfg)
 
+        # Cache
+        # self.get_jwt_blacklist_adapter = get_jwt_blacklist_adapter(
+        #     self.redis_client
+        # )
+
         # Repositories
         self.user_repo = get_in_memory_user_repository()
-        self.jwt_repo = get_in_memory_jwt_repository()
 
         # Services
         self.auth_service = AuthService(self.user_repo)
@@ -56,7 +61,7 @@ class JwtAuthContainer:
         self.jwt_facade_service = JwtAuthFacade(
             auth_service=self.auth_service,
             jwt_auth_service=self.jwt_auth_service,
-            jwt_repo=self.jwt_repo,
+            # blacklist_cache=self.get_jwt_blacklist_adapter,
         )
 
         # Use cases
@@ -94,3 +99,5 @@ class JwtAuthContainer:
         self.jwt_logout_handler = JwtLogoutHandler(
             controller=self.jwt_logout_controller, logger=self.logger
         )
+
+        self.logger.info("[JwtAuthContainer] fully initialized")

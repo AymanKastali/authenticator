@@ -25,7 +25,8 @@
         "ms-python.debugpy",
         "charliermarsh.ruff",
         "mongodb.mongodb-vscode",
-        "streetsidesoftware.code-spell-checker"
+        "streetsidesoftware.code-spell-checker",
+        "cweijan.vscode-redis-client"
       ],
       "files.exclude": {
           "**/*.pyc": true,

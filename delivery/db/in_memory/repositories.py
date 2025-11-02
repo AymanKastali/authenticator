@@ -6,21 +6,15 @@ from adapters.gateways.persistence.in_memory.repositories.in_memory_session_repo
 from adapters.gateways.persistence.in_memory.repositories.in_memory_user_repository import (
     InMemoryUserRepository,
 )
-from adapters.gateways.persistence.in_memory.repositories.jwt import (
-    InMemoryJwtRepository,
-)
+from application.ports.repositories.session import SessionRepositoryPort
+from application.ports.repositories.user import UserRepositoryPort
 
 
 @lru_cache()
-def get_in_memory_user_repository() -> InMemoryUserRepository:
+def get_in_memory_user_repository() -> UserRepositoryPort:
     return InMemoryUserRepository()
 
 
 @lru_cache()
-def get_in_memory_jwt_repository() -> InMemoryJwtRepository:
-    return InMemoryJwtRepository()
-
-
-@lru_cache()
-def get_in_memory_session_repository() -> InMemorySessionRepository:
+def get_in_memory_session_repository() -> SessionRepositoryPort:
     return InMemorySessionRepository()

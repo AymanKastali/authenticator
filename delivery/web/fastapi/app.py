@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from adapters.gateways.logging.logger_factory import create_logger_adapter
 from application.ports.services.logger import LoggerPort
+from delivery.db.cache.async_redis import get_redis_connection_manager
 from delivery.web.fastapi.config import get_app_config
 from delivery.web.fastapi.utils.exception_handlers_registry import (
     register_exception_handlers,
@@ -23,11 +24,20 @@ async def _lifespan(app: FastAPI):
     """
     logger: Logger = app.state.logger
     logger.info(f"[Lifespan] Starting {app_cfg.name} v{app_cfg.version}")
+    redis = get_redis_connection_manager()
+    await redis.connect()
+    redis_connected: bool = await redis.ping()
+    if redis_connected is True:
+        logger.info("[Redis] connected")
+    else:
+        logger.info("[Redis] unable to connect")
 
     # Place to initialize other resources (DB, caches, etc.)
     yield
     # Shutdown hooks
     logger.info(f"[Lifespan] Shutting down {app_cfg.name}")
+    await redis.disconnect()
+    logger.info("[Redis] disconnected")
 
 
 def create_app() -> FastAPI:

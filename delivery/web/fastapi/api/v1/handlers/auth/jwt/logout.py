@@ -14,7 +14,7 @@ class JwtLogoutHandler:
         self._logger.info(
             f"[JwtLogoutHandler] Attempting logout for token={token[:10]}"
         )
-        self._controller.execute(token)
+        await self._controller.execute(token)
         self._logger.info(
             f"[JwtLogoutHandler] Logout successful for token={token[:10]}"
         )

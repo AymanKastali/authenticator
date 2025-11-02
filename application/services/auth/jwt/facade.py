@@ -1,9 +1,12 @@
 # application/facades/jwt_auth_facade.py
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from application.dto.auth.jwt.token import JwtDto
 from application.mappers.jwt import JwtMapper
-from application.ports.repositories.jwt import JwtRepositoryPort
+
+# from application.ports.cache.redis.jwt_blacklist import (
+#     AsyncJwtBlacklistRedisPort,
+# )
 from application.services.auth.authentication import AuthService
 from application.services.auth.jwt.auth import JwtAuthService
 from domain.entities.auth.jwt.token import JwtEntity
@@ -17,11 +20,11 @@ class JwtAuthFacade:
         self,
         auth_service: AuthService,
         jwt_auth_service: JwtAuthService,
-        jwt_repo: JwtRepositoryPort,
+        # blacklist_cache: AsyncJwtBlacklistRedisPort,
     ):
         self._auth_service = auth_service
         self._jwt_auth_service = jwt_auth_service
-        self._jwt_repo = jwt_repo
+        # self._blacklist_cache = blacklist_cache
 
     # ------------------- Login / Token -------------------
 
@@ -50,28 +53,23 @@ class JwtAuthFacade:
         return self._generate_jwt_tokens(user)
 
     # ------------------- Logout / Blacklist -------------------
-    def logout(self, token: str) -> None:
+    async def logout(self, token: str) -> None:
+        # Verify and decode token
         token_entity: JwtEntity = self._jwt_auth_service.verify_token(token)
         jti: str = token_entity.payload.jti.to_string()
-        exp: float = token_entity.payload.exp.timestamp()
 
-        expires_in: float = exp - datetime.now(timezone.utc).timestamp()
-        expires_at: datetime = datetime.now(timezone.utc) + timedelta(
-            seconds=expires_in
-        )
+        # Calculate absolute expiration timestamp
+        exp_timestamp: float = token_entity.payload.exp.timestamp()
+        now_timestamp: float = datetime.now(timezone.utc).timestamp()
 
-        self._jwt_repo.add_token(jti=jti, expires_at=expires_at)
+        # Only blacklist if token has time remaining
+        # if exp_timestamp > now_timestamp:
+        #     # Pass absolute expiration timestamp to adapter
+        #     await self._blacklist_cache.blacklist_jwt(
+        #         jti=jti, expire_at=int(exp_timestamp)
+        #     )
 
     # ------------------- Validation -------------------
-    def is_token_valid(self, token: str) -> bool:
-        token_entity: JwtEntity = self._jwt_auth_service.verify_token(token)
-
-        if token_entity.is_expired():
-            return False
-        if self._jwt_repo.is_token_blacklisted(token_entity.jti.to_string()):
-            return False
-        return True
-
     def verify_jwt_token(
         self, token: str, subject: str | None = None
     ) -> JwtDto:
