@@ -8,7 +8,7 @@
     "containerEnv": {
         "PYTHONDONTWRITEBYTECODE": "1"
       },
-    // "forwardPorts": [8001]
+    "forwardPorts": [8000, 5678],
     "postStartCommand": "uv sync --locked",
     "features": {
     "ghcr.io/devcontainers/features/python:1": {},

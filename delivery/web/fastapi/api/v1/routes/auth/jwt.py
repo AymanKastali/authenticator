@@ -1,17 +1,19 @@
-from adapters.dto.responses.auth.jwt.me import ReadMeOutDto
+from adapters.dto.responses.auth.jwt.authenticated_user import (
+    AuthenticatedUserOutDto,
+)
 from adapters.dto.responses.auth.jwt.payload import JwtTokenPayloadOutDto
 from adapters.dto.responses.auth.jwt.tokens import JwtTokensOutDto
 from adapters.dto.responses.generic.success.item import ItemOutDto
 from delivery.web.fastapi.api.metadata.http_methods import HttpMethod
 from delivery.web.fastapi.api.metadata.route_tags import RouteTag
+from delivery.web.fastapi.api.v1.endpoints.auth.jwt.authenticated_user import (
+    get_authenticated_user_endpoint,
+)
 from delivery.web.fastapi.api.v1.endpoints.auth.jwt.login import (
     jwt_login_endpoint,
 )
 from delivery.web.fastapi.api.v1.endpoints.auth.jwt.logout import (
     jwt_logout_endpoint,
-)
-from delivery.web.fastapi.api.v1.endpoints.auth.jwt.me import (
-    read_me_endpoint,
 )
 from delivery.web.fastapi.api.v1.endpoints.auth.jwt.refresh_token import (
     refresh_jwt_token_endpoint,
@@ -25,7 +27,7 @@ _BASE = "/jwt"
 _LOGIN = f"{_BASE}/login"
 _REFRESH_TOKEN = f"{_BASE}/token/refresh"
 _VERIFY_TOKEN = f"{_BASE}/token/verify"
-_READ_ME = f"{_BASE}/me"
+_AUTHENTICATED_USER = f"{_BASE}/me"
 _LOGOUT = f"{_BASE}/logout"
 
 routes = [
@@ -63,14 +65,14 @@ routes = [
         description="Endpoint to Verify a JWT Token and receive a JWT Token Payload.",
     ),
     create_route(
-        name="get_request_user",
-        path=_READ_ME,
+        name="get_authenticated_user",
+        path=_AUTHENTICATED_USER,
         status_code=200,
         methods=[HttpMethod.GET],
-        endpoint=read_me_endpoint,
+        endpoint=get_authenticated_user_endpoint,
         tag=RouteTag.USERS,
         summary="Get my UserEntity info",
-        response_model=ItemOutDto[ReadMeOutDto],
+        response_model=ItemOutDto[AuthenticatedUserOutDto],
         description="Endpoint to get my own UserEntity info.",
     ),
     create_route(

@@ -1,0 +1,19 @@
+from typing import Annotated
+
+from fastapi import Depends
+
+from adapters.dto.responses.auth.jwt.authenticated_user import (
+    AuthenticatedUserOutDto,
+)
+from adapters.dto.responses.generic.success.item import ItemOutDto
+from delivery.web.fastapi.api.v1.dependencies.jwt.auth import get_current_user
+
+
+async def get_authenticated_user_endpoint(
+    current_user: Annotated[AuthenticatedUserOutDto, Depends(get_current_user)],
+):
+    return ItemOutDto[AuthenticatedUserOutDto].build(
+        data=current_user,
+        status_code=200,
+        message="Authenticated User Data Fetched Successfully",
+    )

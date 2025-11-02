@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 
 
-class TokenUserOutDto(BaseModel):
+class AuthenticatedUserOutDto(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     uid: str
