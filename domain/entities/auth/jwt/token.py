@@ -14,6 +14,11 @@ class JwtEntity:
         default_factory=lambda: {"alg": "HS256", "typ": "JWT"}
     )
 
+    def __post_init__(self):
+        self._validate_signature()
+        self._validate_header()
+        self._validate_expiration()
+
     # --- entity identity ---
     @property
     def jti(self):
@@ -25,6 +30,24 @@ class JwtEntity:
         """Check if token is expired."""
         return utc_now() >= self.payload.exp
 
+    # --- validation methods ---
+    def _validate_signature(self):
+        if not self.signature:
+            raise ValueError("JWT signature cannot be empty")
+
+    def _validate_header(self):
+        alg = self.header.get("alg")
+        typ = self.header.get("typ")
+        if alg != "HS256":
+            raise ValueError(f"Unsupported algorithm: {alg}")
+        if typ != "JWT":
+            raise ValueError(f"Invalid token type: {typ}")
+
+    def _validate_expiration(self):
+        if self.is_expired():
+            raise ValueError("JWT is already expired")
+
+    # --- utility ---
     def to_primitives(self) -> dict:
         """Return serializable representation for infrastructure use."""
         return {

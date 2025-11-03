@@ -65,8 +65,8 @@ class JwtPayloadVo:
         roles: list[Role] | None = None,
         email: Email | None = None,
         username: str | None = None,
-        iss: str | None = "auth.myapp.com",
-        aud: str | None = "api.myapp.com",
+        iss: str | None = None,
+        aud: str | None = None,
         nbf: datetime | None = None,
     ) -> "JwtPayloadVo":
         """Factory method to create a valid payload VO."""

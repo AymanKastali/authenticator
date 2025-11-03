@@ -24,7 +24,7 @@ async def _lifespan(app: FastAPI):
     """
     logger: Logger = app.state.logger
     logger.info(f"[Lifespan] Starting {app_cfg.name} v{app_cfg.version}")
-    redis = get_redis_connection_manager()
+    redis = await get_redis_connection_manager()
     await redis.connect()
     redis_connected: bool = await redis.ping()
     if redis_connected is True:

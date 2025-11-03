@@ -1,11 +1,11 @@
 from adapters.dto.responses.auth.jwt.tokens import JwtTokensOutDto
-from application.services.auth.jwt.facade import JwtAuthFacade
+from application.services.auth.jwt.auth import JwtAuthService
 
 
 class LoginJwtController:
-    def __init__(self, service: JwtAuthFacade):
+    def __init__(self, service: JwtAuthService):
         self.service = service
 
     def execute(self, email: str, password: str) -> JwtTokensOutDto:
-        jwt_tokens: dict = self.service.login_user(email, password)
+        jwt_tokens: dict = self.service.login(email, password)
         return JwtTokensOutDto(**jwt_tokens)

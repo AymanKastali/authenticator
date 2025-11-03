@@ -1,10 +1,10 @@
 from adapters.dto.responses.auth.jwt.payload import JwtTokenPayloadOutDto
 from application.dto.auth.jwt.token import JwtDto
-from application.services.auth.jwt.facade import JwtAuthFacade
+from application.services.auth.jwt.auth import JwtAuthService
 
 
 class VerifyJwtTokenController:
-    def __init__(self, service: JwtAuthFacade):
+    def __init__(self, service: JwtAuthService):
         self.service = service
 
     def execute(

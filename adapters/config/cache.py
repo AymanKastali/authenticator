@@ -4,7 +4,7 @@ from pydantic import Field, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-class RedisSettings(BaseSettings):
+class RedisConfig(BaseSettings):
     """Configuration for Redis connection."""
 
     url: RedisDsn = Field(default=cast(RedisDsn, "redis://localhost:6379/0"))

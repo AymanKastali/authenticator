@@ -4,6 +4,7 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
+from redis.asyncio import Redis
 
 from adapters.config.jwt import JwtConfig
 from adapters.controllers.auth.jwt.get_authenticated_user import (
@@ -20,17 +21,24 @@ from adapters.dto.responses.auth.jwt.authenticated_user import (
 )
 from adapters.exceptions.adapters_errors import JWTExpiredError, JWTInvalidError
 from adapters.gateways.authentication.jwt_service import JwtService
+from adapters.gateways.persistence.cache.redis.asynchronous.blacklist_adpater import (
+    AsyncJwtBlacklistRedisAdapter,
+)
 from application.dto.auth.jwt.payload import JwtPayloadDto
 from application.dto.auth.jwt.token import JwtDto
+from application.dto.auth.jwt.tokens_config import TokensConfigDto
+from application.ports.cache.redis.jwt_blacklist import (
+    AsyncJwtBlacklistRedisPort,
+)
 from application.ports.repositories.user import UserRepositoryPort
 from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
 from application.services.auth.authentication import AuthService
 from application.services.auth.jwt.auth import JwtAuthService
-from application.services.auth.jwt.facade import JwtAuthFacade
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
+from delivery.db.cache.async_redis import get_redis_client
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
 from delivery.web.fastapi.api.v1.dependencies.logger import (
     get_console_json_logger,
@@ -50,12 +58,34 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/jwt/login")
 
 
 # -----------------------------------------------------------------------------
+# CACHE
+# -----------------------------------------------------------------------------
+async def get_jwt_blacklist_adapter(
+    redis_client: Redis = Depends(get_redis_client),
+) -> AsyncJwtBlacklistRedisPort:
+    """Return a singleton JWT blacklist adapter."""
+    return AsyncJwtBlacklistRedisAdapter(redis_client)
+
+
+# -----------------------------------------------------------------------------
 # CONFIG
 # -----------------------------------------------------------------------------
 @lru_cache
 def jwt_config_dependency() -> JwtConfig:
     """Provide cached JwtConfig (singleton)."""
     return JwtConfig()
+
+
+def tokens_config_dto_dependency(
+    jwt_config: JwtConfig = Depends(jwt_config_dependency),
+) -> TokensConfigDto:
+    """Map adapter config to application DTO."""
+    return TokensConfigDto(
+        access_token_exp=jwt_config.access_token_exp,
+        refresh_token_exp=jwt_config.refresh_token_exp,
+        issuer=jwt_config.issuer,
+        audience=jwt_config.audience,
+    )
 
 
 # -----------------------------------------------------------------------------
@@ -75,22 +105,20 @@ def auth_service_dependency(
     return AuthService(user_repo)
 
 
-def jwt_auth_service_dependency(
+async def jwt_auth_service_dependency(
+    auth_service: AuthService = Depends(auth_service_dependency),
     jwt_service: JwtServicePort = Depends(jwt_service_dependency),
+    tokens_config: TokensConfigDto = Depends(tokens_config_dto_dependency),
+    blacklist_cache: AsyncJwtBlacklistRedisPort = Depends(
+        get_jwt_blacklist_adapter
+    ),
 ) -> JwtAuthService:
     """Provide JwtAuthService."""
-    return JwtAuthService(jwt_service)
-
-
-def jwt_auth_facade_service_dependency(
-    auth_service: AuthService = Depends(auth_service_dependency),
-    jwt_auth_service: JwtAuthService = Depends(jwt_auth_service_dependency),
-) -> JwtAuthFacade:
-    """Provide JwtAuthFacade service."""
-    return JwtAuthFacade(
+    return JwtAuthService(
         auth_service=auth_service,
-        jwt_auth_service=jwt_auth_service,
-        # blacklist_cache=get_jwt_blacklist_adapter()  # Optional future addition
+        jwt_service=jwt_service,
+        tokens_config=tokens_config,
+        blacklist_cache=blacklist_cache,
     )
 
 
@@ -108,25 +136,19 @@ def get_authenticated_user_uc_dependency(
 # CONTROLLERS
 # -----------------------------------------------------------------------------
 def login_jwt_controller_dependency(
-    jwt_facade_service: JwtAuthFacade = Depends(
-        jwt_auth_facade_service_dependency
-    ),
+    jwt_facade_service: JwtAuthService = Depends(jwt_auth_service_dependency),
 ) -> LoginJwtController:
     return LoginJwtController(jwt_facade_service)
 
 
 def refresh_jwt_token_controller_dependency(
-    jwt_facade_service: JwtAuthFacade = Depends(
-        jwt_auth_facade_service_dependency
-    ),
+    jwt_facade_service: JwtAuthService = Depends(jwt_auth_service_dependency),
 ) -> RefreshJwtTokenController:
     return RefreshJwtTokenController(jwt_facade_service)
 
 
 def verify_jwt_token_controller_dependency(
-    jwt_facade_service: JwtAuthFacade = Depends(
-        jwt_auth_facade_service_dependency
-    ),
+    jwt_facade_service: JwtAuthService = Depends(jwt_auth_service_dependency),
 ) -> VerifyJwtTokenController:
     return VerifyJwtTokenController(jwt_facade_service)
 
@@ -140,9 +162,7 @@ def get_authenticated_user_controller_dependency(
 
 
 def logout_jwt_controller_dependency(
-    jwt_facade_service: JwtAuthFacade = Depends(
-        jwt_auth_facade_service_dependency
-    ),
+    jwt_facade_service: JwtAuthService = Depends(jwt_auth_service_dependency),
 ) -> LogoutJwtController:
     return LogoutJwtController(jwt_facade_service)
 
@@ -185,11 +205,14 @@ def jwt_logout_handler_dependency(
 # -----------------------------------------------------------------------------
 # VALIDATION
 # -----------------------------------------------------------------------------
-def get_current_authenticated_user(
+async def get_current_authenticated_user(
     token: str = Depends(oauth2_scheme),
     jwt_service: JwtServicePort = Depends(jwt_service_dependency),
     user_controller: GetAuthenticatedUserController = Depends(
         get_authenticated_user_controller_dependency
+    ),
+    blacklist_cache: AsyncJwtBlacklistRedisPort = Depends(
+        get_jwt_blacklist_adapter
     ),
 ) -> AuthenticatedUserOutDto:
     """
@@ -203,8 +226,8 @@ def get_current_authenticated_user(
             raise JWTExpiredError("Token expired")
 
         # Optional: check blacklist
-        # if jwt_service.is_blacklisted(payload_dto.jti):
-        #     raise JWTInvalidError("Token revoked/blacklisted")
+        if await blacklist_cache.is_jwt_blacklisted(payload_dto.jti):
+            raise JWTInvalidError("Token revoked/blacklisted")
 
     except (JWTExpiredError, JWTInvalidError) as e:
         raise HTTPException(

@@ -1,8 +1,8 @@
-from application.services.auth.jwt.facade import JwtAuthFacade
+from application.services.auth.jwt.auth import JwtAuthService
 
 
 class LogoutJwtController:
-    def __init__(self, service: JwtAuthFacade):
+    def __init__(self, service: JwtAuthService):
         self.service = service
 
     async def execute(self, token: str) -> None:
