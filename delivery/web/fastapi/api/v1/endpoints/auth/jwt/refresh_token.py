@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, Request
 
 from adapters.dto.requests.auth.jwt.refresh_token import RefreshJwtTokenInDto
@@ -10,10 +12,10 @@ from delivery.web.fastapi.api.v1.handlers.auth.jwt.refresh_token import (
 
 
 async def refresh_jwt_token_endpoint(
-    _: Request,
+    _request: Request,
     body: RefreshJwtTokenInDto,
-    handler: RefreshJwtTokenHandler = Depends(
-        jwt_refresh_token_handler_dependency
-    ),
+    handler: Annotated[
+        RefreshJwtTokenHandler, Depends(jwt_refresh_token_handler_dependency)
+    ],
 ):
     return await handler.execute(body)

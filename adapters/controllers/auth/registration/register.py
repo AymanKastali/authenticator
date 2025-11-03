@@ -7,6 +7,6 @@ class RegisterUserController:
     def __init__(self, use_case: RegisterUserUseCase):
         self.use_case = use_case
 
-    def execute(self, email: str, password: str) -> RegisteredUserOutDto:
-        user: AuthUserDto = self.use_case.execute(email, password)
+    async def execute(self, email: str, password: str) -> RegisteredUserOutDto:
+        user: AuthUserDto = await self.use_case.execute(email, password)
         return RegisteredUserOutDto.model_validate(user)

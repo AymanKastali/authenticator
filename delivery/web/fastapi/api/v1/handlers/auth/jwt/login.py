@@ -16,7 +16,7 @@ class JwtLoginHandler:
         self._logger.info(
             f"[JwtLoginHandler] Attempting login for email={body.email}"
         )
-        jwt_tokens: JwtTokensOutDto = self._controller.execute(
+        jwt_tokens: JwtTokensOutDto = await self._controller.execute(
             email=body.email, password=body.password
         )
         self._logger.info(

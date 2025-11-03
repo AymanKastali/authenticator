@@ -9,6 +9,6 @@ class GetUserByIdController:
     def __init__(self, use_case: GetUserByIdUseCase):
         self.use_case = use_case
 
-    def execute(self, user_id: UUID) -> PublicUserOutDto:
-        user: PublicUserDto = self.use_case.execute(user_id)
+    async def execute(self, user_id: UUID) -> PublicUserOutDto:
+        user: PublicUserDto = await self.use_case.execute(user_id)
         return PublicUserOutDto.model_validate(user)

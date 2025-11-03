@@ -12,13 +12,18 @@ from delivery.web.fastapi.api.v1.dependencies.jwt import (
 from delivery.web.fastapi.api.v1.dependencies.user import (
     get_user_by_id_handler_dependency,
 )
+from delivery.web.fastapi.api.v1.handlers.user.get_by_id import (
+    GetUserByIdHandler,
+)
 
 
 async def get_user_by_id_endpoint(
-    _: Annotated[
+    _authenticated_user: Annotated[
         AuthenticatedUserOutDto, Depends(get_current_authenticated_user)
     ],
     user_id: UUID,
-    handler=Depends(get_user_by_id_handler_dependency),
+    handler: Annotated[
+        GetUserByIdHandler, Depends(get_user_by_id_handler_dependency)
+    ],
 ):
-    return handler.execute(user_id)
+    return await handler.execute(user_id)

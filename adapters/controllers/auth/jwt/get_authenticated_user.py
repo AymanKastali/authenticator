@@ -13,6 +13,6 @@ class GetAuthenticatedUserController:
     def __init__(self, use_case: GetAuthenticatedUserUseCase):
         self.use_case = use_case
 
-    def execute(self, user_id: UUID) -> AuthenticatedUserOutDto:
-        user: TokenUserDto = self.use_case.execute(user_id)
+    async def execute(self, user_id: UUID) -> AuthenticatedUserOutDto:
+        user: TokenUserDto = await self.use_case.execute(user_id)
         return AuthenticatedUserOutDto.model_validate(user)

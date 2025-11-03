@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 
 from adapters.dto.responses.auth.jwt.authenticated_user import (
@@ -9,10 +11,17 @@ from delivery.web.fastapi.api.v1.dependencies.app import (
 from delivery.web.fastapi.api.v1.dependencies.jwt import (
     get_current_authenticated_user,
 )
+from delivery.web.fastapi.api.v1.handlers.app.list_policies import (
+    ListPoliciesHandler,
+)
 
 
-async def list_policies_endpoint(
-    _: AuthenticatedUserOutDto = Depends(get_current_authenticated_user),
-    handler=Depends(list_policies_handler_dependency),
+def list_policies_endpoint(
+    _authenticated_user: Annotated[
+        AuthenticatedUserOutDto, Depends(get_current_authenticated_user)
+    ],
+    handler: Annotated[
+        ListPoliciesHandler, Depends(list_policies_handler_dependency)
+    ],
 ):
     return handler.execute()

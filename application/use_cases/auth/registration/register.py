@@ -23,8 +23,9 @@ class RegisterUserUseCase:
         except InvalidValueError as e:
             raise ValueError(f"Invalid email: {e}") from e
 
-    def _ensure_email_available(self, email: str) -> None:
-        if self._user_repo.get_user_by_email(email):
+    async def _ensure_email_available(self, email: str) -> None:
+        user = await self._user_repo.get_user_by_email(email)
+        if user is not None:
             raise ValueError(f"Email '{email}' is already registered.")
 
     def _create_user(
@@ -34,8 +35,8 @@ class RegisterUserUseCase:
             email=email_vo, hashed_password=hashed_password
         )
 
-    def execute(self, email: str, password: str) -> AuthUserDto:
-        self._ensure_email_available(email)
+    async def execute(self, email: str, password: str) -> AuthUserDto:
+        await self._ensure_email_available(email)
         email_vo = self._validate_email(email)
 
         hashed_password = self._password_service.create_hashed_password(
@@ -44,6 +45,8 @@ class RegisterUserUseCase:
 
         user = self._create_user(email_vo, hashed_password)
 
-        self._user_repo.save(UserMapper.to_persistence_dto_from_entity(user))
+        await self._user_repo.save(
+            UserMapper.to_persistence_dto_from_entity(user)
+        )
 
         return UserMapper.to_auth_user_dto_from_entity(user)

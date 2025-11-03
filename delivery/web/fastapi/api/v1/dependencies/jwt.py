@@ -203,6 +203,46 @@ def jwt_logout_handler_dependency(
 
 
 # -----------------------------------------------------------------------------
+# HELPERS
+# -----------------------------------------------------------------------------
+async def validate_jwt_token(
+    token: str,
+    jwt_service: JwtServicePort,
+    blacklist_cache: AsyncJwtBlacklistRedisPort,
+) -> JwtPayloadDto:
+    """
+    Verify the JWT token, check expiration, and blacklist status.
+    Returns the payload if valid.
+    """
+    try:
+        token_dto: JwtDto = jwt_service.verify(token)
+        payload_dto: JwtPayloadDto = token_dto.payload
+
+        now_ts = datetime.now(timezone.utc).timestamp()
+        if now_ts >= payload_dto.exp:
+            raise JWTExpiredError("Token expired")
+
+        if await blacklist_cache.is_jwt_blacklisted(payload_dto.jti):
+            raise JWTInvalidError("Token revoked/blacklisted")
+
+        return payload_dto
+
+    except (JWTExpiredError, JWTInvalidError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
+        ) from e
+
+
+async def fetch_authenticated_user(
+    user_id: UUID, user_controller: GetAuthenticatedUserController
+) -> AuthenticatedUserOutDto:
+    """
+    Fetch the authenticated user object by user ID.
+    """
+    return await user_controller.execute(user_id)
+
+
+# -----------------------------------------------------------------------------
 # VALIDATION
 # -----------------------------------------------------------------------------
 async def get_current_authenticated_user(
@@ -216,25 +256,12 @@ async def get_current_authenticated_user(
     ),
 ) -> AuthenticatedUserOutDto:
     """
-    Validate JWT token, check expiration, and return the authenticated user.
+    Validate JWT token, check expiration/blacklist, and return the authenticated user.
     """
-    try:
-        token_dto: JwtDto = jwt_service.verify(token)
-        payload_dto: JwtPayloadDto = token_dto.payload
-
-        if datetime.now(timezone.utc).timestamp() >= payload_dto.exp:
-            raise JWTExpiredError("Token expired")
-
-        # Optional: check blacklist
-        if await blacklist_cache.is_jwt_blacklisted(payload_dto.jti):
-            raise JWTInvalidError("Token revoked/blacklisted")
-
-    except (JWTExpiredError, JWTInvalidError) as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
-        ) from e
-
-    user = user_controller.execute(UUID(payload_dto.sub))
+    payload_dto = await validate_jwt_token(token, jwt_service, blacklist_cache)
+    user = await fetch_authenticated_user(
+        UUID(payload_dto.sub), user_controller
+    )
     return user
 
 
@@ -242,9 +269,10 @@ def get_current_authenticated_active_user(
     current_user: AuthenticatedUserOutDto = Depends(
         get_current_authenticated_user
     ),
-):
+) -> AuthenticatedUserOutDto:
     """
     Ensure the authenticated user is active.
+    Raises 403 if user is inactive.
     """
     if not current_user.active:
         raise HTTPException(

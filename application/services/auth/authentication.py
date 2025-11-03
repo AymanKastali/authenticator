@@ -9,11 +9,11 @@ class AuthService:
     def __init__(self, user_repo: UserRepositoryPort):
         self._user_repo = user_repo
 
-    def authenticate_user(
+    async def authenticate_user(
         self, email: str, password: str
     ) -> PersistenceUserDto:
         """Validate user credentials and return domain entity."""
-        user_persistence_dto = self._user_repo.get_user_by_email(email)
+        user_persistence_dto = await self._user_repo.get_user_by_email(email)
         if user_persistence_dto is None:
             raise ValueError("User not found")
 
@@ -24,22 +24,22 @@ class AuthService:
 
         return user_persistence_dto
 
-    def get_user_by_id(self, user_id: UUID) -> PersistenceUserDto:
+    async def get_user_by_id(self, user_id: UUID) -> PersistenceUserDto:
         """Load a user by ID."""
-        user_persistence_dto: PersistenceUserDto | None = (
-            self._user_repo.get_user_by_id(user_id)
-        )
+        user_persistence_dto: (
+            PersistenceUserDto | None
+        ) = await self._user_repo.get_user_by_id(user_id)
         if user_persistence_dto is None:
             raise ValueError("User not found")
 
         _ = UserMapper.to_entity_from_persistence(user_persistence_dto)
         return user_persistence_dto
 
-    def get_user_by_email(self, email: str) -> PersistenceUserDto:
+    async def get_user_by_email(self, email: str) -> PersistenceUserDto:
         """Load a user by email."""
-        user_persistence_dto: PersistenceUserDto | None = (
-            self._user_repo.get_user_by_email(email)
-        )
+        user_persistence_dto: (
+            PersistenceUserDto | None
+        ) = await self._user_repo.get_user_by_email(email)
         if user_persistence_dto is None:
             raise ValueError("User not found")
 

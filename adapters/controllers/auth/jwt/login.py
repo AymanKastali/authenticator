@@ -6,6 +6,6 @@ class LoginJwtController:
     def __init__(self, service: JwtAuthService):
         self.service = service
 
-    def execute(self, email: str, password: str) -> JwtTokensOutDto:
-        jwt_tokens: dict = self.service.login(email, password)
+    async def execute(self, email: str, password: str) -> JwtTokensOutDto:
+        jwt_tokens: dict = await self.service.login(email, password)
         return JwtTokensOutDto(**jwt_tokens)

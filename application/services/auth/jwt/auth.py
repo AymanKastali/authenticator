@@ -73,9 +73,9 @@ class JwtAuthService:
             "refresh_token": refresh_token.signature,
         }
 
-    def login(self, email: str, password: str) -> dict[str, str]:
+    async def login(self, email: str, password: str) -> dict[str, str]:
         user_persistence_dto: PersistenceUserDto = (
-            self._auth_service.authenticate_user(email, password)
+            await self._auth_service.authenticate_user(email, password)
         )
         user_entity: UserEntity = UserMapper.to_entity_from_persistence(
             user_persistence_dto
@@ -111,11 +111,11 @@ class JwtAuthService:
         _ = JwtMapper.to_entity_from_jwt_dto(jwt_dto).payload
         return jwt_dto
 
-    def refresh_jwt_token(self, refresh_token: str) -> dict[str, str]:
+    async def refresh_jwt_token(self, refresh_token: str) -> dict[str, str]:
         token_dto: JwtDto = self.verify_refresh_token(refresh_token)
         user_id = token_dto.payload.sub
         user_persistence_dto: PersistenceUserDto = (
-            self._auth_service.get_user_by_id(UUID(user_id))
+            await self._auth_service.get_user_by_id(UUID(user_id))
         )
         user_entity: UserEntity = UserMapper.to_entity_from_persistence(
             user_persistence_dto

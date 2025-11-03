@@ -11,11 +11,11 @@ class GetUserByIdHandler:
         self._controller = controller
         self._logger = logger
 
-    def execute(self, user_id: UUID) -> ItemOutDto[PublicUserOutDto]:
+    async def execute(self, user_id: UUID) -> ItemOutDto[PublicUserOutDto]:
         self._logger.info(
             f"[GetUserByIdHandler] Retrieving user data for user_id={user_id}"
         )
-        user: PublicUserOutDto = self._controller.execute(user_id)
+        user: PublicUserOutDto = await self._controller.execute(user_id)
         self._logger.info(
             f"[GetUserByIdHandler] Successfully retrieved data for user_id={user_id}"
         )

@@ -10,8 +10,10 @@ class GetUserByIdUseCase:
     def __init__(self, user_repo: UserRepositoryPort):
         self.user_repo = user_repo
 
-    def execute(self, user_id: UUID) -> PublicUserDto:
-        user: PersistenceUserDto | None = self.user_repo.get_user_by_id(user_id)
+    async def execute(self, user_id: UUID) -> PublicUserDto:
+        user: PersistenceUserDto | None = await self.user_repo.get_user_by_id(
+            user_id
+        )
         if user is None:
             raise ValueError("UserEntity not found")
 

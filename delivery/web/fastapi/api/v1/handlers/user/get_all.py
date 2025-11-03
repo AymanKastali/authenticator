@@ -11,13 +11,13 @@ class GetAllUsersHandler:
         self._controller = controller
         self._logger = logger
 
-    def execute(
+    async def execute(
         self, page: int, page_size: int
     ) -> PaginatedResponseModel[PublicUserOutDto]:
         self._logger.info(
             f"[GetAllUsersHandler] Retrieving users list: page={page}, page_size={page_size}"
         )
-        users: list[PublicUserOutDto] = self._controller.execute()
+        users: list[PublicUserOutDto] = await self._controller.execute()
         self._logger.info(
             f"[GetAllUsersHandler] Successfully retrieved {len(users)} users: page={page}, page_size={page_size}"
         )

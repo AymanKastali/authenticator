@@ -16,7 +16,7 @@ class RegisterUserHandler:
         self, body: LoginUserInDto
     ) -> ItemOutDto[RegisteredUserOutDto]:
         self._logger.info(f"Registering user {body.email}")
-        user: RegisteredUserOutDto = self._controller.execute(
+        user: RegisteredUserOutDto = await self._controller.execute(
             email=body.email, password=body.password
         )
         self._logger.info(f"User {body.email} registered successfully")

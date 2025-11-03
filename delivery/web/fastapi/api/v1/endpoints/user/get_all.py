@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends, Query
 
 from adapters.dto.responses.auth.jwt.authenticated_user import (
@@ -9,12 +11,17 @@ from delivery.web.fastapi.api.v1.dependencies.jwt import (
 from delivery.web.fastapi.api.v1.dependencies.user import (
     get_user_all_users_handler_dependency,
 )
+from delivery.web.fastapi.api.v1.handlers.user.get_all import GetAllUsersHandler
 
 
 async def get_all_users_endpoint(
-    _: AuthenticatedUserOutDto = Depends(get_current_authenticated_user),
+    _authenticated_user: Annotated[
+        AuthenticatedUserOutDto, Depends(get_current_authenticated_user)
+    ],
+    handler: Annotated[
+        GetAllUsersHandler, Depends(get_user_all_users_handler_dependency)
+    ],
     page: int = Query(default=1, ge=1, lt=1000),
     page_size: int = Query(default=20, ge=1, lt=50),
-    handler=Depends(get_user_all_users_handler_dependency),
 ):
-    return handler.execute(page, page_size)
+    return await handler.execute(page, page_size)

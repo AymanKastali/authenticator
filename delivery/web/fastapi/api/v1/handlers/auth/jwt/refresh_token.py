@@ -20,7 +20,7 @@ class RefreshJwtTokenHandler:
         self._logger.info(
             f"[RefreshJwtTokenHandler] Refreshing token: {body.refresh_token[:10]}***"
         )
-        jwt_tokens: JwtTokensOutDto = self._controller.execute(
+        jwt_tokens: JwtTokensOutDto = await self._controller.execute(
             token=body.refresh_token
         )
         self._logger.info(

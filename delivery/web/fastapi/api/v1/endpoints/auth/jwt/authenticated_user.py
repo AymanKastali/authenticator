@@ -12,12 +12,12 @@ from delivery.web.fastapi.api.v1.dependencies.jwt import (
 
 
 async def get_authenticated_user_endpoint(
-    current_user: Annotated[
+    authenticated_user: Annotated[
         AuthenticatedUserOutDto, Depends(get_current_authenticated_user)
     ],
 ):
     return ItemOutDto[AuthenticatedUserOutDto].build(
-        data=current_user,
+        data=authenticated_user,
         status_code=200,
         message="Authenticated User Data Fetched Successfully",
     )
