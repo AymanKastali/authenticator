@@ -4,7 +4,7 @@ from logging import Logger
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from adapters.gateways.logging.logger_factory import create_logger_adapter
+from adapters.gateways.logging.logger_factory import create_console_json_logger
 from application.ports.services.logger import LoggerPort
 from delivery.db.cache.async_redis import get_redis_connection_manager
 from delivery.web.fastapi.config import get_app_config
@@ -45,7 +45,7 @@ def create_app() -> FastAPI:
     Builds and configures the FastAPI application.
     """
     # --- Logger ---
-    logger: LoggerPort = create_logger_adapter()
+    logger: LoggerPort = create_console_json_logger()
 
     # --- App instance ---
     app = FastAPI(

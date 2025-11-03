@@ -6,7 +6,7 @@ from adapters.dto.responses.auth.jwt.authenticated_user import (
     AuthenticatedUserOutDto,
 )
 from adapters.dto.responses.generic.success.item import ItemOutDto
-from delivery.web.fastapi.api.v1.dependencies.jwt.auth import (
+from delivery.web.fastapi.api.v1.dependencies.jwt import (
     get_current_authenticated_user,
 )
 
