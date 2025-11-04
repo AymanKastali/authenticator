@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 from functools import lru_cache
 from uuid import UUID
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
@@ -21,7 +21,7 @@ from adapters.dto.responses.auth.jwt.authenticated_user import (
 )
 from adapters.exceptions.adapters_errors import JWTExpiredError, JWTInvalidError
 from adapters.gateways.authentication.jwt_service import JwtService
-from adapters.gateways.persistence.cache.redis.asynchronous.blacklist_adpater import (
+from adapters.gateways.persistence.cache.redis.asynchronous.blacklist_adapter import (
     AsyncJwtBlacklistRedisAdapter,
 )
 from application.dto.auth.jwt.payload import JwtPayloadDto
@@ -38,7 +38,6 @@ from application.services.auth.jwt.auth import JwtAuthService
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
-from delivery.db.cache.async_redis import get_redis_client
 from delivery.db.in_memory.repositories import get_in_memory_user_repository
 from delivery.web.fastapi.api.v1.dependencies.logger import (
     get_console_json_logger,
@@ -61,10 +60,11 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/jwt/login")
 # CACHE
 # -----------------------------------------------------------------------------
 async def get_jwt_blacklist_adapter(
-    redis_client: Redis = Depends(get_redis_client),
+    request: Request,
 ) -> AsyncJwtBlacklistRedisPort:
     """Return a singleton JWT blacklist adapter."""
-    return AsyncJwtBlacklistRedisAdapter(redis_client)
+    redis_conn: Redis | None = getattr(request.app.state, "redis", None)
+    return AsyncJwtBlacklistRedisAdapter(redis_conn)
 
 
 # -----------------------------------------------------------------------------
@@ -221,6 +221,11 @@ async def validate_jwt_token(
         now_ts = datetime.now(timezone.utc).timestamp()
         if now_ts >= payload_dto.exp:
             raise JWTExpiredError("Token expired")
+
+        print(
+            "xxxxxxxxx",
+            await blacklist_cache.is_jwt_blacklisted(payload_dto.jti),
+        )
 
         if await blacklist_cache.is_jwt_blacklisted(payload_dto.jti):
             raise JWTInvalidError("Token revoked/blacklisted")

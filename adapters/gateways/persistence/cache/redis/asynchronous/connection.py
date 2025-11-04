@@ -11,14 +11,14 @@ class AsyncRedisConnectionManager:
             cls._instance = super().__new__(cls)
         return cls._instance
 
-    def __init__(self, redis_url: str, max_connections: int = 10):
+    def __init__(self, url: str, max_connections: int = 10):
         if not hasattr(self, "_initialized"):
             self._initialized = False
 
         if self._initialized:
             return  # already initialized
 
-        self._redis_url = redis_url
+        self._redis_url = url
         self._max_connections = max_connections
         self._client: Redis | None = None
         self._pool: ConnectionPool | None = None
