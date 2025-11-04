@@ -1,9 +1,6 @@
 from logging import Logger
 from typing import Mapping
 
-from adapters.gateways.logging.json_console_logger import (
-    get_json_console_logger,
-)
 from application.ports.services.logger import LoggerPort
 
 
@@ -13,8 +10,9 @@ class LoggerAdapter(LoggerPort):
     Wraps get_json_console_logger() for structured logging.
     """
 
-    def __init__(self, logger: Logger | None = None):
-        self._logger = logger or get_json_console_logger()
+    def __init__(self, logger: Logger):
+        self._logger = logger
+        # self._logger = logger or create_console_json_logger()
 
     def debug(
         self, message: object, extra: Mapping[str, object] | None = None

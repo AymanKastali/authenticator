@@ -1,5 +1,3 @@
-from typing import cast
-
 from pydantic import Field, RedisDsn, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -7,7 +5,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class RedisConfig(BaseSettings):
     """Configuration for Redis connection."""
 
-    url: RedisDsn = Field(default=cast(RedisDsn, "redis://localhost:6379/0"))
+    url: RedisDsn | None = Field(
+        default=None,
+        description="Redis connection URL (optional — if not set, Redis will be disabled)",
+    )
     max_connections: int = Field(default=10)
     db: int = Field(default=0)
 
@@ -19,7 +20,11 @@ class RedisConfig(BaseSettings):
         extra="ignore",
     )
 
-    # Validators
+    @property
+    def is_enabled(self) -> bool:
+        """Whether Redis is configured and should be used."""
+        return self.url is not None
+
     @field_validator("max_connections", "db")
     @classmethod
     def non_negative(cls, v: int) -> int:

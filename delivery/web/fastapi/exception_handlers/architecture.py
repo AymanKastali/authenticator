@@ -1,13 +1,10 @@
-from logging import Logger
-
 from fastapi import Request
 from fastapi.responses import JSONResponse
 
 from adapters.dto.responses.generic.errors.error import ErrorOutDto
 from adapters.exceptions.adapters_errors import AdaptersError
-from adapters.gateways.logging.json_console_logger import (
-    get_json_console_logger,
-)
+from adapters.gateways.logging.logger_factory import create_console_json_logger
+from application.ports.services.logger import LoggerPort
 from delivery.web.fastapi.utils.exception_status_mapper import (
     get_http_status_for_exception,
 )
@@ -15,7 +12,7 @@ from domain.exceptions.domain_errors import DomainError
 
 CUSTOM_ARCHITECTURE_EXCEPTIONS = (DomainError, AdaptersError)
 
-logger: Logger = get_json_console_logger("architecture_errors_logger")
+logger: LoggerPort = create_console_json_logger("architecture_errors_logger")
 
 
 async def architecture_exception_handler(
