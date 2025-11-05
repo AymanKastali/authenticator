@@ -1,7 +1,7 @@
 from application.dto.policies.password import PasswordPolicyConfigDto
 from domain.policies.password.complexity import PasswordComplexityPolicy
 from domain.policies.password.length import PasswordLengthPolicy
-from domain.value_objects.hashed_password import HashedPassword
+from domain.value_objects.hashed_password import HashedPasswordVo
 
 
 class PasswordService:
@@ -19,5 +19,5 @@ class PasswordService:
             ),
         ]
 
-    def create_hashed_password(self, password: str) -> HashedPassword:
-        return HashedPassword.from_plain(password, self._policies)
+    def create_hashed_password(self, password: str) -> HashedPasswordVo:
+        return HashedPasswordVo.from_plain(password, self._policies)

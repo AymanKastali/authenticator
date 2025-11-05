@@ -5,8 +5,7 @@ from dataclasses import dataclass, field
 class PersistenceUserDto:
     uid: str
     email: str
-    active: bool
-    verified: bool
+    status: str
     created_at: str
     updated_at: str
     deleted_at: str | None = None

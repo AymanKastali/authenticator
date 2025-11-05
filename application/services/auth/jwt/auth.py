@@ -1,8 +1,9 @@
 from uuid import UUID
 
+from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.dto.auth.jwt.token import JwtDto
+from application.dto.auth.jwt.tokens import JwtTokensDto
 from application.dto.auth.jwt.tokens_config import TokensConfigDto
-from application.dto.user.persistence import PersistenceUserDto
 from application.mappers.jwt import JwtMapper
 from application.mappers.user import UserMapper
 from application.ports.cache.redis.jwt_blacklist import (
@@ -12,9 +13,8 @@ from application.ports.services.jwt import JwtServicePort
 from application.services.auth.authentication import AuthService
 from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
-from domain.utils.time import expires_after, utc_now_time_stamp
 from domain.value_objects.jwt_payload import JwtPayloadVo
-from domain.value_objects.jwt_token_type import JwtTokenType
+from domain.value_objects.jwt_type import JwtTypeVo
 
 
 class JwtAuthService:
@@ -33,14 +33,14 @@ class JwtAuthService:
         self._blacklist_cache = blacklist_cache
 
     def _create_token(
-        self, user: UserEntity, token_type: JwtTokenType, exp_seconds: int
+        self, user: UserEntity, token_type: JwtTypeVo, exp_seconds: int
     ) -> JwtDto:
         payload_vo = JwtPayloadVo.create(
             sub=user.uid,
             email=user.email,
             typ=token_type,
             roles=list(user.roles),
-            exp=expires_after(seconds=exp_seconds),
+            expires_after_seconds=exp_seconds,
             iss=self._tokens_config.issuer,
             aud=self._tokens_config.audience,
         )
@@ -54,47 +54,43 @@ class JwtAuthService:
     def _create_access_token(self, user: UserEntity) -> JwtDto:
         return self._create_token(
             user=user,
-            token_type=JwtTokenType.ACCESS,
+            token_type=JwtTypeVo.ACCESS,
             exp_seconds=self._tokens_config.access_token_exp,
         )
 
     def _create_refresh_token(self, user: UserEntity) -> JwtDto:
         return self._create_token(
             user=user,
-            token_type=JwtTokenType.REFRESH,
+            token_type=JwtTypeVo.REFRESH,
             exp_seconds=self._tokens_config.refresh_token_exp,
         )
 
-    def _create_tokens(self, user: UserEntity) -> dict[str, str]:
-        access_token = self._create_access_token(user)
-        refresh_token = self._create_refresh_token(user)
-        return {
-            "access_token": access_token.signature,
-            "refresh_token": refresh_token.signature,
-        }
+    def _create_tokens(self, user: UserEntity) -> JwtTokensDto:
+        access_token: JwtDto = self._create_access_token(user)
+        refresh_token: JwtDto = self._create_refresh_token(user)
+        return JwtTokensDto(
+            access_token=access_token.signature,
+            refresh_token=refresh_token.signature,
+        )
 
-    async def login(self, email: str, password: str) -> dict[str, str]:
-        user_persistence_dto: PersistenceUserDto = (
-            await self._auth_service.authenticate_user(email, password)
+    async def login(self, email: str, password: str) -> JwtTokensDto:
+        dto: AuthUserDto = await self._auth_service.authenticate_user(
+            email, password
         )
-        user_entity: UserEntity = UserMapper.to_entity_from_persistence(
-            user_persistence_dto
-        )
-        return self._create_tokens(user_entity)
+        user: UserEntity = UserMapper.to_entity_from_auth_user_dto(dto)
+        if user.deleted:
+            raise ValueError("Deleted")
+        return self._create_tokens(user)
 
     async def logout(self, token: str) -> None:
-        # Verify and decode token
-        token_dto: JwtDto = self._jwt_service.verify(token)
+        dto: JwtDto = self._jwt_service.verify(token)
+        token_entity: JwtEntity = JwtMapper.to_entity_from_jwt_dto(dto)
+        payload_vo: JwtPayloadVo = token_entity.payload
 
-        # Calculate absolute expiration timestamp
-        exp_timestamp: float = token_dto.payload.exp
-        now_timestamp: float = utc_now_time_stamp()
-
-        # Only blacklist if token has time remaining
-        if exp_timestamp > now_timestamp:
-            # Pass absolute expiration timestamp to adapter
+        if not payload_vo.is_expired():
+            expire_at_ts: int = int(payload_vo.exp.to_timestamp())
             await self._blacklist_cache.blacklist_jwt(
-                jti=token_dto.payload.jti, expire_at=int(exp_timestamp)
+                jti=token_entity.jti, expire_at=expire_at_ts
             )
 
     def verify_jwt_token(
@@ -102,25 +98,23 @@ class JwtAuthService:
     ) -> JwtDto:
         """Verify a token and return the full DTO."""
         jwt_dto: JwtDto = self._jwt_service.verify(token, subject)
-        _ = JwtMapper.to_entity_from_jwt_dto(jwt_dto).payload
-        return jwt_dto
+        jwt_entity: JwtEntity = JwtMapper.to_entity_from_jwt_dto(jwt_dto)
+        return JwtMapper.to_jwt_dto_from_entity(jwt_entity)
 
     def verify_refresh_token(self, token: str) -> JwtDto:
         """Verify a refresh token and return the full DTO."""
         jwt_dto: JwtDto = self._jwt_service.verify_refresh_token(token)
-        _ = JwtMapper.to_entity_from_jwt_dto(jwt_dto).payload
-        return jwt_dto
+        jwt_entity: JwtEntity = JwtMapper.to_entity_from_jwt_dto(jwt_dto)
+        return JwtMapper.to_jwt_dto_from_entity(jwt_entity)
 
-    async def refresh_jwt_token(self, refresh_token: str) -> dict[str, str]:
+    async def refresh_jwt_token(self, refresh_token: str) -> JwtTokensDto:
         token_dto: JwtDto = self.verify_refresh_token(refresh_token)
         user_id = token_dto.payload.sub
-        user_persistence_dto: PersistenceUserDto = (
-            await self._auth_service.get_user_by_id(UUID(user_id))
+        dto: AuthUserDto = await self._auth_service.get_user_by_id(
+            UUID(user_id)
         )
-        user_entity: UserEntity = UserMapper.to_entity_from_persistence(
-            user_persistence_dto
-        )
-        return self._create_tokens(user_entity)
+        user: UserEntity = UserMapper.to_entity_from_auth_user_dto(dto)
+        return self._create_tokens(user)
 
     async def is_jwt_blacklisted(self, jti: str) -> bool:
         return await self._blacklist_cache.is_jwt_blacklisted(jti)

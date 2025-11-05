@@ -279,7 +279,7 @@ def get_current_authenticated_active_user(
     Ensure the authenticated user is active.
     Raises 403 if user is inactive.
     """
-    if not current_user.active:
+    if not current_user.status.lower() == "active":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user"
         )

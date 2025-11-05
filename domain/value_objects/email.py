@@ -6,7 +6,7 @@ from domain.exceptions.domain_errors import InvalidValueError
 
 
 @dataclass(frozen=True)
-class Email:
+class EmailVo:
     value: str
 
     # ----- Regex pattern as a class constant -----
@@ -26,7 +26,7 @@ class Email:
     def _validate(cls, email: str) -> None:
         if not isinstance(email, str):
             raise InvalidValueError(
-                field_name="email", message="Email must be a string."
+                field_name="email", message="EmailVo must be a string."
             )
         if not re.fullmatch(cls.EMAIL_PATTERN, email):
             raise InvalidValueError(
@@ -34,9 +34,9 @@ class Email:
             )
 
     @classmethod
-    def from_string(cls, email_str: str) -> "Email":
+    def from_string(cls, email_str: str) -> "EmailVo":
         """
-        Validate the string and return an Email object.
+        Validate the string and return an EmailVo object.
         """
         cls._validate(email_str)
         return cls(value=email_str)

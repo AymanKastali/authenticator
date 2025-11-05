@@ -5,5 +5,4 @@ from dataclasses import dataclass
 class PublicUserDto:
     uid: str
     email: str
-    active: bool
-    verified: bool = False
+    status: str

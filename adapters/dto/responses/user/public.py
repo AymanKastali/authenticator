@@ -6,5 +6,4 @@ class PublicUserOutDto(BaseModel):
 
     uid: str
     email: str
-    active: bool
-    verified: bool = False
+    status: str = False

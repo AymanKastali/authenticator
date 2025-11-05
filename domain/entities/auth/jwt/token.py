@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
 
-from domain.utils.time import utc_now
 from domain.value_objects.jwt_payload import JwtPayloadVo
 
 
@@ -15,27 +14,25 @@ class JwtEntity:
     )
 
     def __post_init__(self):
-        self._validate_signature()
-        self._validate_header()
-        self._validate_expiration()
+        self.validate()
 
     # --- entity identity ---
     @property
-    def jti(self):
+    def jti(self) -> str:
         """Entity identity = token's unique JTI."""
-        return self.payload.jti
+        return self.payload.jti.to_string()
 
     # --- domain behavior ---
     def is_expired(self) -> bool:
         """Check if token is expired."""
-        return utc_now() >= self.payload.exp
+        return self.payload.is_expired()
 
     # --- validation methods ---
-    def _validate_signature(self):
+    def ensure_valid_signature(self):
         if not self.signature:
             raise ValueError("JWT signature cannot be empty")
 
-    def _validate_header(self):
+    def ensure_valid_header(self):
         alg = self.header.get("alg")
         typ = self.header.get("typ")
         if alg != "HS256":
@@ -43,9 +40,14 @@ class JwtEntity:
         if typ != "JWT":
             raise ValueError(f"Invalid token type: {typ}")
 
-    def _validate_expiration(self):
+    def ensure_not_expired(self):
         if self.is_expired():
             raise ValueError("JWT is already expired")
+
+    def validate(self) -> None:
+        self.ensure_not_expired()
+        self.ensure_valid_header()
+        self.ensure_valid_signature()
 
     # --- utility ---
     def to_primitives(self) -> dict:

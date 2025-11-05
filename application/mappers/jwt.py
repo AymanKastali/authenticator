@@ -1,14 +1,14 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
 
 from application.dto.auth.jwt.payload import JwtPayloadDto
 from application.dto.auth.jwt.token import JwtDto
 from domain.entities.auth.jwt.token import JwtEntity
-from domain.value_objects.email import Email
-from domain.value_objects.identifiers import UUIDId
+from domain.value_objects.date_time import DateTimeVo
+from domain.value_objects.email import EmailVo
+from domain.value_objects.identifiers import UUIDIdVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
-from domain.value_objects.jwt_token_type import JwtTokenType
-from domain.value_objects.role import Role
+from domain.value_objects.jwt_type import JwtTypeVo
+from domain.value_objects.role import RoleVo
 
 
 @dataclass
@@ -18,12 +18,12 @@ class JwtMapper:
         return JwtPayloadDto(
             sub=vo.sub.to_string(),
             typ=vo.typ.name,
-            exp=vo.exp.timestamp(),
+            exp=vo.exp.to_timestamp(),
             jti=vo.jti.to_string(),
-            iat=vo.iat.timestamp(),
+            iat=vo.iat.to_timestamp(),
             iss=vo.iss if vo.iss else None,
             aud=vo.aud if vo.aud else None,
-            nbf=vo.nbf.timestamp(),
+            nbf=vo.nbf.to_timestamp(),
             roles=[role.name for role in vo.roles] if vo.roles else [],
             email=vo.email.to_string() if vo.email else None,
             username=vo.username if vo.username else None,
@@ -32,14 +32,14 @@ class JwtMapper:
     @staticmethod
     def to_payload_vo_from_dto(dto: JwtPayloadDto) -> JwtPayloadVo:
         return JwtPayloadVo(
-            sub=UUIDId.from_string(dto.sub),
-            typ=JwtTokenType[dto.typ],
-            exp=datetime.fromtimestamp(dto.exp, tz=timezone.utc),
-            jti=UUIDId.from_string(dto.jti),
-            iat=datetime.fromtimestamp(dto.iat, tz=timezone.utc),
-            nbf=datetime.fromtimestamp(dto.nbf, tz=timezone.utc),
-            roles=[Role[r] for r in dto.roles],
-            email=Email(dto.email) if dto.email else None,
+            sub=UUIDIdVo.from_string(dto.sub),
+            typ=JwtTypeVo[dto.typ],
+            exp=DateTimeVo.from_timestamp(dto.exp),
+            jti=UUIDIdVo.from_string(dto.jti),
+            iat=DateTimeVo.from_timestamp(dto.iat),
+            nbf=DateTimeVo.from_timestamp(dto.nbf),
+            roles=[RoleVo[r] for r in dto.roles],
+            email=EmailVo(dto.email) if dto.email else None,
             username=dto.username,
             iss=dto.iss,
             aud=dto.aud,

@@ -6,5 +6,4 @@ class RegisteredUserOutDto(BaseModel):
 
     uid: str
     email: str
-    active: bool
-    verified: bool
+    status: str

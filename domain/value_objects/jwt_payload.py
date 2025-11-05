@@ -1,75 +1,90 @@
-# domain/value_objects/jwt_payload_vo.py
 from dataclasses import dataclass, field
-from datetime import datetime
+from typing import Self
 
-from domain.utils.time import make_aware, utc_now
-from domain.value_objects.email import Email
-from domain.value_objects.identifiers import UUIDId
-from domain.value_objects.jwt_token_type import JwtTokenType
-from domain.value_objects.role import Role
+from domain.value_objects.date_time import DateTimeVo
+from domain.value_objects.email import EmailVo
+from domain.value_objects.identifiers import UUIDIdVo
+from domain.value_objects.jwt_type import JwtTypeVo
+from domain.value_objects.role import RoleVo
 
 
-@dataclass(frozen=True, kw_only=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class JwtPayloadVo:
-    """Value Object representing the claims inside a JWT."""
+    """Represents JWT claims as a Value Object with strong validation and modern Python style."""
 
-    sub: UUIDId
-    typ: JwtTokenType
-    exp: datetime
-    jti: UUIDId = field(default_factory=UUIDId.new)
-    iat: datetime = field(default_factory=utc_now)
-    nbf: datetime = field(default_factory=utc_now)
+    sub: UUIDIdVo
+    typ: JwtTypeVo
+    exp: DateTimeVo
+    jti: UUIDIdVo = field(default_factory=UUIDIdVo.new)
+    iat: DateTimeVo = field(default_factory=DateTimeVo.now)
+    nbf: DateTimeVo = field(default_factory=DateTimeVo.now)
     iss: str | None = None
     aud: str | None = None
-    roles: list[Role] = field(default_factory=list)
-    email: Email | None = None
+    roles: list[RoleVo] = field(default_factory=list)
+    email: EmailVo | None = None
     username: str | None = None
 
-    # --- domain invariants ---
     def __post_init__(self):
-        object.__setattr__(self, "iat", make_aware(self.iat))
-        object.__setattr__(self, "nbf", make_aware(self.nbf))
-        object.__setattr__(self, "exp", make_aware(self.exp))
+        self.validate()
 
-        if self.exp <= self.iat:
-            raise ValueError("exp must be after iat")
-        if self.nbf > self.exp:
-            raise ValueError("nbf must not be after exp")
-        if self.iat > utc_now():
-            raise ValueError("iat cannot be in the future")
+    # ----------------- Validation Methods -----------------
+    def validate(self) -> None:
+        """Run all validations."""
+        self.validate_sub()
+        self.validate_typ()
+        self.validate_exp()
+        self.validate_iat()
+        self.validate_nbf()
+        self.validate_roles()
 
-    def to_primitives(self) -> dict:
-        """Return primitive representation for serialization (infra use)."""
-        return {
-            "sub": str(self.sub),
-            "typ": self.typ.value,
-            "exp": int(self.exp.timestamp()),
-            "jti": str(self.jti),
-            "iat": int(self.iat.timestamp()),
-            "nbf": int(self.nbf.timestamp()),
-            "iss": self.iss,
-            "aud": self.aud,
-            "roles": [r.value for r in self.roles],
-            "email": str(self.email) if self.email else None,
-            "username": self.username,
-        }
+    def validate_sub(self) -> None:
+        if not isinstance(self.sub, UUIDIdVo):
+            raise TypeError("`sub` must be a UUIDIdVo instance")
 
-    # --- factory ---
+    def validate_typ(self) -> None:
+        if not isinstance(self.typ, JwtTypeVo):
+            raise TypeError("`typ` must be a JwtTypeVo instance")
+
+    def validate_exp(self) -> None:
+        if not isinstance(self.exp, DateTimeVo):
+            raise TypeError("`exp` must be a DateTimeVo instance")
+        if self.exp.is_before(self.iat):
+            raise ValueError("`exp` must be after `iat`")
+
+    def validate_iat(self) -> None:
+        if not isinstance(self.iat, DateTimeVo):
+            raise TypeError("`iat` must be a DateTimeVo instance")
+        if self.iat.is_future():
+            raise ValueError("`iat` cannot be in the future")
+
+    def validate_nbf(self) -> None:
+        if not isinstance(self.nbf, DateTimeVo):
+            raise TypeError("`nbf` must be a DateTimeVo instance")
+        if self.nbf.is_future():
+            raise ValueError("`nbf` cannot be in the future")
+
+    def validate_roles(self) -> None:
+        if not all(isinstance(role, RoleVo) for role in self.roles):
+            raise TypeError("All `roles` must be RoleVo instances")
+
+    # ----------------- Factory Method -----------------
     @classmethod
     def create(
         cls,
         *,
-        sub: UUIDId,
-        typ: JwtTokenType,
-        exp: datetime,
-        roles: list[Role] | None = None,
-        email: Email | None = None,
+        sub: UUIDIdVo,
+        typ: JwtTypeVo,
+        expires_after_seconds: float,
+        roles: list[RoleVo] | None = None,
+        email: EmailVo | None = None,
         username: str | None = None,
         iss: str | None = None,
         aud: str | None = None,
-        nbf: datetime | None = None,
-    ) -> "JwtPayloadVo":
-        """Factory method to create a valid payload VO."""
+        nbf: DateTimeVo | None = None,
+    ) -> Self:
+        """Factory for safely constructing a new payload VO."""
+        now = DateTimeVo.now()
+        exp = now.expires_after(seconds=expires_after_seconds)
         return cls(
             sub=sub,
             typ=typ,
@@ -79,5 +94,27 @@ class JwtPayloadVo:
             username=username,
             iss=iss,
             aud=aud,
-            nbf=nbf or utc_now(),
+            nbf=nbf or DateTimeVo.now(),
         )
+
+    # ----------------- Serialization -----------------
+    def to_primitives(self) -> dict[str, object]:
+        """Return a primitive dictionary for JWT encoding or persistence."""
+        return {
+            "sub": str(self.sub),
+            "typ": self.typ.value,
+            "exp": self.exp.to_timestamp(),
+            "jti": self.jti.to_string(),
+            "iat": self.iat.to_timestamp(),
+            "nbf": self.nbf.to_timestamp(),
+            "iss": self.iss,
+            "aud": self.aud,
+            "roles": [r.value for r in self.roles],
+            "email": self.email.to_string() if self.email else None,
+            "username": self.username,
+        }
+
+    # ----------------- Convenience -----------------
+    def is_expired(self) -> bool:
+        """Quick check if the token is expired."""
+        return self.exp.is_past()

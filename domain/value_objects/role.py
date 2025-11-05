@@ -1,7 +1,7 @@
 from enum import StrEnum, auto
 
 
-class Role(StrEnum):
+class RoleVo(StrEnum):
     # Super admin roles
     SUPER_ADMIN = auto()
 

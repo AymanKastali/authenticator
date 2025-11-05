@@ -1,7 +1,7 @@
 from enum import StrEnum, auto
 
 
-class JwtTokenType(StrEnum):
+class JwtTypeVo(StrEnum):
     ACCESS = auto()
     REFRESH = auto()
 

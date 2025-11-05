@@ -2,13 +2,13 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
 from domain.utils.time import utc_now
-from domain.value_objects.identifiers import SessionId, UUIDId
+from domain.value_objects.identifiers import SessionIdVo, UUIDIdVo
 
 
 @dataclass(kw_only=True)
 class SessionEntity:
-    uid: SessionId = field(default_factory=SessionId.new)
-    user_id: UUIDId
+    uid: SessionIdVo = field(default_factory=SessionIdVo.new)
+    user_id: UUIDIdVo
     created_at: datetime = field(default_factory=utc_now)
     expires_at: datetime
     ip_address: str | None = None
@@ -20,7 +20,7 @@ class SessionEntity:
 
     @classmethod
     def create(
-        cls, user_id: UUIDId, duration_seconds: int = 1209600, **metadata
+        cls, user_id: UUIDIdVo, duration_seconds: int = 1209600, **metadata
     ) -> "SessionEntity":
         return cls(
             user_id=user_id,

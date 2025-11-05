@@ -1,11 +1,11 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
 class AuthUserDto:
     uid: str
     email: str
-    active: bool
-    verified: bool
+    status: str
     created_at: str
     updated_at: str
+    roles: list[str] = field(default_factory=list)

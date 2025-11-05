@@ -6,19 +6,19 @@ from uuid import UUID, uuid4
 
 
 @dataclass(frozen=True)
-class UUIDId:
+class UUIDIdVo:
     value: UUID
 
     @staticmethod
-    def new() -> "UUIDId":
-        return UUIDId(uuid4())
+    def new() -> "UUIDIdVo":
+        return UUIDIdVo(uuid4())
 
     @classmethod
-    def from_string(cls, value: str) -> "UUIDId":
+    def from_string(cls, value: str) -> "UUIDIdVo":
         return cls(UUID(value))
 
     @classmethod
-    def from_uuid(cls, value: UUID) -> "UUIDId":
+    def from_uuid(cls, value: UUID) -> "UUIDIdVo":
         return cls(value)
 
     def to_string(self) -> str:
@@ -29,7 +29,7 @@ class UUIDId:
 
 
 @dataclass(frozen=True)
-class SessionId:
+class SessionIdVo:
     """
     Represents a session ID generated from a cryptographically secure
     random byte string, encoded using URL-safe Base64.
@@ -45,13 +45,13 @@ class SessionId:
     value: str
 
     @staticmethod
-    def new() -> "SessionId":
+    def new() -> "SessionIdVo":
         """
         Generates a new session ID using cryptographically secure random bytes
         and encodes it using URL-safe Base64.
         """
         # 1. Generate cryptographically secure random bytes
-        random_bytes = os.urandom(SessionId.RECOMMENDED_BYTE_LENGTH)
+        random_bytes = os.urandom(SessionIdVo.RECOMMENDED_BYTE_LENGTH)
 
         # 2. Encode the bytes using URL-safe Base64
         #    - urlsafe_b64encode handles characters like '+' and '/'
@@ -63,4 +63,4 @@ class SessionId:
             .decode("utf-8")
         )
 
-        return SessionId(encoded_string)
+        return SessionIdVo(encoded_string)

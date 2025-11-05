@@ -1,63 +1,123 @@
 from dataclasses import dataclass, field
-from datetime import datetime
 
-from domain.utils.time import make_aware, utc_now
-from domain.value_objects.email import Email
-from domain.value_objects.hashed_password import HashedPassword
-from domain.value_objects.identifiers import UUIDId
-from domain.value_objects.role import Role
+from domain.value_objects.date_time import DateTimeVo
+from domain.value_objects.email import EmailVo
+from domain.value_objects.hashed_password import HashedPasswordVo
+from domain.value_objects.identifiers import UUIDIdVo
+from domain.value_objects.role import RoleVo
+from domain.value_objects.user_status import UserStatusVo
 
 
-@dataclass(kw_only=True)
+@dataclass(slots=True, kw_only=True)
 class UserEntity:
-    uid: UUIDId = field(default_factory=UUIDId.new)
-    email: Email
-    hashed_password: HashedPassword | None = None
-    active: bool = True
-    verified: bool = False
-    created_at: datetime = field(default_factory=utc_now)
-    updated_at: datetime = field(default_factory=utc_now)
-    deleted_at: datetime | None = None
-    roles: list[Role] = field(default_factory=lambda: [Role.USER])
+    uid: UUIDIdVo = field(default_factory=UUIDIdVo.new)
+    _email: EmailVo = field(repr=False)
+    _hashed_password: HashedPasswordVo | None = field(default=None, repr=False)
+    _status: UserStatusVo = field(default=UserStatusVo.PENDING_VERIFICATION)
+    created_at: DateTimeVo = field(default_factory=DateTimeVo.now)
+    updated_at: DateTimeVo = field(default_factory=DateTimeVo.now)
+    deleted_at: DateTimeVo | None = None
+    roles: list[RoleVo] = field(default_factory=lambda: [RoleVo.USER])
 
     def __post_init__(self):
-        self._validate_datetimes()
-        self._validate_email()
-        self._validate_hashed_password()
-        self._validate_roles()
-        self._validate_logic()
+        self.validate()
 
-    # --- mini validation methods ---
-    def _validate_datetimes(self):
-        object.__setattr__(self, "created_at", make_aware(self.created_at))
-        object.__setattr__(self, "updated_at", make_aware(self.updated_at))
-        if self.deleted_at is not None:
-            object.__setattr__(self, "deleted_at", make_aware(self.deleted_at))
+    # ----------------- Properties -----------------
+    @property
+    def email(self) -> EmailVo:
+        return self._email
 
-        if self.created_at > utc_now():
+    @email.setter
+    def email(self, value: EmailVo):
+        if not isinstance(value, EmailVo):
+            raise ValueError("Invalid email value object")
+        self._email = value
+        self._touch()
+
+    @property
+    def hashed_password(self) -> HashedPasswordVo | None:
+        return self._hashed_password
+
+    @hashed_password.setter
+    def hashed_password(self, value: HashedPasswordVo):
+        if value is not None and not isinstance(value, HashedPasswordVo):
+            raise ValueError("hashed_password must be a HashedPasswordVo VO")
+        self._hashed_password = value
+        self._touch()
+
+    @property
+    def status(self) -> UserStatusVo:
+        return self._status
+
+    @property
+    def active(self) -> bool:
+        return self._status in {UserStatusVo.ACTIVE, UserStatusVo.VERIFIED}
+
+    @property
+    def verified(self) -> bool:
+        return self._status == UserStatusVo.VERIFIED
+
+    @property
+    def deleted(self) -> bool:
+        return self.deleted_at is not None
+
+    # Status changes must go through methods
+    def _set_status(self, new_status: UserStatusVo):
+        if self._status == new_status:
+            raise ValueError(f"User is already {new_status.value}")
+        self._status = new_status
+        self._touch()
+
+    # ----------------- Internal Methods -----------------
+    def _touch(self):
+        self.updated_at = DateTimeVo.now()
+
+    # ----------------- Validation -----------------
+    def ensure_valid_created_at(self):
+        if self.created_at.is_future():
             raise ValueError("created_at cannot be in the future")
-        if self.updated_at > utc_now():
+
+    def ensure_valid_updated_at(self):
+        if self.updated_at.is_future():
             raise ValueError("updated_at cannot be in the future")
 
-    def _validate_email(self):
-        if not isinstance(self.email, Email):
-            raise ValueError("Invalid email value object")
+    def ensure_valid_deleted_at(self):
+        if self.deleted_at is not None and self.deleted_at.is_future():
+            raise ValueError("deleted_at cannot be in the future")
 
-    def _validate_hashed_password(self):
-        if self.hashed_password is not None and not isinstance(
-            self.hashed_password, HashedPassword
-        ):
-            raise ValueError("hashed_password must be a HashedPassword VO")
-
-    def _validate_roles(self):
-        if not self.roles or not all(isinstance(r, Role) for r in self.roles):
+    def ensure_valid_roles(self):
+        if not self.roles or not all(isinstance(r, RoleVo) for r in self.roles):
             raise ValueError("User must have at least one valid role")
 
-    def _validate_logic(self):
+    def ensure_valid_logic(self):
         if not self.active and self.verified:
             raise ValueError("Inactive users cannot be verified")
 
-    # ----- Factory Methods -----
+    def validate(self):
+        self.ensure_valid_created_at()
+        self.ensure_valid_updated_at()
+        self.ensure_valid_deleted_at()
+        self.ensure_valid_roles()
+        self.ensure_valid_logic()
+
+    # ----------------- Factory Methods -----------------
+    @staticmethod
+    def create(
+        email: EmailVo,
+        hashed_password: HashedPasswordVo | None = None,
+        roles: list[RoleVo] | None = None,
+    ) -> "UserEntity":
+        """Create a new user (local or external)"""
+        return UserEntity(
+            _email=email,
+            _hashed_password=hashed_password,
+            _status=UserStatusVo.VERIFIED
+            if hashed_password is None
+            else UserStatusVo.PENDING_VERIFICATION,
+            roles=roles or [RoleVo.USER],
+        )
+
+    # ----------------- Business Methods -----------------
     def authenticate(self, raw_password: str) -> bool:
         if not self.active:
             raise ValueError("User account is inactive")
@@ -67,41 +127,19 @@ class UserEntity:
             raise ValueError("Invalid credentials")
         return True
 
-    @staticmethod
-    def register_local(
-        email: Email, hashed_password: HashedPassword
-    ) -> "UserEntity":
-        return UserEntity(
-            email=email,
-            hashed_password=hashed_password,
-            active=True,
-            verified=False,
-        )
-
-    @staticmethod
-    def register_external(email: Email) -> "UserEntity":
-        return UserEntity(
-            email=email, hashed_password=None, active=True, verified=True
-        )
-
-    # ----- Business Methods -----
     def verify_password(self, raw_password: str) -> bool:
         if not self.hashed_password:
             return False
         return self.hashed_password.verify(raw_password)
 
-    def change_password(self, new_hashed_password: HashedPassword) -> None:
-        object.__setattr__(self, "hashed_password", new_hashed_password)
-        object.__setattr__(self, "updated_at", utc_now())
+    def change_password(self, new_hashed_password: HashedPasswordVo):
+        self.hashed_password = new_hashed_password
 
-    def deactivate(self) -> None:
-        object.__setattr__(self, "active", False)
-        object.__setattr__(self, "updated_at", utc_now())
+    def deactivate(self):
+        self._set_status(UserStatusVo.INACTIVE)
 
-    def activate(self) -> None:
-        object.__setattr__(self, "active", True)
-        object.__setattr__(self, "updated_at", utc_now())
+    def activate(self):
+        self._set_status(UserStatusVo.ACTIVE)
 
-    def mark_verified(self) -> None:
-        object.__setattr__(self, "verified", True)
-        object.__setattr__(self, "updated_at", utc_now())
+    def mark_verified(self):
+        self._set_status(UserStatusVo.VERIFIED)

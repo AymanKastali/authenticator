@@ -6,8 +6,8 @@ from application.services.auth.registration.password_service import (
 )
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import InvalidValueError
-from domain.value_objects.email import Email
-from domain.value_objects.hashed_password import HashedPassword
+from domain.value_objects.email import EmailVo
+from domain.value_objects.hashed_password import HashedPasswordVo
 
 
 class RegisterUserUseCase:
@@ -17,9 +17,9 @@ class RegisterUserUseCase:
         self._user_repo = user_repo
         self._password_service = password_service
 
-    def _validate_email(self, email: str) -> Email:
+    def _validate_email(self, email: str) -> EmailVo:
         try:
-            return Email.from_string(email)
+            return EmailVo.from_string(email)
         except InvalidValueError as e:
             raise ValueError(f"Invalid email: {e}") from e
 
@@ -29,11 +29,13 @@ class RegisterUserUseCase:
             raise ValueError(f"Email '{email}' is already registered.")
 
     def _create_user(
-        self, email_vo: Email, hashed_password: HashedPassword
+        self, email_vo: EmailVo, hashed_password: HashedPasswordVo
     ) -> UserEntity:
-        return UserEntity.register_local(
+        user = UserEntity.create(
             email=email_vo, hashed_password=hashed_password
         )
+        user.activate()
+        return user
 
     async def execute(self, email: str, password: str) -> AuthUserDto:
         await self._ensure_email_available(email)
