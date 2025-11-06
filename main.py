@@ -1,7 +1,7 @@
 import uvicorn
 
-from delivery.web.fastapi.app import create_app
-from delivery.web.fastapi.config import get_app_config
+from presentation.web.fastapi.app import create_app
+from presentation.web.fastapi.config import get_app_config
 
 app_cfg = get_app_config()
 

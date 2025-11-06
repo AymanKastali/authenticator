@@ -1,0 +1,57 @@
+from fastapi import Request
+from fastapi.exceptions import RequestValidationError, ResponseValidationError
+from fastapi.responses import JSONResponse
+from pydantic import ValidationError
+
+from application.ports.services.logger import LoggerPort
+from infrastructure.gateways.logging.logger_factory import (
+    create_console_json_logger,
+)
+from presentation.web.fastapi.schemas.response.generic.errors.error import (
+    ErrorResponseSchema,
+)
+from presentation.web.fastapi.utils.exception_status_mapper import (
+    get_http_status_for_exception,
+)
+
+VALIDATION_EXCEPTIONS = (RequestValidationError, ValidationError)
+
+logger: LoggerPort = create_console_json_logger("validation_errors_logger")
+
+
+async def validation_exception_handler(
+    _: Request, exc: Exception
+) -> JSONResponse:
+    if isinstance(exc, VALIDATION_EXCEPTIONS):
+        details = exc.errors() if hasattr(exc, "errors") else str(exc)
+    else:
+        details = str(exc) or "Internal server error"
+
+    status_code = get_http_status_for_exception(exc)
+
+    logger.error(exc)
+
+    response = ErrorResponseSchema(
+        status_code=status_code, error=exc.__class__.__name__, details=details
+    )
+    return JSONResponse(status_code=status_code, content=response.model_dump())
+
+
+async def response_validation_handler(
+    _: Request, exc: Exception
+) -> JSONResponse:
+    """
+    Handles ResponseValidationError (500 Internal Server Error).
+    """
+    status_code = get_http_status_for_exception(exc)
+    details = (
+        exc.errors()
+        if isinstance(exc, ResponseValidationError) and hasattr(exc, "errors")
+        else str(exc)
+    )
+    logger.exception(exc, extra={"status_code": status_code})
+
+    response = ErrorResponseSchema(
+        status_code=status_code, error=exc.__class__.__name__, details=details
+    )
+    return JSONResponse(status_code=status_code, content=response.model_dump())
