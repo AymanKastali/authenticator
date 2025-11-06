@@ -1,15 +1,17 @@
 from fastapi import Depends
 
-from application.ports.repositories.user import UserRepositoryPort
 from application.ports.services.logger import LoggerPort
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
-from presentation.db.in_memory.repositories import get_in_memory_user_repository
+from domain.services.user import UserDomainService
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
     GetAllUsersController,
 )
 from presentation.web.fastapi.api.v1.controllers.user.get_by_id import (
     GetUserByIdController,
+)
+from presentation.web.fastapi.api.v1.dependencies.domain import (
+    user_domain_service_dependency,
 )
 from presentation.web.fastapi.api.v1.dependencies.logger import (
     get_console_json_logger,
@@ -20,17 +22,17 @@ from presentation.web.fastapi.api.v1.dependencies.logger import (
 # USE CASES
 # -----------------------------------------------------------------------------
 def get_user_by_id_uc_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_service: UserDomainService = Depends(user_domain_service_dependency),
 ) -> GetUserByIdUseCase:
     """Provide use case for registering a user"""
-    return GetUserByIdUseCase(user_repo=user_repo)
+    return GetUserByIdUseCase(user_service)
 
 
 def get_user_all_users_uc_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_service: UserDomainService = Depends(user_domain_service_dependency),
 ) -> GetAllUsersUseCase:
     """Provide use case for registering a user"""
-    return GetAllUsersUseCase(user_repo=user_repo)
+    return GetAllUsersUseCase(user_service)
 
 
 # -----------------------------------------------------------------------------

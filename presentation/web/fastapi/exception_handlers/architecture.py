@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from application.ports.services.logger import LoggerPort
 from domain.exceptions.domain_errors import DomainError
 from infrastructure.exceptions.adapters_errors import AdaptersError
-from infrastructure.gateways.logging.logger_factory import (
+from infrastructure.gateways.logging.factory import (
     create_console_json_logger,
 )
 from presentation.web.fastapi.schemas.response.generic.errors.error import (

@@ -36,3 +36,10 @@ class RoleVo(StrEnum):
     @classmethod
     def values(cls) -> list[str]:
         return [member.value for member in cls]
+
+    @classmethod
+    def from_str(cls, value: str) -> "RoleVo":
+        for member in cls:
+            if member.value.lower() == value.lower():
+                return member
+        raise ValueError(f"Invalid RoleVo value: {value}")

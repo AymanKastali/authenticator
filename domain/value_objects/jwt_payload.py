@@ -3,7 +3,7 @@ from typing import Self
 
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
-from domain.value_objects.identifiers import UUIDIdVo
+from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.role import RoleVo
 
@@ -12,10 +12,10 @@ from domain.value_objects.role import RoleVo
 class JwtPayloadVo:
     """Represents JWT claims as a Value Object with strong validation and modern Python style."""
 
-    sub: UUIDIdVo
+    sub: UUIDVo
     typ: JwtTypeVo
     exp: DateTimeVo
-    jti: UUIDIdVo = field(default_factory=UUIDIdVo.new)
+    jti: UUIDVo = field(default_factory=UUIDVo.new)
     iat: DateTimeVo = field(default_factory=DateTimeVo.now)
     nbf: DateTimeVo = field(default_factory=DateTimeVo.now)
     iss: str | None = None
@@ -38,8 +38,8 @@ class JwtPayloadVo:
         self.validate_roles()
 
     def validate_sub(self) -> None:
-        if not isinstance(self.sub, UUIDIdVo):
-            raise TypeError("`sub` must be a UUIDIdVo instance")
+        if not isinstance(self.sub, UUIDVo):
+            raise TypeError("`sub` must be a UUIDVo instance")
 
     def validate_typ(self) -> None:
         if not isinstance(self.typ, JwtTypeVo):
@@ -72,7 +72,7 @@ class JwtPayloadVo:
     def create(
         cls,
         *,
-        sub: UUIDIdVo,
+        sub: UUIDVo,
         typ: JwtTypeVo,
         expires_after_seconds: float,
         roles: list[RoleVo] | None = None,
@@ -101,7 +101,7 @@ class JwtPayloadVo:
     def to_primitives(self) -> dict[str, object]:
         """Return a primitive dictionary for JWT encoding or persistence."""
         return {
-            "sub": str(self.sub),
+            "sub": self.sub.to_string(),
             "typ": self.typ.value,
             "exp": self.exp.to_timestamp(),
             "jti": self.jti.to_string(),

@@ -4,7 +4,7 @@ from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
 from application.ports.services.logger import LoggerPort
-from infrastructure.gateways.logging.logger_factory import (
+from infrastructure.gateways.logging.factory import (
     create_console_json_logger,
 )
 from presentation.web.fastapi.schemas.response.generic.errors.error import (

@@ -1,27 +1,26 @@
 from uuid import UUID
 
 from application.dto.auth.jwt.token_user import TokenUserDto
-from application.dto.user.persistence import PersistenceUserDto
 from application.mappers.user import UserMapper
-from application.ports.repositories.user import UserRepositoryPort
 from domain.entities.user import UserEntity
+from domain.services.user import UserDomainService
+from domain.value_objects.identifiers import UUIDVo
 
 
 class GetAuthenticatedUserUseCase:
-    def __init__(self, user_repo: UserRepositoryPort):
-        self.user_repo = user_repo
+    def __init__(self, user_service: UserDomainService):
+        self._user_service = user_service
 
     async def execute(self, user_id: UUID) -> TokenUserDto:
-        dto: PersistenceUserDto | None = await self.user_repo.get_user_by_id(
-            user_id
+        uuid_vo = UUIDVo.from_uuid(user_id)
+
+        user: UserEntity | None = await self._user_service.get_user_by_id(
+            uuid_vo
         )
-        if dto is None:
+
+        if user is None:
             raise ValueError("User not found")
-
-        user: UserEntity = UserMapper.to_entity_from_persistence(dto)
-
         if user.deleted:
             raise ValueError("User deleted")
 
-        user_dto: TokenUserDto = UserMapper.to_token_user_dto_from_entity(user)
-        return user_dto
+        return UserMapper.to_token_user_dto_from_entity(user)

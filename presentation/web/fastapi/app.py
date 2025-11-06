@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from application.ports.services.logger import LoggerPort
 from infrastructure.config import redis_config_dependency
 from infrastructure.config.cache import RedisConfig
-from infrastructure.gateways.logging.logger_factory import (
+from infrastructure.gateways.logging.factory import (
     create_console_json_logger,
 )
 from infrastructure.gateways.persistence.cache.redis.asynchronous.connection import (

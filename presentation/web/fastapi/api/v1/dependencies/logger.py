@@ -1,5 +1,5 @@
 from application.ports.services.logger import LoggerPort
-from infrastructure.gateways.logging.logger_factory import (
+from infrastructure.gateways.logging.factory import (
     create_console_json_logger,
 )
 

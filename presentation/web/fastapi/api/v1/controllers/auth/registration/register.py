@@ -20,12 +20,15 @@ class RegisterUserController:
     async def execute(
         self, body: LoginUserRequestSchema
     ) -> ItemResponseSchema[RegisteredUserResponseSchema]:
-        self._logger.info(f"Registering user {body.email}")
+        email: str = str(body.email)
+        password: str = body.password
+
+        self._logger.info(f"Registering user {email}")
         dto: AuthUserDto = await self._use_case.execute(
-            email=body.email, password=body.password
+            email=email, password=password
         )
         user_response = RegisteredUserResponseSchema.model_validate(dto)
-        self._logger.info(f"User {body.email} registered successfully")
+        self._logger.info(f"User {email} registered successfully")
         return ItemResponseSchema[RegisteredUserResponseSchema].build(
             data=user_response,
             status_code=201,

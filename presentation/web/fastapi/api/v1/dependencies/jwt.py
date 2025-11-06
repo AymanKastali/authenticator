@@ -7,19 +7,18 @@ from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
 from application.dto.auth.jwt.payload import JwtPayloadDto
-from application.dto.auth.jwt.token import JwtDto
 from application.dto.auth.jwt.tokens_config import TokensConfigDto
 from application.ports.cache.redis.jwt_blacklist import (
     AsyncJwtBlacklistRedisPort,
 )
-from application.ports.repositories.user import UserRepositoryPort
-from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
 from application.services.auth.authentication import AuthService
 from application.services.auth.jwt.auth import JwtAuthService
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
+from domain.ports.services.jwt import JwtServicePort
+from domain.services.user import UserDomainService
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
     JWTExpiredError,
@@ -29,7 +28,6 @@ from infrastructure.gateways.authentication.jwt_service import JwtService
 from infrastructure.gateways.persistence.cache.redis.asynchronous.blacklist_adapter import (
     AsyncJwtBlacklistRedisAdapter,
 )
-from presentation.db.in_memory.repositories import get_in_memory_user_repository
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserController,
 )
@@ -44,6 +42,9 @@ from presentation.web.fastapi.api.v1.controllers.auth.jwt.refresh_token import (
 )
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.verify_token import (
     VerifyJwtTokenController,
+)
+from presentation.web.fastapi.api.v1.dependencies.domain import (
+    user_domain_service_dependency,
 )
 from presentation.web.fastapi.api.v1.dependencies.logger import (
     get_console_json_logger,
@@ -98,10 +99,10 @@ def jwt_service_dependency(
 
 
 def auth_service_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_service: UserDomainService = Depends(user_domain_service_dependency),
 ) -> AuthService:
     """Provide AuthService."""
-    return AuthService(user_repo)
+    return AuthService(user_service)
 
 
 async def jwt_auth_service_dependency(
@@ -125,10 +126,10 @@ async def jwt_auth_service_dependency(
 # USE CASES
 # -----------------------------------------------------------------------------
 def get_authenticated_user_uc_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_service: UserDomainService = Depends(user_domain_service_dependency),
 ) -> GetAuthenticatedUserUseCase:
     """Provide use case for retrieving the authenticated user."""
-    return GetAuthenticatedUserUseCase(user_repo)
+    return GetAuthenticatedUserUseCase(user_service)
 
 
 # -----------------------------------------------------------------------------
@@ -175,7 +176,7 @@ def jwt_authenticated_user_controller_dependency(
 # -----------------------------------------------------------------------------
 async def validate_jwt_token(
     token: str,
-    jwt_service: JwtServicePort,
+    jwt_auth_service: JwtAuthService,
     blacklist_cache: AsyncJwtBlacklistRedisPort,
 ) -> JwtPayloadDto:
     """
@@ -183,8 +184,7 @@ async def validate_jwt_token(
     Returns the payload if valid.
     """
     try:
-        token_dto: JwtDto = jwt_service.verify(token)
-        payload_dto: JwtPayloadDto = token_dto.payload
+        payload_dto: JwtPayloadDto = jwt_auth_service.verify_jwt_token(token)
 
         now_ts = datetime.now(timezone.utc).timestamp()
         if now_ts >= payload_dto.exp:
@@ -215,7 +215,7 @@ async def fetch_authenticated_user(
 # -----------------------------------------------------------------------------
 async def get_current_authenticated_user(
     token: str = Depends(oauth2_scheme),
-    jwt_service: JwtServicePort = Depends(jwt_service_dependency),
+    jwt_auth_service: JwtAuthService = Depends(jwt_auth_service_dependency),
     user_controller: GetAuthenticatedUserController = Depends(
         jwt_authenticated_user_controller_dependency
     ),
@@ -226,7 +226,9 @@ async def get_current_authenticated_user(
     """
     Validate JWT token, check expiration/blacklist, and return the authenticated user.
     """
-    payload_dto = await validate_jwt_token(token, jwt_service, blacklist_cache)
+    payload_dto = await validate_jwt_token(
+        token, jwt_auth_service, blacklist_cache
+    )
     user = await fetch_authenticated_user(
         UUID(payload_dto.sub), user_controller
     )

@@ -6,19 +6,19 @@ from uuid import UUID, uuid4
 
 
 @dataclass(frozen=True)
-class UUIDIdVo:
+class UUIDVo:
     value: UUID
 
     @staticmethod
-    def new() -> "UUIDIdVo":
-        return UUIDIdVo(uuid4())
+    def new() -> "UUIDVo":
+        return UUIDVo(uuid4())
 
     @classmethod
-    def from_string(cls, value: str) -> "UUIDIdVo":
+    def from_string(cls, value: str) -> "UUIDVo":
         return cls(UUID(value))
 
     @classmethod
-    def from_uuid(cls, value: UUID) -> "UUIDIdVo":
+    def from_uuid(cls, value: UUID) -> "UUIDVo":
         return cls(value)
 
     def to_string(self) -> str:

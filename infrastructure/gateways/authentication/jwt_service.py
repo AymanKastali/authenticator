@@ -1,9 +1,9 @@
 from jwt import ExpiredSignatureError, InvalidTokenError, decode, encode
 
-from application.dto.auth.jwt.payload import JwtPayloadDto
-from application.dto.auth.jwt.token import JwtDto
 from application.mappers.jwt import JwtMapper
-from application.ports.services.jwt import JwtServicePort
+from domain.entities.auth.jwt.token import JwtEntity
+from domain.ports.services.jwt import JwtServicePort
+from domain.value_objects.jwt_payload import JwtPayloadVo
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
     JWTExpiredError,
@@ -15,17 +15,21 @@ class JwtService(JwtServicePort):
     def __init__(self, jwt_cfg: JwtConfig):
         self.jwt_cfg = jwt_cfg
 
-    def sign(self, payload: JwtPayloadDto) -> JwtDto:
-        headers: dict = {"alg": self.jwt_cfg.algorithm, "typ": "JWT"}
-        token_str: str = encode(
-            payload=payload.__dict__,
+    def sign(self, payload: JwtPayloadVo) -> JwtEntity:
+        """Sign a payload and return a JwtEntity."""
+        headers = {"alg": self.jwt_cfg.algorithm, "typ": "JWT"}
+        token_str = encode(
+            payload=payload.to_primitives(),
             key=self.jwt_cfg.secret_key.get_secret_value(),
             algorithm=self.jwt_cfg.algorithm,
             headers=headers,
         )
-        return JwtDto(payload=payload, headers=headers, signature=token_str)
+        return JwtEntity.create_signed(
+            payload=payload, signature=token_str, headers=headers
+        )
 
-    def verify(self, token: str, subject: str | None = None) -> JwtDto:
+    def verify(self, token: str, subject: str | None = None) -> JwtPayloadVo:
+        """Verify a token and return its payload."""
         try:
             options = {
                 "require": ["exp", "iat"],
@@ -53,16 +57,10 @@ class JwtService(JwtServicePort):
             raise JWTExpiredError() from e
         except InvalidTokenError as e:
             raise JWTInvalidError(message=str(e)) from e
+        return JwtMapper.to_payload_vo_from_dict(decoded)
 
-        payload_dto = JwtMapper.to_payload_dto_from_dict(decoded)
-        headers = {
-            "alg": self.jwt_cfg.algorithm,
-            "typ": "JWT",
-        }  # optionally extract from token
-        return JwtDto(payload=payload_dto, headers=headers, signature=token)
-
-    def verify_refresh_token(self, token: str) -> JwtDto:
-        token_dto: JwtDto = self.verify(token)
-        if token_dto.payload.typ != "REFRESH":
+    def verify_refresh_token(self, token: str) -> JwtPayloadVo:
+        payload: JwtPayloadVo = self.verify(token)
+        if payload.typ.lower() != "refresh":
             raise JWTInvalidError(message="Token type must be 'refresh'")
-        return token_dto
+        return payload

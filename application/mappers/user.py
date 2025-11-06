@@ -6,7 +6,7 @@ from domain.entities.user import UserEntity
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
-from domain.value_objects.identifiers import UUIDIdVo
+from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.role import RoleVo
 from domain.value_objects.user_status import UserStatusVo
 
@@ -96,7 +96,7 @@ class UserMapper:
     def to_entity_from_persistence(dto: PersistenceUserDto) -> UserEntity:
         """Convert a PersistenceUserDto back into a domain UserEntity entity."""
         return UserEntity(
-            uid=UUIDIdVo.from_string(dto.uid),
+            uid=UUIDVo.from_string(dto.uid),
             _email=EmailVo.from_string(dto.email),
             _hashed_password=HashedPasswordVo.from_string(dto.hashed_password)
             if dto.hashed_password
@@ -114,7 +114,7 @@ class UserMapper:
     def to_entity_from_auth_user_dto(dto: AuthUserDto) -> UserEntity:
         """Convert a AuthUserDto back into a domain UserEntity entity."""
         return UserEntity(
-            uid=UUIDIdVo.from_string(dto.uid),
+            uid=UUIDVo.from_string(dto.uid),
             _email=EmailVo.from_string(dto.email),
             _status=UserStatusVo.from_string(dto.status),
             created_at=DateTimeVo.from_iso(dto.created_at),

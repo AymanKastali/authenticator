@@ -5,7 +5,7 @@ from application.dto.auth.jwt.token import JwtDto
 from domain.entities.auth.jwt.token import JwtEntity
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
-from domain.value_objects.identifiers import UUIDIdVo
+from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
 from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.role import RoleVo
@@ -32,10 +32,10 @@ class JwtMapper:
     @staticmethod
     def to_payload_vo_from_dto(dto: JwtPayloadDto) -> JwtPayloadVo:
         return JwtPayloadVo(
-            sub=UUIDIdVo.from_string(dto.sub),
+            sub=UUIDVo.from_string(dto.sub),
             typ=JwtTypeVo[dto.typ],
             exp=DateTimeVo.from_timestamp(dto.exp),
-            jti=UUIDIdVo.from_string(dto.jti),
+            jti=UUIDVo.from_string(dto.jti),
             iat=DateTimeVo.from_timestamp(dto.iat),
             nbf=DateTimeVo.from_timestamp(dto.nbf),
             roles=[RoleVo[r] for r in dto.roles],
@@ -45,13 +45,31 @@ class JwtMapper:
             aud=dto.aud,
         )
 
+    @staticmethod
+    def to_payload_vo_from_dict(decoded: dict) -> JwtPayloadVo:
+        return JwtPayloadVo(
+            sub=UUIDVo.from_string(decoded["sub"]),
+            jti=UUIDVo.from_string(
+                decoded.get("jti", UUIDVo.new().to_string())
+            ),
+            typ=JwtTypeVo.from_str(decoded["typ"]),
+            exp=DateTimeVo.from_timestamp(decoded["exp"]),
+            iat=DateTimeVo.from_timestamp(decoded["iat"]),
+            nbf=DateTimeVo.from_timestamp(decoded.get("nbf", decoded["iat"])),
+            roles=[RoleVo.from_str(r) for r in decoded.get("roles", [])],
+            email=EmailVo(decoded["email"]) if decoded.get("email") else None,
+            username=decoded.get("username"),
+            iss=decoded.get("iss"),
+            aud=decoded.get("aud"),
+        )
+
     # ---------------- Full JWT ----------------
     @staticmethod
     def to_entity_from_jwt_dto(dto: JwtDto) -> "JwtEntity":
         """Map application JwtDto → domain JwtEntity."""
         payload_vo = JwtMapper.to_payload_vo_from_dto(dto.payload)
         return JwtEntity.create_signed(
-            payload=payload_vo, signature=dto.signature, header=dto.headers
+            payload=payload_vo, signature=dto.signature, headers=dto.headers
         )
 
     @staticmethod
@@ -60,7 +78,7 @@ class JwtMapper:
         payload_dto = JwtMapper.to_payload_dto_from_vo(entity.payload)
         return JwtDto(
             payload=payload_dto,
-            headers=entity.header,
+            headers=entity.headers,
             signature=entity.signature,
         )
 

@@ -1,30 +1,16 @@
-from application.dto.user.persistence import PersistenceUserDto
 from application.dto.user.public import PublicUserDto
 from application.mappers.user import UserMapper
-from application.ports.repositories.user import UserRepositoryPort
 from domain.entities.user import UserEntity
+from domain.services.user import UserDomainService
 
 
 class GetAllUsersUseCase:
-    def __init__(self, user_repo: UserRepositoryPort):
-        self.user_repo = user_repo
+    def __init__(self, user_service: UserDomainService):
+        self._user_service = user_service
 
     async def execute(self) -> list[PublicUserDto]:
-        persistence_users: list[
-            PersistenceUserDto
-        ] = await self.user_repo.get_all_users()
+        users: list[UserEntity] = await self._user_service.get_all_users()
 
-        domain_users = []
-        for dto in persistence_users:
-            user_entity: UserEntity = UserMapper.to_entity_from_persistence(dto)
+        active_users = [u for u in users if u.active]
 
-            if user_entity.active is False:
-                continue
-
-            domain_users.append(user_entity)
-
-        users_dto: list[PublicUserDto] = [
-            UserMapper.to_public_dto_from_entity(user) for user in domain_users
-        ]
-
-        return users_dto
+        return [UserMapper.to_public_dto_from_entity(u) for u in active_users]

@@ -5,55 +5,56 @@ from domain.value_objects.jwt_payload import JwtPayloadVo
 
 @dataclass(frozen=True, kw_only=True)
 class JwtEntity:
-    """Entity representing the full JWT (header + payload + signature)."""
+    """Entity representing a full JWT (header + payload + signature)."""
 
     payload: JwtPayloadVo
-    signature: str  # Cryptographic signature (opaque to domain)
-    header: dict[str, str] = field(
+    signature: str
+    headers: dict[str, str] = field(
         default_factory=lambda: {"alg": "HS256", "typ": "JWT"}
     )
 
     def __post_init__(self):
-        self.validate()
+        # Validate all invariants immediately after creation
+        self._validate()
 
-    # --- entity identity ---
+    # --- Entity identity ---
     @property
     def jti(self) -> str:
-        """Entity identity = token's unique JTI."""
+        """Unique token identifier."""
         return self.payload.jti.to_string()
 
-    # --- domain behavior ---
+    # --- Domain behavior ---
     def is_expired(self) -> bool:
-        """Check if token is expired."""
+        """Check if the JWT has expired."""
         return self.payload.is_expired()
 
-    # --- validation methods ---
-    def ensure_valid_signature(self):
-        if not self.signature:
+    # --- Validation ---
+    def _validate(self) -> None:
+        self._ensure_signature()
+        self._ensure_header()
+        self._ensure_not_expired()
+
+    def _ensure_signature(self) -> None:
+        if not self.signature or not self.signature.strip():
             raise ValueError("JWT signature cannot be empty")
 
-    def ensure_valid_header(self):
-        alg = self.header.get("alg")
-        typ = self.header.get("typ")
+    def _ensure_header(self) -> None:
+        alg = self.headers.get("alg")
+        typ = self.headers.get("typ")
         if alg != "HS256":
             raise ValueError(f"Unsupported algorithm: {alg}")
         if typ != "JWT":
             raise ValueError(f"Invalid token type: {typ}")
 
-    def ensure_not_expired(self):
+    def _ensure_not_expired(self) -> None:
         if self.is_expired():
-            raise ValueError("JWT is already expired")
+            raise ValueError("JWT is expired")
 
-    def validate(self) -> None:
-        self.ensure_not_expired()
-        self.ensure_valid_header()
-        self.ensure_valid_signature()
-
-    # --- utility ---
+    # --- Utility ---
     def to_primitives(self) -> dict:
-        """Return serializable representation for infrastructure use."""
+        """Return a fully serializable representation for infrastructure use."""
         return {
-            "header": self.header,
+            "headers": dict(self.headers),
             "payload": self.payload.to_primitives(),
             "signature": self.signature,
         }
@@ -63,7 +64,13 @@ class JwtEntity:
         cls,
         payload: JwtPayloadVo,
         signature: str,
-        header: dict[str, str] | None = None,
-    ):
-        hdr = header or {"alg": "HS256", "typ": "JWT"}
-        return cls(payload=payload, signature=signature, header=hdr)
+        headers: dict[str, str] | None = None,
+    ) -> "JwtEntity":
+        """Factory method to create a signed JWT with optional custom headers."""
+        hdr = headers or {"alg": "HS256", "typ": "JWT"}
+        return cls(payload=payload, signature=signature, headers=hdr)
+
+    # --- Optional: Convenience for domain checks ---
+    def ensure_active(self) -> None:
+        """Raise if the JWT is expired or signature/header invalid."""
+        self._validate()
