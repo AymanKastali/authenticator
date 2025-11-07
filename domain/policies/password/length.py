@@ -1,9 +1,10 @@
 from domain.config import password_config as pwd_cfg
 from domain.exceptions.domain_errors import PasswordError
-from domain.interfaces.password_policy import PasswordPolicy
+from domain.interfaces.password_policy import PasswordPolicyInterface
+from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
-class PasswordLengthPolicy(PasswordPolicy):
+class PasswordLengthPolicy(PasswordPolicyInterface):
     def __init__(
         self,
         min_length: int = pwd_cfg.min_length,
@@ -24,3 +25,13 @@ class PasswordLengthPolicy(PasswordPolicy):
             raise PasswordError(
                 f"Password too long. Maximum {self.max_length} characters."
             )
+
+    def describe(self) -> PolicyDescriptionVo:
+        return PolicyDescriptionVo(
+            name="length",
+            type="password",
+            parameters={
+                "min_length": self.min_length,
+                "max_length": self.max_length,
+            },
+        )

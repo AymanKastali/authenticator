@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import Depends
 
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
+from presentation.web.fastapi.api.v1.dependencies.security.auth_helpers import (
     get_current_authenticated_user,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (

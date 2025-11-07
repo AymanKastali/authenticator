@@ -24,7 +24,7 @@ class JwtMapper:
             iss=vo.iss if vo.iss else None,
             aud=vo.aud if vo.aud else None,
             nbf=vo.nbf.to_timestamp(),
-            roles=[role.name for role in vo.roles] if vo.roles else [],
+            roles=[role.value for role in vo.roles] if vo.roles else [],
             email=vo.email.to_string() if vo.email else None,
             username=vo.username if vo.username else None,
         )
@@ -39,7 +39,7 @@ class JwtMapper:
             iat=DateTimeVo.from_timestamp(dto.iat),
             nbf=DateTimeVo.from_timestamp(dto.nbf),
             roles=[RoleVo[r] for r in dto.roles],
-            email=EmailVo(dto.email) if dto.email else None,
+            email=EmailVo.from_string(dto.email) if dto.email else None,
             username=dto.username,
             iss=dto.iss,
             aud=dto.aud,
@@ -56,8 +56,10 @@ class JwtMapper:
             exp=DateTimeVo.from_timestamp(decoded["exp"]),
             iat=DateTimeVo.from_timestamp(decoded["iat"]),
             nbf=DateTimeVo.from_timestamp(decoded.get("nbf", decoded["iat"])),
-            roles=[RoleVo.from_str(r) for r in decoded.get("roles", [])],
-            email=EmailVo(decoded["email"]) if decoded.get("email") else None,
+            roles=[RoleVo.from_string(r) for r in decoded.get("roles", [])],
+            email=EmailVo.from_string(decoded["email"])
+            if decoded.get("email")
+            else None,
             username=decoded.get("username"),
             iss=decoded.get("iss"),
             aud=decoded.get("aud"),
@@ -69,7 +71,9 @@ class JwtMapper:
         """Map application JwtDto → domain JwtEntity."""
         payload_vo = JwtMapper.to_payload_vo_from_dto(dto.payload)
         return JwtEntity.create_signed(
-            payload=payload_vo, signature=dto.signature, headers=dto.headers
+            payload=payload_vo,
+            signature=dto.signature,
+            headers=dict(dto.headers),
         )
 
     @staticmethod

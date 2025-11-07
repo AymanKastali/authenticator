@@ -6,11 +6,11 @@ from fastapi import Depends
 from presentation.web.fastapi.api.v1.controllers.user.get_by_id import (
     GetUserByIdController,
 )
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
-    get_current_authenticated_user,
-)
-from presentation.web.fastapi.api.v1.dependencies.user import (
+from presentation.web.fastapi.api.v1.dependencies.controllers.user import (
     get_user_by_id_controller_dependency,
+)
+from presentation.web.fastapi.api.v1.dependencies.security.auth_helpers import (
+    get_current_authenticated_user,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
     AuthenticatedUserResponseSchema,

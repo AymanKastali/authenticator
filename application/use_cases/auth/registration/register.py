@@ -1,9 +1,7 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
-from application.services.auth.registration.password_service import (
-    PasswordService,
-)
 from domain.entities.user import UserEntity
+from domain.services.password import PasswordDomainService
 from domain.services.user import UserDomainService
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
@@ -11,7 +9,9 @@ from domain.value_objects.hashed_password import HashedPasswordVo
 
 class RegisterUserUseCase:
     def __init__(
-        self, user_service: UserDomainService, password_service: PasswordService
+        self,
+        user_service: UserDomainService,
+        password_service: PasswordDomainService,
     ):
         self._user_service = user_service
         self._password_service = password_service
@@ -23,7 +23,7 @@ class RegisterUserUseCase:
         email_vo: EmailVo = EmailVo.from_string(email)
 
         hashed_password: HashedPasswordVo = (
-            self._password_service.create_hashed_password(password)
+            self._password_service.hash_password(password)
         )
 
         user: UserEntity = await self._user_service.register_user(

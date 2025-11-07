@@ -5,7 +5,7 @@ from fastapi import Depends, Request
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.verify_token import (
     VerifyJwtTokenController,
 )
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
+from presentation.web.fastapi.api.v1.dependencies.controllers.jwt import (
     jwt_verify_token_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.verify_token import (

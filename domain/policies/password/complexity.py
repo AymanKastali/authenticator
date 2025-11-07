@@ -1,10 +1,11 @@
 import re
 
 from domain.exceptions.domain_errors import PasswordError
-from domain.interfaces.password_policy import PasswordPolicy
+from domain.interfaces.password_policy import PasswordPolicyInterface
+from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
-class PasswordComplexityPolicy(PasswordPolicy):
+class PasswordComplexityPolicy(PasswordPolicyInterface):
     """Validates basic password complexity."""
 
     def __init__(
@@ -34,3 +35,15 @@ class PasswordComplexityPolicy(PasswordPolicy):
             raise PasswordError(
                 "Password must contain at least one special character."
             )
+
+    def describe(self) -> PolicyDescriptionVo:
+        return PolicyDescriptionVo(
+            name="complexity",
+            type="password",
+            parameters={
+                "require_upper": self.require_upper,
+                "require_lower": self.require_lower,
+                "require_digit": self.require_digit,
+                "require_special": self.require_special,
+            },
+        )

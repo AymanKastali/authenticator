@@ -38,8 +38,11 @@ class RoleVo(StrEnum):
         return [member.value for member in cls]
 
     @classmethod
-    def from_str(cls, value: str) -> "RoleVo":
+    def from_string(cls, value: str) -> "RoleVo":
+        """Convert a string to a RoleVo member, accepting lowercase input."""
         for member in cls:
-            if member.value.lower() == value.lower():
+            if member.value.upper() == value.upper():
                 return member
-        raise ValueError(f"Invalid RoleVo value: {value}")
+        raise ValueError(
+            f"Invalid RoleVo value: '{value}'. Allowed values: {cls.values()}"
+        )

@@ -2,12 +2,8 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 
-@dataclass(kw_only=True, slots=True)
-class PolicyDescriptionDto:
-    """
-    Generic DTO for any domain policy.
-    """
-
+@dataclass(frozen=True, slots=True)
+class PolicyDescriptionVo:
     name: str
     type: str
     parameters: Mapping[str, Any]

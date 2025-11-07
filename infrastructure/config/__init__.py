@@ -1,9 +1,16 @@
 from functools import lru_cache
 
 from infrastructure.config.cache import RedisConfig
+from infrastructure.config.jwt import JwtConfig
 
 
 @lru_cache
-def redis_config_dependency() -> RedisConfig:
+def jwt_config() -> JwtConfig:
+    """Provide cached JwtConfig (singleton)."""
+    return JwtConfig()
+
+
+@lru_cache
+def redis_config() -> RedisConfig:
     """Provide cached RedisConfig (singleton)."""
     return RedisConfig()

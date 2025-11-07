@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 from pwdlib import PasswordHash
 
-from domain.interfaces.password_policy import PasswordPolicy
+from domain.interfaces.password_policy import PasswordPolicyInterface
 
 password_hash = PasswordHash.recommended()
 
@@ -13,7 +13,7 @@ class HashedPasswordVo:
 
     @classmethod
     def from_plain(
-        cls, password: str, policies: list[PasswordPolicy]
+        cls, password: str, policies: list[PasswordPolicyInterface]
     ) -> "HashedPasswordVo":
         for policy in policies:
             policy.enforce(password)

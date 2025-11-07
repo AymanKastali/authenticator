@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from application.ports.services.logger import LoggerPort
-from infrastructure.config import redis_config_dependency
+from infrastructure.config import redis_config
 from infrastructure.config.cache import RedisConfig
 from infrastructure.gateways.logging.factory import (
     create_console_json_logger,
@@ -31,9 +31,9 @@ async def _lifespan(app: FastAPI):
     Initializes resources (logger, Redis, etc.) and logs lifecycle events.
     """
     logger: LoggerPort = create_console_json_logger()
-    redis_config: RedisConfig = redis_config_dependency()
+    config: RedisConfig = redis_config()
     redis_manager: AsyncRedisConnectionManager | None = await init_redis(
-        redis_config, logger
+        config, logger
     )
     if redis_manager:
         app.state.redis = redis_manager.get_client()

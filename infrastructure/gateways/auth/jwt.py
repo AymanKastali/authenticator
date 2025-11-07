@@ -59,8 +59,10 @@ class JwtService(JwtServicePort):
             raise JWTInvalidError(message=str(e)) from e
         return JwtMapper.to_payload_vo_from_dict(decoded)
 
-    def verify_refresh_token(self, token: str) -> JwtPayloadVo:
-        payload: JwtPayloadVo = self.verify(token)
+    def verify_refresh_token(
+        self, token: str, subject: str | None = None
+    ) -> JwtPayloadVo:
+        payload: JwtPayloadVo = self.verify(token, subject)
         if payload.typ.lower() != "refresh":
             raise JWTInvalidError(message="Token type must be 'refresh'")
         return payload

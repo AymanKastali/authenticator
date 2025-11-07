@@ -1,10 +1,13 @@
 from abc import ABC, abstractmethod
 
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
-class JwtPolicy(ABC):
+class JwtPolicyInterface(ABC):
     """Interface for domain-level jwt policies."""
 
     @abstractmethod
-    def enforce(self, jti: UUIDVo, revoked_tokens: set[str]) -> None: ...
+    def enforce(self, token: str) -> None: ...
+
+    @abstractmethod
+    def describe(self) -> PolicyDescriptionVo: ...
