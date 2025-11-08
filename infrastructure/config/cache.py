@@ -10,7 +10,6 @@ class RedisConfig(BaseSettings):
         description="Redis connection URL (optional — if not set, Redis will be disabled)",
     )
     max_connections: int = Field(default=10)
-    db: int = Field(default=0)
 
     model_config = SettingsConfigDict(
         env_prefix="REDIS_",

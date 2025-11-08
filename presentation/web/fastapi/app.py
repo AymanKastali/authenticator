@@ -37,7 +37,6 @@ async def _lifespan(app: FastAPI):
     )
     if redis_manager:
         app.state.redis = redis_manager.get_client()
-        logger.info("[Redis] connected successfully")
 
     logger.info(f"[Lifespan] Starting {app_cfg.name} v{app_cfg.version}")
 

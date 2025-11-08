@@ -12,13 +12,14 @@ async def init_redis(
     if redis_config.is_enabled is False:
         return None
 
-    url: str = str(redis_config.url)  #
+    url: str = str(redis_config.url)
     redis_manager = AsyncRedisConnectionManager(
         url=url,
         max_connections=redis_config.max_connections,
     )
     _ = await redis_manager.connect()
-    if await redis_manager.ping():
+    connected: bool = await redis_manager.ping()
+    if connected is True:
         logger.info("[Redis] Connected successfully")
     else:
         logger.warning("[Redis] Ping failed")

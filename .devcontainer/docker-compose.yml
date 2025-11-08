@@ -10,16 +10,20 @@ services:
       - "5678:5678"  # debugger
     env_file:
       - ../.env
-    depends_on:
-      - redis
+    networks:
+      - authenticator-network
 
-  redis:
-    image: redis:8
-    container_name: redis
-    ports:
-      - "6379:6379"
-    command: ["redis-server", "--save", "", "--appendonly", "no"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      retries: 5
+networks:
+  authenticator-network:
+    external: true
+
+  # redis:
+  #   image: redis:8
+  #   container_name: redis
+  #   ports:
+  #     - "6379:6379"
+  #   command: ["redis-server", "--save", "", "--appendonly", "no"]
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 5s
+  #     retries: 5
