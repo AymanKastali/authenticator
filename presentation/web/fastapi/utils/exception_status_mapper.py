@@ -12,14 +12,14 @@ from domain.exceptions.domain_errors import (
 from infrastructure.exceptions.adapters_errors import (
     AdaptersError,
     DatabaseConnectionError,
-    JWTExpiredError,
-    JWTInvalidError,
+    JwtExpiredError,
+    JwtInvalidError,
 )
 
 EXCEPTION_STATUS_MAP: dict[Type[Exception], int] = {
     # 1. Adapter errors
-    JWTExpiredError: 401,
-    JWTInvalidError: 401,
+    JwtExpiredError: 401,
+    JwtInvalidError: 401,
     DatabaseConnectionError: 500,
     AdaptersError: 400,  # fallback for generic adapter errors
     # 2. Domain errors

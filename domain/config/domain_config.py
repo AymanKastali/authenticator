@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from domain.config.config_models import JwtConfig, PasswordConfig
+from domain.config.config_models import JwtDomainConfig, PasswordDomainConfig
 
 
 @dataclass(frozen=True, kw_only=True, slots=True)
@@ -10,5 +10,5 @@ class DomainConfig:
     Composed of specialized configs for different concerns.
     """
 
-    password_config: PasswordConfig
-    jwt_config: JwtConfig
+    password_config: PasswordDomainConfig
+    jwt_config: JwtDomainConfig

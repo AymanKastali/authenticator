@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import Self
 
+from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.identifiers import UUIDVo
@@ -74,21 +75,22 @@ class JwtPayloadVo:
         *,
         sub: UUIDVo,
         typ: JwtTypeVo,
-        expires_after_seconds: float,
+        exp: float,
         roles: list[RoleVo] | None = None,
         email: EmailVo | None = None,
         username: str | None = None,
         iss: str | None = None,
         aud: str | None = None,
         nbf: DateTimeVo | None = None,
+        policies: list[PolicyInterface],
     ) -> Self:
         """Factory for safely constructing a new payload VO."""
         now = DateTimeVo.now()
-        exp = now.expires_after(seconds=expires_after_seconds)
-        return cls(
+        expiry = now.expires_after(seconds=exp)
+        payload = cls(
             sub=sub,
             typ=typ,
-            exp=exp,
+            exp=expiry,
             roles=roles or [],
             email=email,
             username=username,
@@ -96,6 +98,10 @@ class JwtPayloadVo:
             aud=aud,
             nbf=nbf or DateTimeVo.now(),
         )
+        if policies:
+            for policy in policies:
+                policy.enforce(payload)
+        return payload
 
     # ----------------- Serialization -----------------
     def to_primitives(self) -> dict[str, object]:

@@ -8,8 +8,8 @@ from application.services.auth.jwt.auth import JwtAuthService
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.value_objects.identifiers import UUIDVo
 from infrastructure.exceptions.adapters_errors import (
-    JWTExpiredError,
-    JWTInvalidError,
+    JwtExpiredError,
+    JwtInvalidError,
 )
 from presentation.web.fastapi.api.v1.dependencies.application.jwt import (
     jwt_auth_service_dependency,
@@ -37,11 +37,11 @@ async def validate_jwt_token(
         payload = jwt_auth_service.verify_jwt_token(token)
         now = datetime.now(timezone.utc).timestamp()
         if now >= payload.exp:
-            raise JWTExpiredError("Token expired")
+            raise JwtExpiredError("Token expired")
         if await redis.is_jwt_blacklisted(UUIDVo.from_string(payload.jti)):
-            raise JWTInvalidError("Token revoked/blacklisted")
+            raise JwtInvalidError("Token revoked/blacklisted")
         return payload
-    except (JWTExpiredError, JWTInvalidError) as e:
+    except (JwtExpiredError, JwtInvalidError) as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e)
         ) from e

@@ -6,7 +6,7 @@ from infrastructure.config.jwt import JwtConfig
 
 @lru_cache
 def jwt_config() -> JwtConfig:
-    """Provide cached JwtConfig (singleton)."""
+    """Provide cached JwtDomainConfig (singleton)."""
     return JwtConfig()
 
 

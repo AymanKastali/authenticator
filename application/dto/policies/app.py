@@ -9,5 +9,5 @@ class PolicyDescriptionDto:
     """
 
     name: str
-    type: str
+    category: str
     parameters: Mapping[str, Any]

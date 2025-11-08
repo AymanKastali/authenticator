@@ -9,7 +9,7 @@ class LoginConfig:
 
 
 @dataclass(frozen=True, slots=True)
-class PasswordConfig:
+class PasswordDomainConfig:
     min_length: int = field(default=8)
     max_length: int = field(default=128)
     require_upper: bool = field(default=True)
@@ -19,7 +19,7 @@ class PasswordConfig:
 
 
 @dataclass(frozen=True, slots=True)
-class JwtConfig:
+class JwtDomainConfig:
     access_token_exp_seconds: int = field(default=1800)  # 30 minutes
     refresh_token_exp_seconds: int = field(default=604800)  # 7 days
     issuer: str | None = field(default=None)

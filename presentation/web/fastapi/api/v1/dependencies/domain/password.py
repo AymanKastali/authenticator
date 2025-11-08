@@ -1,9 +1,10 @@
-from domain.config import domain_config
 from domain.services.password import PasswordDomainService
+from presentation.web.fastapi.api.v1.dependencies.domain.policy import (
+    password_policies,
+)
 
 
 def password_domain_service_dependency() -> PasswordDomainService:
     """Provide password service implementation."""
-    builder = PasswordDomainService.builder()
-    policies = builder.with_config(domain_config.password_config).build()
+    policies = password_policies()
     return PasswordDomainService(policies)

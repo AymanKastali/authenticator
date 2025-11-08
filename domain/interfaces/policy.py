@@ -3,11 +3,11 @@ from abc import ABC, abstractmethod
 from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
-class JwtPolicyInterface(ABC):
-    """Interface for domain-level jwt policies."""
+class PolicyInterface(ABC):
+    """Base interface for all domain policies."""
 
     @abstractmethod
-    def enforce(self, token: str) -> None: ...
+    def enforce(self, target: object) -> None: ...
 
     @abstractmethod
     def describe(self) -> PolicyDescriptionVo: ...

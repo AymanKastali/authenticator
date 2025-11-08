@@ -40,14 +40,14 @@ class AdaptersError(Exception):
         return error_data.to_dict()
 
 
-class JWTExpiredError(AdaptersError):
+class JwtExpiredError(AdaptersError):
     code = AdaptersErrorCodeEnum.JWT_EXPIRED
 
     def __init__(self, message: str | None = None):
         super().__init__(message or "JWT token has expired.")
 
 
-class JWTInvalidError(AdaptersError):
+class JwtInvalidError(AdaptersError):
     code = AdaptersErrorCodeEnum.JWT_INVALID
 
     def __init__(self, message: str | None = None):

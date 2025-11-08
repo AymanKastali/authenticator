@@ -1,49 +1,40 @@
-# import re
+from domain.interfaces.policy import PolicyInterface
+from domain.value_objects.date_time import DateTimeVo
+from domain.value_objects.jwt_payload import JwtPayloadVo
+from domain.value_objects.jwt_type import JwtTypeVo
+from domain.value_objects.policy_description import PolicyDescriptionVo
 
-# from domain.exceptions.domain_errors import PasswordError
-# from domain.interfaces.jwt_policy import JwtPolicyInterface
-# from domain.value_objects.policy_description import PolicyDescriptionVo
 
+class JwtExpirationPolicy(PolicyInterface):
+    """Limits the maximum token expiration for JWTs."""
 
-# class JwtExpirationPolicy(JwtPolicyInterface):
-#     """Validates basic jwt expiration."""
+    def __init__(
+        self,
+        access_token_max_age_seconds: int,
+        refresh_token_max_age_seconds: int,
+    ):
+        self.access_exp = access_token_max_age_seconds
+        self.refresh_exp = refresh_token_max_age_seconds
 
-#     def __init__(
-#         self,
-#         require_upper=True,
-#         require_lower=True,
-#         require_digit=True,
-#         require_special=True,
-#     ):
-#         self.require_upper = require_upper
-#         self.require_lower = require_lower
-#         self.require_digit = require_digit
-#         self.require_special = require_special
+    def enforce(self, target: JwtPayloadVo) -> None:
+        now = DateTimeVo.now()
+        max_expiry = (
+            self.access_exp
+            if target.typ == JwtTypeVo.ACCESS
+            else self.refresh_exp
+        )
+        allowed_exp = now.expires_after(max_expiry)
+        if target.exp.is_after(allowed_exp):
+            raise ValueError(
+                f"{target.typ.value} token expiry exceeds policy ({max_expiry}s)"
+            )
 
-#     def enforce(self, token: str) -> None:
-#         if self.require_upper and not re.search(r"[A-Z]", password):
-#             raise PasswordError(
-#                 "Password must contain at least one uppercase letter."
-#             )
-#         if self.require_lower and not re.search(r"[a-z]", password):
-#             raise PasswordError(
-#                 "Password must contain at least one lowercase letter."
-#             )
-#         if self.require_digit and not re.search(r"\d", password):
-#             raise PasswordError("Password must contain at least one digit.")
-#         if self.require_special and not re.search(r"[^A-Za-z0-9]", password):
-#             raise PasswordError(
-#                 "Password must contain at least one special character."
-#             )
-
-#     def describe(self) -> PolicyDescriptionVo:
-#         return PolicyDescriptionVo(
-#             name="complexity",
-#             type="password",
-#             parameters={
-#                 "require_upper": self.require_upper,
-#                 "require_lower": self.require_lower,
-#                 "require_digit": self.require_digit,
-#                 "require_special": self.require_special,
-#             },
-#         )
+    def describe(self) -> PolicyDescriptionVo:
+        return PolicyDescriptionVo(
+            name="jwt_expiration",
+            category="jwt",
+            parameters={
+                "access_token_max_age_seconds": self.access_exp,
+                "refresh_token_max_age_seconds": self.refresh_exp,
+            },
+        )

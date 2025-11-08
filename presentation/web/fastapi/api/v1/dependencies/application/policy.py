@@ -1,16 +1,10 @@
-from fastapi import Depends
-
 from application.services.policy import PolicyService
-from domain.services.password import PasswordDomainService
-from presentation.web.fastapi.api.v1.dependencies.domain.password import (
-    password_domain_service_dependency,
+from presentation.web.fastapi.api.v1.dependencies.domain.policy import (
+    jwt_policies,
+    password_policies,
 )
 
 
-# Services
-def policy_service_dependency(
-    password_service: PasswordDomainService = Depends(
-        password_domain_service_dependency
-    ),
-) -> PolicyService:
-    return PolicyService(password_service)
+def policy_service_dependency() -> PolicyService:
+    policies = jwt_policies() + password_policies()
+    return PolicyService(policies)

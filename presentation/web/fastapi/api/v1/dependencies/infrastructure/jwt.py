@@ -15,7 +15,7 @@ from infrastructure.gateways.persistence.cache.redis.asynchronous.repository imp
 
 @lru_cache
 def jwt_config_dependency() -> JwtConfig:
-    """Provide cached JwtConfig (singleton)."""
+    """Provide cached JwtDomainConfig (singleton)."""
     return jwt_config()
 
 

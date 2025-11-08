@@ -15,8 +15,8 @@ from domain.exceptions.domain_errors import (
 from infrastructure.exceptions.adapters_errors import (
     AdaptersError,
     DatabaseConnectionError,
-    JWTExpiredError,
-    JWTInvalidError,
+    JwtExpiredError,
+    JwtInvalidError,
 )
 from presentation.web.fastapi.exception_handlers.architecture import (
     architecture_exception_handler,
@@ -34,8 +34,8 @@ from presentation.web.fastapi.exception_handlers.validation import (
 
 EXCEPTION_HANDLERS = {
     # 1. Adapter errors
-    JWTExpiredError: http_exception_handler,  # 401 → could use custom handler if needed
-    JWTInvalidError: http_exception_handler,  # 401
+    JwtExpiredError: http_exception_handler,  # 401 → could use custom handler if needed
+    JwtInvalidError: http_exception_handler,  # 401
     DatabaseConnectionError: generic_exception_handler,  # 500
     AdaptersError: architecture_exception_handler,  # 400 fallback
     # 2. Domain errors

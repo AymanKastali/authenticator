@@ -6,8 +6,8 @@ from domain.ports.services.jwt import JwtServicePort
 from domain.value_objects.jwt_payload import JwtPayloadVo
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
-    JWTExpiredError,
-    JWTInvalidError,
+    JwtExpiredError,
+    JwtInvalidError,
 )
 
 
@@ -54,9 +54,9 @@ class JwtService(JwtServicePort):
                 options=options,
             )
         except ExpiredSignatureError as e:
-            raise JWTExpiredError() from e
+            raise JwtExpiredError() from e
         except InvalidTokenError as e:
-            raise JWTInvalidError(message=str(e)) from e
+            raise JwtInvalidError(message=str(e)) from e
         return JwtMapper.to_payload_vo_from_dict(decoded)
 
     def verify_refresh_token(
@@ -64,5 +64,5 @@ class JwtService(JwtServicePort):
     ) -> JwtPayloadVo:
         payload: JwtPayloadVo = self.verify(token, subject)
         if payload.typ.lower() != "refresh":
-            raise JWTInvalidError(message="Token type must be 'refresh'")
+            raise JwtInvalidError(message="Token type must be 'refresh'")
         return payload

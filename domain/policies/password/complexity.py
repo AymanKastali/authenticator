@@ -1,11 +1,11 @@
 import re
 
 from domain.exceptions.domain_errors import PasswordError
-from domain.interfaces.password_policy import PasswordPolicyInterface
+from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
-class PasswordComplexityPolicy(PasswordPolicyInterface):
+class PasswordComplexityPolicy(PolicyInterface):
     """Validates basic password complexity."""
 
     def __init__(
@@ -20,18 +20,18 @@ class PasswordComplexityPolicy(PasswordPolicyInterface):
         self.require_digit = require_digit
         self.require_special = require_special
 
-    def enforce(self, password: str) -> None:
-        if self.require_upper and not re.search(r"[A-Z]", password):
+    def enforce(self, target: str) -> None:
+        if self.require_upper and not re.search(r"[A-Z]", target):
             raise PasswordError(
                 "Password must contain at least one uppercase letter."
             )
-        if self.require_lower and not re.search(r"[a-z]", password):
+        if self.require_lower and not re.search(r"[a-z]", target):
             raise PasswordError(
                 "Password must contain at least one lowercase letter."
             )
-        if self.require_digit and not re.search(r"\d", password):
+        if self.require_digit and not re.search(r"\d", target):
             raise PasswordError("Password must contain at least one digit.")
-        if self.require_special and not re.search(r"[^A-Za-z0-9]", password):
+        if self.require_special and not re.search(r"[^A-Za-z0-9]", target):
             raise PasswordError(
                 "Password must contain at least one special character."
             )
@@ -39,7 +39,7 @@ class PasswordComplexityPolicy(PasswordPolicyInterface):
     def describe(self) -> PolicyDescriptionVo:
         return PolicyDescriptionVo(
             name="complexity",
-            type="password",
+            category="password",
             parameters={
                 "require_upper": self.require_upper,
                 "require_lower": self.require_lower,

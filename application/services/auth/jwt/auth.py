@@ -3,7 +3,7 @@ from application.dto.auth.jwt.tokens import JwtTokensDto
 from application.mappers.jwt import JwtMapper
 from application.services.auth.authentication import AuthService
 from domain.entities.user import UserEntity
-from domain.services.jwt import JWTDomainService
+from domain.services.jwt import JwtDomainService
 from domain.value_objects.email import EmailVo
 from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
@@ -13,7 +13,7 @@ class JwtAuthService:
     """Responsible for signing and verifying JWTs."""
 
     def __init__(
-        self, auth_service: AuthService, jwt_service: JWTDomainService
+        self, auth_service: AuthService, jwt_service: JwtDomainService
     ):
         self._auth_service = auth_service
         self._jwt_service = jwt_service

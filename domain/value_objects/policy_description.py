@@ -5,5 +5,5 @@ from typing import Any, Mapping
 @dataclass(frozen=True, slots=True)
 class PolicyDescriptionVo:
     name: str
-    type: str
+    category: str
     parameters: Mapping[str, Any]

@@ -1,19 +1,16 @@
 from application.dto.policies.app import PolicyDescriptionDto
-from domain.interfaces.password_policy import PasswordPolicyInterface
-from domain.services.password import PasswordDomainService
+from domain.interfaces.policy import PolicyInterface
 
 
 class PolicyService:
-    def __init__(self, password_service: PasswordDomainService):
-        self._policies: list[PasswordPolicyInterface] = (
-            password_service.policies
-        )
+    def __init__(self, policies: list[PolicyInterface]):
+        self._policies = policies
 
     def list(self) -> list[PolicyDescriptionDto]:
         return [
             PolicyDescriptionDto(
                 name=policy.describe().name,
-                type=policy.describe().type,
+                category=policy.describe().category,
                 parameters=dict(policy.describe().parameters),
             )
             for policy in self._policies
