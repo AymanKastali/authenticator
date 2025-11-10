@@ -24,7 +24,7 @@ class RedisConfig(BaseSettings):
         """Whether Redis is configured and should be used."""
         return self.url is not None
 
-    @field_validator("max_connections", "db")
+    @field_validator("max_connections")
     @classmethod
     def non_negative(cls, v: int) -> int:
         if v < 0:

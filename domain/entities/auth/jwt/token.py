@@ -1,5 +1,6 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
+from domain.value_objects.jwt_header import JwtHeaderVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
 
 
@@ -9,9 +10,7 @@ class JwtEntity:
 
     payload: JwtPayloadVo
     signature: str
-    headers: dict[str, str] = field(
-        default_factory=lambda: {"alg": "HS256", "typ": "JWT"}
-    )
+    headers: JwtHeaderVo
 
     def __post_init__(self):
         # Validate all invariants immediately after creation
@@ -31,20 +30,11 @@ class JwtEntity:
     # --- Validation ---
     def _validate(self) -> None:
         self._ensure_signature()
-        self._ensure_header()
         self._ensure_not_expired()
 
     def _ensure_signature(self) -> None:
         if not self.signature or not self.signature.strip():
             raise ValueError("JWT signature cannot be empty")
-
-    def _ensure_header(self) -> None:
-        alg = self.headers.get("alg")
-        typ = self.headers.get("typ")
-        if alg != "HS256":
-            raise ValueError(f"Unsupported algorithm: {alg}")
-        if typ != "JWT":
-            raise ValueError(f"Invalid token type: {typ}")
 
     def _ensure_not_expired(self) -> None:
         if self.is_expired():
@@ -54,21 +44,17 @@ class JwtEntity:
     def to_primitives(self) -> dict:
         """Return a fully serializable representation for infrastructure use."""
         return {
-            "headers": dict(self.headers),
+            "headers": self.headers.to_primitives(),
             "payload": self.payload.to_primitives(),
             "signature": self.signature,
         }
 
     @classmethod
     def create_signed(
-        cls,
-        payload: JwtPayloadVo,
-        signature: str,
-        headers: dict[str, str] | None = None,
+        cls, payload: JwtPayloadVo, signature: str, headers: JwtHeaderVo
     ) -> "JwtEntity":
         """Factory method to create a signed JWT with optional custom headers."""
-        hdr = headers or {"alg": "HS256", "typ": "JWT"}
-        return cls(payload=payload, signature=signature, headers=hdr)
+        return cls(payload=payload, signature=signature, headers=headers)
 
     # --- Optional: Convenience for domain checks ---
     def ensure_active(self) -> None:

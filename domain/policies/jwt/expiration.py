@@ -31,7 +31,7 @@ class JwtExpirationPolicy(PolicyInterface):
 
     def describe(self) -> PolicyDescriptionVo:
         return PolicyDescriptionVo(
-            name="jwt_expiration",
+            name="expiration",
             category="jwt",
             parameters={
                 "access_token_max_age_seconds": self.access_exp,

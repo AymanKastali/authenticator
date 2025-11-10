@@ -6,7 +6,7 @@ class JwtTypeVo(StrEnum):
     REFRESH = auto()
 
     @classmethod
-    def from_str(cls, value: str) -> "JwtTypeVo":
+    def from_string(cls, value: str) -> "JwtTypeVo":
         for member in cls:
             if member.value.lower() == value.lower():
                 return member

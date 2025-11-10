@@ -1,6 +1,6 @@
 from dataclasses import dataclass
-from typing import Mapping
 
+from application.dto.auth.jwt.header import JwtHeaderDto
 from application.dto.auth.jwt.payload import JwtPayloadDto
 
 
@@ -9,5 +9,5 @@ class JwtDto:
     """DTO representing the full JWT (header + payload + signature)."""
 
     payload: JwtPayloadDto
-    headers: Mapping[str, str]
+    headers: JwtHeaderDto
     signature: str

@@ -5,6 +5,7 @@ from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.ports.services.jwt import JwtServicePort
 from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.jwt_header import JwtHeaderVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
 from domain.value_objects.jwt_type import JwtTypeVo
 
@@ -24,6 +25,7 @@ class JwtDomainService:
         self._config = config
         self._policies = policies
 
+    # ------------------------- Payload Creation -------------------------
     def _create_payload(
         self, user: UserEntity, token_type: JwtTypeVo, exp_seconds: int
     ) -> JwtPayloadVo:
@@ -39,37 +41,52 @@ class JwtDomainService:
             policies=self._policies,
         )
 
-    def create_access_token(self, user: UserEntity) -> str:
-        payload_vo: JwtPayloadVo = self._create_payload(
+    # ------------------------- Token Creation -------------------------
+    def create_access_token(
+        self, user: UserEntity, headers: JwtHeaderVo | None = None
+    ) -> str:
+        payload_vo = self._create_payload(
             user=user,
             token_type=JwtTypeVo.ACCESS,
             exp_seconds=self._config.access_token_exp_seconds,
         )
-        token: JwtEntity = self._jwt_service.sign(payload_vo)
+        token: JwtEntity = self._jwt_service.sign(payload_vo, headers)
         return token.signature
 
-    def create_refresh_token(self, user: UserEntity) -> str:
-        payload_vo: JwtPayloadVo = self._create_payload(
+    def create_refresh_token(
+        self, user: UserEntity, headers: JwtHeaderVo | None = None
+    ) -> str:
+        payload_vo = self._create_payload(
             user=user,
             token_type=JwtTypeVo.REFRESH,
             exp_seconds=self._config.refresh_token_exp_seconds,
         )
-        token: JwtEntity = self._jwt_service.sign(payload_vo)
+        token: JwtEntity = self._jwt_service.sign(payload_vo, headers)
         return token.signature
 
+    # ------------------------- Token Verification -------------------------
     def verify_token(
-        self, token: str, subject: str | None = None
+        self,
+        token: str,
+        subject: str | None = None,
+        expected_headers: JwtHeaderVo | None = None,
     ) -> JwtPayloadVo:
-        """Verify and return a JWT payload value object."""
-
-        return self._jwt_service.verify(token, subject)
+        """Verify a JWT, including optional header checks."""
+        return self._jwt_service.verify(token, subject, expected_headers)
 
     def verify_refresh_token(
-        self, token: str, subject: str | None = None
+        self,
+        token: str,
+        subject: str | None = None,
+        expected_headers: JwtHeaderVo | None = None,
     ) -> JwtPayloadVo:
-        """Verify a refresh token and return the full DTO."""
-        return self._jwt_service.verify_refresh_token(token, subject)
+        """Verify a refresh token, including headers and type."""
+        payload_vo = self._jwt_service.verify_refresh_token(
+            token, subject, expected_headers
+        )
+        return payload_vo
 
+    # ------------------------- Blacklisting -------------------------
     async def blacklist_token(self, payload: JwtPayloadVo) -> None:
         if not payload.is_expired():
             await self._jwt_redis_repo.blacklist_jwt(payload.jti, payload.exp)
