@@ -2,6 +2,7 @@ from enum import StrEnum
 
 
 class DomainErrorCodeEnum(StrEnum):
+    # ------------------------- General -------------------------
     GENERAL = "DOMAIN_GENERAL"
     INVALID_VALUE = "DOMAIN_INVALID_VALUE"
     REQUIRED_FIELD = "DOMAIN_REQUIRED_FIELD"
@@ -11,3 +12,10 @@ class DomainErrorCodeEnum(StrEnum):
     NOT_FOUND = "DOMAIN_NOT_FOUND"
     OPERATION_NOT_ALLOWED = "DOMAIN_OPERATION_NOT_ALLOWED"
     PASSWORD_ERROR = "DOMAIN_PASSWORD_ERROR"
+
+    # ------------------------- JWT Related -------------------------
+    JWT_ERROR = "DOMAIN_JWT_ERROR"
+    JWT_EXPIRED = "DOMAIN_JWT_EXPIRED"
+    JWT_REVOKED = "DOMAIN_JWT_REVOKED"
+    JWT_INVALID = "DOMAIN_JWT_INVALID"
+    JWT_NOT_YET_VALID = "DOMAIN_JWT_NOT_YET_VALID"

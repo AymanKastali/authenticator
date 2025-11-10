@@ -1,6 +1,7 @@
 from domain.config.config_models import JwtDomainConfig
 from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
+from domain.exceptions.domain_errors import JwtRevokedError
 from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.ports.services.jwt import JwtServicePort
@@ -88,8 +89,9 @@ class JwtDomainService:
 
     # ------------------------- Blacklisting -------------------------
     async def blacklist_token(self, payload: JwtPayloadVo) -> None:
-        if not payload.is_expired():
-            await self._jwt_redis_repo.blacklist_jwt(payload.jti, payload.exp)
+        await self._jwt_redis_repo.blacklist_jwt(payload.jti, payload.exp)
 
-    async def is_jwt_blacklisted(self, jti: UUIDVo) -> bool:
-        return await self._jwt_redis_repo.is_jwt_blacklisted(jti)
+    async def ensure_not_blacklisted(self, jti: UUIDVo) -> None:
+        blacklisted: bool = await self._jwt_redis_repo.is_jwt_blacklisted(jti)
+        if blacklisted is True:
+            raise JwtRevokedError()

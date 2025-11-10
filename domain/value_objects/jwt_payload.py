@@ -16,14 +16,14 @@ class JwtPayloadVo:
     sub: UUIDVo
     typ: JwtTypeVo
     exp: DateTimeVo
-    jti: UUIDVo = field(default_factory=UUIDVo.new)
-    iat: DateTimeVo = field(default_factory=DateTimeVo.now)
-    nbf: DateTimeVo = field(default_factory=DateTimeVo.now)
+    jti: UUIDVo
+    iat: DateTimeVo
+    nbf: DateTimeVo
     iss: str | None = None
     aud: str | None = None
-    roles: list[RoleVo] = field(default_factory=list)
     email: EmailVo | None = None
     username: str | None = None
+    roles: list[RoleVo] = field(default_factory=list)
 
     def __post_init__(self):
         self.validate()
@@ -31,40 +31,43 @@ class JwtPayloadVo:
     # ----------------- Validation Methods -----------------
     def validate(self) -> None:
         """Run all validations."""
-        self.validate_sub()
-        self.validate_typ()
-        self.validate_exp()
-        self.validate_iat()
-        self.validate_nbf()
-        self.validate_roles()
+        self._validate_sub()
+        self._validate_typ()
+        self._validate_exp()
+        self._validate_iat()
+        self._validate_nbf()
+        self._validate_roles()
 
-    def validate_sub(self) -> None:
+    def _validate_sub(self) -> None:
         if not isinstance(self.sub, UUIDVo):
             raise TypeError("`sub` must be a UUIDVo instance")
 
-    def validate_typ(self) -> None:
+    def _validate_typ(self) -> None:
         if not isinstance(self.typ, JwtTypeVo):
             raise TypeError("`typ` must be a JwtTypeVo instance")
 
-    def validate_exp(self) -> None:
+    def _validate_exp(self) -> None:
         if not isinstance(self.exp, DateTimeVo):
             raise TypeError("`exp` must be a DateTimeVo instance")
         if self.exp.is_before(self.iat):
             raise ValueError("`exp` must be after `iat`")
 
-    def validate_iat(self) -> None:
+    def _validate_iat(self) -> None:
         if not isinstance(self.iat, DateTimeVo):
             raise TypeError("`iat` must be a DateTimeVo instance")
-        if self.iat.is_future():
-            raise ValueError("`iat` cannot be in the future")
+        self.iat.ensure_not_in_future()
 
-    def validate_nbf(self) -> None:
+    def _validate_nbf(self) -> None:
+        if self.nbf is None:
+            return
         if not isinstance(self.nbf, DateTimeVo):
             raise TypeError("`nbf` must be a DateTimeVo instance")
-        if self.nbf.is_future():
-            raise ValueError("`nbf` cannot be in the future")
+        if self.nbf.is_before(self.iat):
+            raise ValueError("`nbf` cannot be before `iat`")
+        if self.nbf.is_after(self.exp):
+            raise ValueError("`nbf` cannot be after `exp`")
 
-    def validate_roles(self) -> None:
+    def _validate_roles(self) -> None:
         if not all(isinstance(role, RoleVo) for role in self.roles):
             raise TypeError("All `roles` must be RoleVo instances")
 
@@ -75,7 +78,7 @@ class JwtPayloadVo:
         *,
         sub: UUIDVo,
         typ: JwtTypeVo,
-        exp: float,
+        exp: int,
         roles: list[RoleVo] | None = None,
         email: EmailVo | None = None,
         username: str | None = None,
@@ -85,18 +88,22 @@ class JwtPayloadVo:
         policies: list[PolicyInterface],
     ) -> Self:
         """Factory for safely constructing a new payload VO."""
-        now = DateTimeVo.now()
-        expiry = now.expires_after(seconds=exp)
+        jti = UUIDVo.new()
+        now: DateTimeVo = DateTimeVo.now()
+        expiry: DateTimeVo = now.expires_after(seconds=exp)
+        roles = roles or []
         payload = cls(
+            jti=jti,
             sub=sub,
             typ=typ,
             exp=expiry,
-            roles=roles or [],
+            roles=roles,
             email=email,
             username=username,
             iss=iss,
             aud=aud,
-            nbf=nbf or DateTimeVo.now(),
+            iat=now,
+            nbf=nbf or now,
         )
         if policies:
             for policy in policies:
@@ -104,19 +111,21 @@ class JwtPayloadVo:
         return payload
 
     # ----------------- Serialization -----------------
-    def to_primitives(self) -> dict[str, object]:
-        """Return a primitive dictionary for JWT encoding or persistence."""
+    def to_dict(self) -> dict[str, object]:
+        nbf: float | None = self.nbf.to_timestamp() if self.nbf else None
+        roles: list[str] = [r.value for r in self.roles]
+        email: str | None = self.email.to_string() if self.email else None
         return {
             "sub": self.sub.to_string(),
             "typ": self.typ.value,
             "exp": self.exp.to_timestamp(),
             "jti": self.jti.to_string(),
             "iat": self.iat.to_timestamp(),
-            "nbf": self.nbf.to_timestamp(),
+            "nbf": nbf,
             "iss": self.iss,
             "aud": self.aud,
-            "roles": [r.value for r in self.roles],
-            "email": self.email.to_string() if self.email else None,
+            "roles": roles,
+            "email": email,
             "username": self.username,
         }
 

@@ -13,7 +13,6 @@ class JwtEntity:
     headers: JwtHeaderVo
 
     def __post_init__(self):
-        # Validate all invariants immediately after creation
         self._validate()
 
     # --- Entity identity ---
@@ -22,30 +21,28 @@ class JwtEntity:
         """Unique token identifier."""
         return self.payload.jti.to_string()
 
-    # --- Domain behavior ---
-    def is_expired(self) -> bool:
-        """Check if the JWT has expired."""
-        return self.payload.is_expired()
-
     # --- Validation ---
     def _validate(self) -> None:
-        self._ensure_signature()
-        self._ensure_not_expired()
+        self._validate_signature()
+        self._validate_payload()
+        self._validate_headers()
 
-    def _ensure_signature(self) -> None:
+    def _validate_signature(self):
         if not self.signature or not self.signature.strip():
             raise ValueError("JWT signature cannot be empty")
 
-    def _ensure_not_expired(self) -> None:
-        if self.is_expired():
-            raise ValueError("JWT is expired")
+    def _validate_payload(self):
+        self.payload.validate()
+
+    def _validate_headers(self):
+        self.headers.validate()
 
     # --- Utility ---
-    def to_primitives(self) -> dict:
+    def to_dict(self) -> dict:
         """Return a fully serializable representation for infrastructure use."""
         return {
-            "headers": self.headers.to_primitives(),
-            "payload": self.payload.to_primitives(),
+            "headers": self.headers.to_dict(),
+            "payload": self.payload.to_dict(),
             "signature": self.signature,
         }
 
@@ -55,8 +52,3 @@ class JwtEntity:
     ) -> "JwtEntity":
         """Factory method to create a signed JWT with optional custom headers."""
         return cls(payload=payload, signature=signature, headers=headers)
-
-    # --- Optional: Convenience for domain checks ---
-    def ensure_active(self) -> None:
-        """Raise if the JWT is expired or signature/header invalid."""
-        self._validate()

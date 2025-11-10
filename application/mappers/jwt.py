@@ -20,7 +20,7 @@ class JwtMapper:
     def to_payload_dto_from_vo(vo: JwtPayloadVo) -> JwtPayloadDto:
         return JwtPayloadDto(
             sub=vo.sub.to_string(),
-            typ=vo.typ.name,
+            typ=vo.typ.value,
             exp=vo.exp.to_timestamp(),
             jti=vo.jti.to_string(),
             iat=vo.iat.to_timestamp(),
@@ -40,12 +40,12 @@ class JwtMapper:
     def to_payload_vo_from_dto(dto: JwtPayloadDto) -> JwtPayloadVo:
         return JwtPayloadVo(
             sub=UUIDVo.from_string(dto.sub),
-            typ=JwtTypeVo[dto.typ],
+            typ=JwtTypeVo.from_string(dto.typ),
             exp=DateTimeVo.from_timestamp(dto.exp),
             jti=UUIDVo.from_string(dto.jti),
             iat=DateTimeVo.from_timestamp(dto.iat),
             nbf=DateTimeVo.from_timestamp(dto.nbf),
-            roles=[RoleVo[r] for r in dto.roles],
+            roles=[RoleVo.from_string(r) for r in dto.roles],
             email=EmailVo.from_string(dto.email) if dto.email else None,
             username=dto.username,
             iss=dto.iss,

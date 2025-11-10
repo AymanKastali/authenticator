@@ -45,10 +45,10 @@ class JwtService(JwtServicePort):
 
     def _encode_token(self, payload: JwtPayloadVo, headers: JwtHeaderVo) -> str:
         """Encode the payload and headers into a JWT string."""
-        payload_dict: dict = payload.to_primitives()
+        payload_dict: dict = payload.to_dict()
         secret_key: str = self.jwt_cfg.secret_key.get_secret_value()
         algorithm: str = headers.alg or self.jwt_cfg.algorithm
-        headers_dict: dict = headers.to_primitives()
+        headers_dict: dict = headers.to_dict()
 
         return encode(
             payload=payload_dict,

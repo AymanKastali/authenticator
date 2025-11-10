@@ -8,7 +8,7 @@ from presentation.web.fastapi.api.v1.controllers.auth.jwt.logout import (
 from presentation.web.fastapi.api.v1.dependencies.controllers.jwt import (
     jwt_logout_controller_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.security.auth_helpers import (
+from presentation.web.fastapi.api.v1.dependencies.security.jwt import (
     get_current_authenticated_user,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.logout import (

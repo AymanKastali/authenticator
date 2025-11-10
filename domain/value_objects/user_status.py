@@ -22,5 +22,5 @@ class UserStatusVo(StrEnum):
             if member.value.upper() == value.upper():
                 return member
         raise ValueError(
-            f"Invalid UserStatusVo value: '{value}'. Allowed values: {cls.values()}"
+            f"Invalid {cls.__name__} value: '{value}'. Allowed values: {cls.values()}"
         )

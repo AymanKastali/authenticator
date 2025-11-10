@@ -1,3 +1,4 @@
+from domain.exceptions.domain_errors import PolicyViolationError
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.jwt_payload import JwtPayloadVo
@@ -24,9 +25,11 @@ class JwtExpirationPolicy(PolicyInterface):
             else self.refresh_exp
         )
         allowed_exp = now.expires_after(max_expiry)
+
         if target.exp.is_after(allowed_exp):
-            raise ValueError(
-                f"{target.typ.value} token expiry exceeds policy ({max_expiry}s)"
+            raise PolicyViolationError(
+                message=f"{target.typ.value} token expiry exceeds policy ({max_expiry}s)",
+                policy_name="jwt_expiration",
             )
 
     def describe(self) -> PolicyDescriptionVo:

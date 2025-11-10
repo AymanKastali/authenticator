@@ -1,5 +1,5 @@
 from domain.config import password_config as pwd_cfg
-from domain.exceptions.domain_errors import PasswordError
+from domain.exceptions.domain_errors import PolicyViolationError
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.policy_description import PolicyDescriptionVo
 
@@ -15,15 +15,19 @@ class PasswordLengthPolicy(PolicyInterface):
 
     def enforce(self, target: str) -> None:
         if not isinstance(target, str):
-            raise PasswordError("Password must be a string.")
+            raise PolicyViolationError(
+                "Password must be a string.", policy_name="length_type"
+            )
 
         if len(target) < self.min_length:
-            raise PasswordError(
-                f"Password too short. Minimum {self.min_length} characters."
+            raise PolicyViolationError(
+                f"Password too short. Minimum {self.min_length} characters.",
+                policy_name="length_min",
             )
         if len(target) > self.max_length:
-            raise PasswordError(
-                f"Password too long. Maximum {self.max_length} characters."
+            raise PolicyViolationError(
+                f"Password too long. Maximum {self.max_length} characters.",
+                policy_name="length_max",
             )
 
     def describe(self) -> PolicyDescriptionVo:

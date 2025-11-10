@@ -8,7 +8,7 @@ from presentation.web.fastapi.api.v1.controllers.user.get_all import (
 from presentation.web.fastapi.api.v1.dependencies.controllers.user import (
     get_user_all_users_controller_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.security.auth_helpers import (
+from presentation.web.fastapi.api.v1.dependencies.security.jwt import (
     get_current_authenticated_user,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (

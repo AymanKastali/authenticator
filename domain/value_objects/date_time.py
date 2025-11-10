@@ -13,20 +13,19 @@ class DateTimeVo:
         # Ensure datetime is timezone-aware
         aware_dt = self._make_aware(self.value)
         object.__setattr__(self, "value", aware_dt)
-        # No automatic validation — validations are explicit now
 
     # ----------------- Validation Methods -----------------
-    def validate_not_in_future(self) -> None:
+    def ensure_not_in_future(self) -> None:
         """Raise if this datetime is in the future."""
         if self.is_future():
             raise ValueError("Timestamp cannot be in the future")
 
-    def validate_in_future(self) -> None:
+    def ensure_in_future(self) -> None:
         """Raise if this datetime is not in the future."""
         if not self.is_future():
             raise ValueError("Timestamp must be in the future")
 
-    def validate_in_past(self) -> None:
+    def ensure_in_past(self) -> None:
         """Raise if this datetime is not in the past."""
         if not self.is_past():
             raise ValueError("Timestamp must be in the past")
@@ -56,24 +55,23 @@ class DateTimeVo:
         return self.value.timestamp()
 
     # ----------------- Time Arithmetic -----------------
-    def add(self, **kwargs) -> Self:
+    def plus(self, **kwargs) -> Self:
         return type(self)(value=self.value + timedelta(**kwargs))
 
-    def subtract(self, **kwargs) -> Self:
+    def minus(self, **kwargs) -> Self:
         return type(self)(value=self.value - timedelta(**kwargs))
 
-    def subtract_seconds(self, seconds: float) -> Self:
-        return self.subtract(seconds=seconds)
-
     def expires_after(self, seconds: float) -> Self:
-        return self.add(seconds=seconds)
+        return self.plus(seconds=seconds)
 
     # ----------------- State Checks -----------------
-    def is_future(self) -> bool:
-        return self.value > datetime.now(timezone.utc)
+    def is_future(self, reference: datetime | None = None) -> bool:
+        now = reference or datetime.now(timezone.utc)
+        return self.value > now
 
-    def is_past(self) -> bool:
-        return self.value < datetime.now(timezone.utc)
+    def is_past(self, reference: datetime | None = None) -> bool:
+        now = reference or datetime.now(timezone.utc)
+        return self.value < now
 
     def is_before(self, other: DateTimeVo) -> bool:
         return self.value < other.value

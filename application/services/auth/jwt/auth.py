@@ -30,8 +30,6 @@ class JwtAuthService:
         user: UserEntity = await self._auth_service.authenticate_user(
             email_vo, password
         )
-        if user.deleted:
-            raise ValueError("Deleted")
         return self._create_user_tokens(user)
 
     async def logout(self, token: str) -> None:
@@ -59,7 +57,9 @@ class JwtAuthService:
         )
         return self._create_user_tokens(user)
 
-    async def is_jwt_blacklisted(self, jti: str) -> bool:
-        return await self._jwt_service.is_jwt_blacklisted(
-            UUIDVo.from_string(jti)
+    async def validate_token(self, token: str) -> JwtPayloadDto:
+        payload_dto: JwtPayloadDto = self.verify_jwt_token(token)
+        await self._jwt_service.ensure_not_blacklisted(
+            UUIDVo.from_string(payload_dto.jti)
         )
+        return payload_dto

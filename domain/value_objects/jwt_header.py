@@ -22,13 +22,18 @@ class JwtHeaderVo:
     kid: str | None = field(default=None)
 
     def __post_init__(self):
-        self._validate()
+        self.validate()
 
-    def _validate(self) -> None:
-        self._validate_type()
+    def validate(self) -> None:
+        self._validate_alg()
+        self._validate_typ()
         self._validate_kid()
 
-    def _validate_type(self) -> None:
+    def _validate_alg(self):
+        if not isinstance(self.alg, JwtHeaderAlgorithmVo):
+            raise TypeError("alg must be JwtHeaderAlgorithmVo")
+
+    def _validate_typ(self) -> None:
         if self.typ != _HEADER_TYPE:
             raise ValueError(f"Invalid JWT type: {self.typ}")
 
@@ -36,7 +41,7 @@ class JwtHeaderVo:
         if self.kid is not None and not self.kid.strip():
             raise ValueError("JWT 'kid' cannot be empty if provided")
 
-    def to_primitives(self) -> dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         headers = {"alg": self.alg.value, "typ": self.typ}
         if self.kid is not None:
             headers["kid"] = self.kid

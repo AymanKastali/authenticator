@@ -10,7 +10,7 @@ class JwtTypeVo(StrEnum):
         for member in cls:
             if member.value.lower() == value.lower():
                 return member
-        raise ValueError(f"Invalid JwtTypeVo value: {value}")
+        raise ValueError(f"Invalid {cls.__name__} value: {value}")
 
     @classmethod
     def values(cls) -> list[str]:

@@ -1,4 +1,11 @@
 from domain.entities.user import UserEntity
+from domain.exceptions.domain_errors import (
+    InvalidCredentialsError,
+    UserAlreadyExistsError,
+    UserDeletedError,
+    UserInactiveError,
+    UserNotFoundError,
+)
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
@@ -17,7 +24,7 @@ class UserDomainService:
     ) -> UserEntity:
         existing = await self._user_repo.get_user_by_email(email)
         if existing:
-            raise ValueError(f"User with email {email} already exists")
+            raise UserAlreadyExistsError(email.to_string())
 
         user = UserEntity.create_local(
             email=email, hashed_password=hashed_password
@@ -28,7 +35,7 @@ class UserDomainService:
     async def create_external_user(self, email: EmailVo) -> UserEntity:
         existing = await self._user_repo.get_user_by_email(email)
         if existing:
-            raise ValueError(f"User with email {email} already exists")
+            raise UserAlreadyExistsError(email.to_string())
 
         user = UserEntity.create_external(email=email)
         await self._user_repo.save(user)
@@ -40,13 +47,15 @@ class UserDomainService:
     ) -> UserEntity:
         user = await self._user_repo.get_user_by_email(email)
         if not user:
-            raise ValueError("User not found")
+            raise UserNotFoundError(email.to_string())
         if not user.hashed_password or not user.hashed_password.verify(
             raw_password
         ):
-            raise ValueError("Invalid credentials")
+            raise InvalidCredentialsError(email.to_string())
         if not user.active:
-            raise ValueError("User account is inactive")
+            raise UserInactiveError(user.uid.to_string())
+        if user.deleted:
+            raise UserDeletedError(user.uid.to_string())
         return user
 
     # ----------------- Status Management -----------------
@@ -77,7 +86,7 @@ class UserDomainService:
     async def _get_user_or_raise(self, user_id: UUIDVo) -> UserEntity:
         user = await self._user_repo.get_user_by_id(user_id)
         if not user:
-            raise ValueError("User not found")
+            raise UserNotFoundError(user_id.to_string())
         return user
 
     # ------------------------------------

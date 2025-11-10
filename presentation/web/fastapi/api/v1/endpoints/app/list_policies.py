@@ -8,7 +8,7 @@ from presentation.web.fastapi.api.v1.controllers.app.list_policies import (
 from presentation.web.fastapi.api.v1.dependencies.controllers.policy import (
     list_policies_controller_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.security.auth_helpers import (
+from presentation.web.fastapi.api.v1.dependencies.security.jwt import (
     get_current_authenticated_user,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
