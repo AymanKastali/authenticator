@@ -1,5 +1,3 @@
-from uuid import UUID
-
 from application.dto.auth.jwt.token_user import TokenUserDto
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
@@ -13,6 +11,6 @@ class GetAuthenticatedUserController:
     def __init__(self, use_case: GetAuthenticatedUserUseCase):
         self.use_case = use_case
 
-    async def execute(self, user_id: UUID) -> AuthenticatedUserResponseSchema:
-        user: TokenUserDto = await self.use_case.execute(user_id)
-        return AuthenticatedUserResponseSchema.model_validate(user)
+    async def execute(self, token: str) -> AuthenticatedUserResponseSchema:
+        user_dto: TokenUserDto = await self.use_case.execute(token)
+        return AuthenticatedUserResponseSchema.model_validate(user_dto)

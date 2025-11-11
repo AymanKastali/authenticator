@@ -1,15 +1,15 @@
 from application.dto.user.public import PublicUserDto
 from application.mappers.user import UserMapper
 from domain.entities.user import UserEntity
-from domain.services.user import UserDomainService
+from domain.services.user.query_user import QueryUser
 
 
 class GetAllUsersUseCase:
-    def __init__(self, user_service: UserDomainService):
-        self._user_service = user_service
+    def __init__(self, query_user: QueryUser):
+        self._query_user = query_user
 
     async def execute(self) -> list[PublicUserDto]:
-        users: list[UserEntity] = await self._user_service.get_all_users()
+        users: list[UserEntity] = await self._query_user.get_all_users()
 
         active_users = [u for u in users if u.active]
 

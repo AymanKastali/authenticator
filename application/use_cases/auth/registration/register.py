@@ -1,20 +1,13 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
 from domain.entities.user import UserEntity
-from domain.services.password import PasswordDomainService
-from domain.services.user import UserDomainService
+from domain.services.user.register_user import RegisterUser
 from domain.value_objects.email import EmailVo
-from domain.value_objects.hashed_password import HashedPasswordVo
 
 
 class RegisterUserUseCase:
-    def __init__(
-        self,
-        user_service: UserDomainService,
-        password_service: PasswordDomainService,
-    ):
-        self._user_service = user_service
-        self._password_service = password_service
+    def __init__(self, registration: RegisterUser):
+        self._registration = registration
 
     async def execute(self, email: str, password: str) -> AuthUserDto:
         """
@@ -22,13 +15,8 @@ class RegisterUserUseCase:
         """
         email_vo: EmailVo = EmailVo.from_string(email)
 
-        hashed_password: HashedPasswordVo = (
-            self._password_service.hash_password(password)
-        )
-
-        user: UserEntity = await self._user_service.register_user(
-            email=email_vo,
-            hashed_password=hashed_password,
+        user: UserEntity = await self._registration.register_local_user(
+            email=email_vo, plain_password=password
         )
         user.activate()
 

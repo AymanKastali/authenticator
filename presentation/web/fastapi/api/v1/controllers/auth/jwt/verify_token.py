@@ -1,6 +1,8 @@
 from application.dto.auth.jwt.payload import JwtPayloadDto
 from application.ports.services.logger import LoggerPort
-from application.services.auth.jwt.auth import JwtAuthService
+from application.use_cases.auth.jwt.verify_access_token import (
+    VerifyAccessTokenUseCase,
+)
 from presentation.web.fastapi.schemas.request.auth.jwt.verify_token import (
     VerifyJwtTokenRequestSchema,
 )
@@ -13,8 +15,10 @@ from presentation.web.fastapi.schemas.response.generic.success.item import (
 
 
 class VerifyJwtTokenController:
-    def __init__(self, service: JwtAuthService, logger: LoggerPort):
-        self._service = service
+    def __init__(
+        self, verify_access_token: VerifyAccessTokenUseCase, logger: LoggerPort
+    ):
+        self._verify_access_token = verify_access_token
         self._logger = logger
 
     async def execute(
@@ -23,7 +27,7 @@ class VerifyJwtTokenController:
         self._logger.info(
             f"[VerifyJwtTokenController] Verifying token for subject={body.subject}"
         )
-        payload_dto: JwtPayloadDto = self._service.verify_jwt_token(
+        payload_dto: JwtPayloadDto = await self._verify_access_token.execute(
             body.token, body.subject
         )
         self._logger.info(

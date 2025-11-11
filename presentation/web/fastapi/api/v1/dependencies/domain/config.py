@@ -11,10 +11,10 @@ def password_config_dependency() -> PasswordDomainConfig:
 
 @lru_cache
 def jwt_domain_config_dependency() -> JwtDomainConfig:
-    cfg = jwt_config()
+    config = jwt_config()
     return JwtDomainConfig(
-        access_token_exp_seconds=cfg.access_token_exp,
-        refresh_token_exp_seconds=cfg.refresh_token_exp,
-        issuer=cfg.issuer,
-        audience=cfg.audience,
+        access_token_exp_seconds=config.access_token_exp,
+        refresh_token_exp_seconds=config.refresh_token_exp,
+        issuer=config.issuer,
+        audience=config.audience,
     )

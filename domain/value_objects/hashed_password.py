@@ -12,7 +12,7 @@ class HashedPasswordVo:
     value: str
 
     @classmethod
-    def from_plain(
+    def create(
         cls, password: str, policies: list[PolicyInterface]
     ) -> "HashedPasswordVo":
         for policy in policies:
@@ -28,4 +28,6 @@ class HashedPasswordVo:
         return cls(value=hashed_value)
 
     def verify(self, password: str) -> bool:
+        if not password:
+            return False
         return password_hash.verify(password, self.value)

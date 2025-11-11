@@ -1,13 +1,13 @@
 from application.ports.services.logger import LoggerPort
-from application.services.auth.jwt.auth import JwtAuthService
+from application.use_cases.auth.jwt.logout import LogoutUserUseCase
 from presentation.web.fastapi.schemas.request.auth.jwt.logout import (
     LogoutJwtRequestSchema,
 )
 
 
 class JwtLogoutController:
-    def __init__(self, service: JwtAuthService, logger: LoggerPort):
-        self._service = service
+    def __init__(self, logout_user: LogoutUserUseCase, logger: LoggerPort):
+        self._logout_user = logout_user
         self._logger = logger
 
     async def execute(self, body: LogoutJwtRequestSchema) -> None:
@@ -16,7 +16,7 @@ class JwtLogoutController:
         self._logger.info(
             f"[JwtLogoutController] Attempting logout for token={token[:10]}"
         )
-        await self._service.logout(token)
+        await self._logout_user.execute(token)
         self._logger.info(
             f"[JwtLogoutController] Logout successful for token={token[:10]}"
         )

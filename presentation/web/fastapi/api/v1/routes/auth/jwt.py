@@ -13,7 +13,7 @@ from presentation.web.fastapi.api.v1.endpoints.auth.jwt.refresh_token import (
     refresh_jwt_token_endpoint,
 )
 from presentation.web.fastapi.api.v1.endpoints.auth.jwt.verify_token import (
-    verify_jwt_token_endpoint,
+    verify_jwt_access_token_endpoint,
 )
 from presentation.web.fastapi.api.v1.utils.routes_utils import create_route
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
@@ -64,7 +64,7 @@ routes = [
         path=_VERIFY_TOKEN,
         status_code=200,
         methods=[HttpMethod.POST],
-        endpoint=verify_jwt_token_endpoint,
+        endpoint=verify_jwt_access_token_endpoint,
         tag=RouteTag.AUTH,
         summary="Verify JWT Token",
         response_model=ItemResponseSchema[JwtTokenPayloadResponseSchema],

@@ -1,9 +1,12 @@
 from fastapi import Depends
 
 from domain.config.config_models import JwtDomainConfig
+from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.ports.services.jwt import JwtServicePort
-from domain.services.jwt import JwtDomainService
+from domain.services.jwt.issue_jwt import IssueJwt
+from domain.services.jwt.revoke_jwt import RevokeJwt
+from domain.services.jwt.validate_jwt import ValidateJwt
 from presentation.web.fastapi.api.v1.dependencies.domain.config import (
     jwt_domain_config_dependency,
 )
@@ -16,15 +19,21 @@ from presentation.web.fastapi.api.v1.dependencies.infrastructure.jwt import (
 )
 
 
-def jwt_domain_service_dependency(
+def jwt_issuance_dependency(
     jwt_service: JwtServicePort = Depends(jwt_service_dependency),
-    jwt_redis_repo: JwtRedisRepositoryPort = Depends(jwt_redis_dependency),
     config: JwtDomainConfig = Depends(jwt_domain_config_dependency),
-) -> JwtDomainService:
-    policies = jwt_policies()
-    return JwtDomainService(
-        jwt_service=jwt_service,
-        jwt_redis_repo=jwt_redis_repo,
-        config=config,
-        policies=policies,
-    )
+    policies: list[PolicyInterface] = Depends(jwt_policies),
+) -> IssueJwt:
+    return IssueJwt(jwt_service=jwt_service, config=config, policies=policies)
+
+
+def jwt_validation_dependency(
+    jwt_service: JwtServicePort = Depends(jwt_service_dependency),
+) -> ValidateJwt:
+    return ValidateJwt(jwt_service=jwt_service)
+
+
+def jwt_revocation_dependency(
+    jwt_redis_repo: JwtRedisRepositoryPort = Depends(jwt_redis_dependency),
+) -> RevokeJwt:
+    return RevokeJwt(jwt_redis_repo=jwt_redis_repo)
