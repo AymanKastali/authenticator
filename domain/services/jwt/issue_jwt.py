@@ -1,4 +1,5 @@
 from domain.config.config_models import JwtDomainConfig
+from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.interfaces.policy import PolicyInterface
 from domain.ports.services.jwt import JwtServicePort
@@ -22,21 +23,19 @@ class IssueJwt:
 
     def access(
         self, user: UserEntity, headers: JwtHeaderVo | None = None
-    ) -> str:
+    ) -> JwtEntity:
         payload = self._create_payload(
             user, JwtTypeVo.ACCESS, self._config.access_token_exp_seconds
         )
-        token = self._jwt_service.sign(payload, headers)
-        return token.signature
+        return self._jwt_service.sign(payload, headers)
 
     def refresh(
         self, user: UserEntity, headers: JwtHeaderVo | None = None
-    ) -> str:
+    ) -> JwtEntity:
         payload = self._create_payload(
             user, JwtTypeVo.REFRESH, self._config.refresh_token_exp_seconds
         )
-        token = self._jwt_service.sign(payload, headers)
-        return token.signature
+        return self._jwt_service.sign(payload, headers)
 
     def _create_payload(
         self, user: UserEntity, token_type: JwtTypeVo, exp_seconds: int

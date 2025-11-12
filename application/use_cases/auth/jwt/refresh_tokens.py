@@ -1,4 +1,5 @@
 from application.dto.auth.jwt.tokens import JwtTokensDto
+from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserNotFoundError
 from domain.services.jwt.issue_jwt import IssueJwt
@@ -28,8 +29,9 @@ class RefreshTokensUseCase:
         if user is None:
             raise UserNotFoundError(payload_vo.sub.to_string())
 
-        access_token: str = self._issue_jwt.access(user)
-        refresh_token = self._issue_jwt.refresh(user)
+        access_token: JwtEntity = self._issue_jwt.access(user)
+        refresh_token_entity: JwtEntity = self._issue_jwt.refresh(user)
         return JwtTokensDto(
-            access_token=access_token, refresh_token=refresh_token
+            access_token=access_token.signature,
+            refresh_token=refresh_token_entity.signature,
         )
