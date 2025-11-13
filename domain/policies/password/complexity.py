@@ -11,11 +11,7 @@ class PasswordComplexityPolicy(PolicyInterface):
     """Validates basic password complexity."""
 
     def __init__(
-        self,
-        require_upper=True,
-        require_lower=True,
-        require_digit=True,
-        require_special=True,
+        self, require_upper, require_lower, require_digit, require_special
     ):
         self.require_upper = require_upper
         self.require_lower = require_lower

@@ -1,7 +1,7 @@
 from domain.exceptions.domain_errors import PolicyViolationError
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
-from domain.value_objects.jwt_payload import JwtPayloadVo
+from domain.value_objects.jwt_claims import JwtClaimsVo
 from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.policy_description import PolicyDescriptionVo
 
@@ -17,7 +17,7 @@ class JwtExpirationPolicy(PolicyInterface):
         self.access_exp = access_token_max_age_seconds
         self.refresh_exp = refresh_token_max_age_seconds
 
-    def enforce(self, target: JwtPayloadVo) -> None:
+    def enforce(self, target: JwtClaimsVo) -> None:
         now = DateTimeVo.now()
         max_expiry = (
             self.access_exp

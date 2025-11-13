@@ -1,4 +1,4 @@
-from application.dto.auth.jwt.payload import JwtPayloadDto
+from application.dto.auth.jwt.claims import JwtClaimsDto
 from application.ports.services.logger import LoggerPort
 from application.use_cases.auth.jwt.verify_access_token import (
     VerifyAccessTokenUseCase,
@@ -6,8 +6,8 @@ from application.use_cases.auth.jwt.verify_access_token import (
 from presentation.web.fastapi.schemas.request.auth.jwt.verify_token import (
     VerifyJwtTokenRequestSchema,
 )
-from presentation.web.fastapi.schemas.response.auth.jwt.payload import (
-    JwtTokenPayloadResponseSchema,
+from presentation.web.fastapi.schemas.response.auth.jwt.claims import (
+    JwtTokenClaimsResponseSchema,
 )
 from presentation.web.fastapi.schemas.response.generic.success.item import (
     ItemResponseSchema,
@@ -23,26 +23,26 @@ class VerifyJwtTokenController:
 
     async def execute(
         self, body: VerifyJwtTokenRequestSchema
-    ) -> ItemResponseSchema[JwtTokenPayloadResponseSchema]:
+    ) -> ItemResponseSchema[JwtTokenClaimsResponseSchema]:
         self._logger.info(
             f"[VerifyJwtTokenController] Verifying token for subject={body.subject}"
         )
-        payload_dto: JwtPayloadDto = await self._verify_access_token.execute(
+        claims_dto: JwtClaimsDto = await self._verify_access_token.execute(
             body.token, body.subject
         )
         self._logger.info(
             f"[VerifyJwtTokenController] Token verification successful for subject={body.subject}"
         )
-        payload_response = JwtTokenPayloadResponseSchema(
-            user_id=payload_dto.sub,
-            token_type=payload_dto.typ,
-            expires_at=payload_dto.exp,
-            email=payload_dto.email,
-            username=payload_dto.username,
-            roles=payload_dto.roles,
+        claims_response = JwtTokenClaimsResponseSchema(
+            user_id=claims_dto.sub,
+            token_type=claims_dto.typ,
+            expires_at=claims_dto.exp,
+            email=claims_dto.email,
+            username=claims_dto.username,
+            roles=claims_dto.roles,
         )
-        return ItemResponseSchema[JwtTokenPayloadResponseSchema].build(
-            data=payload_response,
+        return ItemResponseSchema[JwtTokenClaimsResponseSchema].build(
+            data=claims_response,
             status_code=200,
             message="JWT Token verified successfully",
         )

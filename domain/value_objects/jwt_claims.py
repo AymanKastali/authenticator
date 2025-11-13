@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Self
+from typing import Any, Mapping, Self
 
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
@@ -10,7 +10,7 @@ from domain.value_objects.role import RoleVo
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class JwtPayloadVo:
+class JwtClaimsVo:
     """Represents JWT claims as a Value Object with strong validation and modern Python style."""
 
     sub: UUIDVo
@@ -24,6 +24,7 @@ class JwtPayloadVo:
     email: EmailVo | None = None
     username: str | None = None
     roles: list[RoleVo] = field(default_factory=list)
+    extras: Mapping[str, Any] = field(default_factory=dict)
 
     def __post_init__(self):
         self.validate()
@@ -78,21 +79,23 @@ class JwtPayloadVo:
         *,
         sub: UUIDVo,
         typ: JwtTypeVo,
-        exp: int,
+        lifetime_seconds: int,
+        policies: list[PolicyInterface],
         roles: list[RoleVo] | None = None,
         email: EmailVo | None = None,
         username: str | None = None,
         iss: str | None = None,
         aud: str | None = None,
         nbf: DateTimeVo | None = None,
-        policies: list[PolicyInterface],
+        extras: dict[str, Any] | None = None,
     ) -> Self:
-        """Factory for safely constructing a new payload VO."""
+        """Factory for safely constructing a new claims VO."""
         jti = UUIDVo.new()
         now: DateTimeVo = DateTimeVo.now()
-        expiry: DateTimeVo = now.expires_after(seconds=exp)
+        expiry: DateTimeVo = now.expires_after(seconds=lifetime_seconds)
         roles = roles or []
-        payload = cls(
+        extras = extras or {}
+        claims = cls(
             jti=jti,
             sub=sub,
             typ=typ,
@@ -104,11 +107,12 @@ class JwtPayloadVo:
             aud=aud,
             iat=now,
             nbf=nbf or now,
+            extras=extras,
         )
         if policies:
             for policy in policies:
-                policy.enforce(payload)
-        return payload
+                policy.enforce(claims)
+        return claims
 
     # ----------------- Serialization -----------------
     def to_dict(self) -> dict[str, object]:
@@ -127,7 +131,28 @@ class JwtPayloadVo:
             "roles": roles,
             "email": email,
             "username": self.username,
+            "extras": dict(self.extras),
         }
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        """Reconstruct a JwtClaimsVo from a dictionary."""
+        return cls(
+            sub=UUIDVo.from_string(data["sub"]),
+            typ=JwtTypeVo.from_string(data["typ"]),
+            exp=DateTimeVo.from_timestamp(data["exp"]),
+            jti=UUIDVo.from_string(data["jti"]),
+            iat=DateTimeVo.from_timestamp(data["iat"]),
+            nbf=DateTimeVo.from_timestamp(data["nbf"]),
+            iss=data.get("iss"),
+            aud=data.get("aud"),
+            email=EmailVo.from_string(data["email"])
+            if data.get("email")
+            else None,
+            username=data.get("username"),
+            roles=[RoleVo.from_string(r) for r in data.get("roles", [])],
+            extras=data.get("extras", {}),
+        )
 
     # ----------------- Convenience -----------------
     def is_expired(self) -> bool:

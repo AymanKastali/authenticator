@@ -5,7 +5,6 @@ from domain.exceptions.domain_errors import UserNotFoundError
 from domain.services.jwt.issue_jwt import IssueJwt
 from domain.services.jwt.validate_jwt import ValidateJwt
 from domain.services.user.query_user import QueryUser
-from domain.value_objects.jwt_payload import JwtPayloadVo
 
 
 class RefreshTokensUseCase:
@@ -22,16 +21,17 @@ class RefreshTokensUseCase:
         self._query_user = query_user
 
     async def execute(self, refresh_token: str) -> JwtTokensDto:
-        payload_vo: JwtPayloadVo = self._validate_jwt.refresh(refresh_token)
+        token_entity: JwtEntity = self._validate_jwt.validate_refresh_token(
+            refresh_token
+        )
         user: UserEntity | None = await self._query_user.get_user_by_id(
-            payload_vo.sub
+            token_entity.subject
         )
         if user is None:
-            raise UserNotFoundError(payload_vo.sub.to_string())
+            raise UserNotFoundError(token_entity.subject.to_string())
 
-        access_token: JwtEntity = self._issue_jwt.access(user)
-        refresh_token_entity: JwtEntity = self._issue_jwt.refresh(user)
+        access_token: str = self._issue_jwt.issue_access_token(user)
+        refresh_token = self._issue_jwt.issue_refresh_token(user)
         return JwtTokensDto(
-            access_token=access_token.signature,
-            refresh_token=refresh_token_entity.signature,
+            access_token=access_token, refresh_token=refresh_token
         )

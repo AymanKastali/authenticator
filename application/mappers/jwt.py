@@ -1,15 +1,13 @@
 from dataclasses import dataclass
 
+from application.dto.auth.jwt.claims import JwtClaimsDto
 from application.dto.auth.jwt.header import JwtHeaderDto
-from application.dto.auth.jwt.payload import JwtPayloadDto
-from application.dto.auth.jwt.token import JwtDto
-from domain.entities.auth.jwt.token import JwtEntity
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.jwt_claims import JwtClaimsVo
 from domain.value_objects.jwt_header import JwtHeaderVo
 from domain.value_objects.jwt_header_algorithm import JwtHeaderAlgorithmVo
-from domain.value_objects.jwt_payload import JwtPayloadVo
 from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.role import RoleVo
 
@@ -17,8 +15,8 @@ from domain.value_objects.role import RoleVo
 @dataclass
 class JwtMapper:
     @staticmethod
-    def to_payload_dto_from_vo(vo: JwtPayloadVo) -> JwtPayloadDto:
-        return JwtPayloadDto(
+    def to_claims_dto_from_vo(vo: JwtClaimsVo) -> JwtClaimsDto:
+        return JwtClaimsDto(
             sub=vo.sub.to_string(),
             typ=vo.typ.value,
             exp=vo.exp.to_timestamp(),
@@ -37,8 +35,8 @@ class JwtMapper:
         return JwtHeaderDto(algorithm=vo.alg, type=vo.typ, key_id=vo.kid)
 
     @staticmethod
-    def to_payload_vo_from_dto(dto: JwtPayloadDto) -> JwtPayloadVo:
-        return JwtPayloadVo(
+    def to_claims_vo_from_dto(dto: JwtClaimsDto) -> JwtClaimsVo:
+        return JwtClaimsVo(
             sub=UUIDVo.from_string(dto.sub),
             typ=JwtTypeVo.from_string(dto.typ),
             exp=DateTimeVo.from_timestamp(dto.exp),
@@ -61,8 +59,8 @@ class JwtMapper:
         )
 
     @staticmethod
-    def to_payload_vo_from_dict(decoded: dict) -> JwtPayloadVo:
-        return JwtPayloadVo(
+    def to_claims_vo_from_dict(decoded: dict) -> JwtClaimsVo:
+        return JwtClaimsVo(
             sub=UUIDVo.from_string(decoded["sub"]),
             jti=UUIDVo.from_string(
                 decoded.get("jti", UUIDVo.new().to_string())
@@ -80,31 +78,11 @@ class JwtMapper:
             aud=decoded.get("aud"),
         )
 
-    # ---------------- Full JWT ----------------
     @staticmethod
-    def to_entity_from_jwt_dto(dto: JwtDto) -> "JwtEntity":
-        """Map application JwtDto → domain JwtEntity."""
-        payload_vo = JwtMapper.to_payload_vo_from_dto(dto.payload)
-        header_vo = JwtMapper.to_header_vo_from_dto(dto.headers)
-        return JwtEntity.create_signed(
-            payload=payload_vo, signature=dto.signature, headers=header_vo
-        )
-
-    @staticmethod
-    def to_jwt_dto_from_entity(entity: JwtEntity) -> JwtDto:
-        """Map domain JwtEntity → application JwtDto."""
-        payload_dto = JwtMapper.to_payload_dto_from_vo(entity.payload)
-        header_dto = JwtMapper.to_header_dto_from_vo(entity.headers)
-
-        return JwtDto(
-            payload=payload_dto, headers=header_dto, signature=entity.signature
-        )
-
-    @staticmethod
-    def to_payload_dto_from_dict(decoded: dict) -> JwtPayloadDto:
+    def to_claims_dto_from_dict(decoded: dict) -> JwtClaimsDto:
         """
-        Convert a decoded JWT dictionary into a JwtPayloadDto,
+        Convert a decoded JWT dictionary into a JwtClaimsDto,
         enforcing domain VO invariants.
         """
-        vo = JwtMapper.to_payload_vo_from_dto(JwtPayloadDto(**decoded))
-        return JwtMapper.to_payload_dto_from_vo(vo)
+        vo = JwtMapper.to_claims_vo_from_dto(JwtClaimsDto(**decoded))
+        return JwtMapper.to_claims_dto_from_vo(vo)

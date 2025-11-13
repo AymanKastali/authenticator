@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class JwtTokenPayloadResponseSchema(BaseModel):
+class JwtTokenClaimsResponseSchema(BaseModel):
     user_id: str
     token_type: str
     expires_at: float

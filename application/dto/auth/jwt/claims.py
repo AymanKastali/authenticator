@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True, kw_only=True)
-class JwtPayloadDto:
+class JwtClaimsDto:
     sub: str
     typ: str
     exp: float

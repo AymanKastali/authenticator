@@ -1,15 +1,10 @@
-from domain.config import password_config as pwd_cfg
 from domain.exceptions.domain_errors import PolicyViolationError
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.policy_description import PolicyDescriptionVo
 
 
 class PasswordLengthPolicy(PolicyInterface):
-    def __init__(
-        self,
-        min_length: int = pwd_cfg.min_length,
-        max_length: int = pwd_cfg.max_length,
-    ):
+    def __init__(self, min_length: int, max_length: int):
         self.min_length = min_length
         self.max_length = max_length
 

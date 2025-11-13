@@ -8,15 +8,6 @@ _HEADER_TYPE: str = "JWT"
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class JwtHeaderVo:
-    """
-    Represents JWT headers as a Value Object with strong typing and validation.
-
-    Attributes:
-        alg: The signing algorithm (enum), must be one of the allowed JWT algorithms.
-        typ: Token type, defaults to "JWT".
-        kid: Optional key ID for key rotation.
-    """
-
     alg: JwtHeaderAlgorithmVo
     typ: str = field(default=_HEADER_TYPE)
     kid: str | None = field(default=None)
@@ -46,6 +37,15 @@ class JwtHeaderVo:
         if self.kid is not None:
             headers["kid"] = self.kid
         return headers
+
+    @classmethod
+    def from_dict(cls, data: dict) -> Self:
+        """Reconstruct a JwtHeaderVo from a dictionary."""
+        return cls(
+            alg=JwtHeaderAlgorithmVo.from_string(data["alg"]),
+            typ=data.get("typ", _HEADER_TYPE),
+            kid=data.get("kid"),
+        )
 
     @classmethod
     def create(

@@ -4,7 +4,9 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class JwtConfig(BaseSettings):
     secret_key: SecretStr = Field(default=..., description="JWT secret key")
-    algorithm: str = Field(default="HS256")
+    private_key: SecretStr = Field(default=..., description="JWT private key")
+    public_key: SecretStr = Field(default=..., description="JWT public key")
+    algorithm: str = Field(default="RS256")
     issuer: str = Field(default="auth.myapp.com")
     audience: str = Field(default="api.myapp.com")
     leeway: int = Field(default=0)

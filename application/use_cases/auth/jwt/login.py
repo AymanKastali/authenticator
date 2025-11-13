@@ -1,5 +1,4 @@
 from application.dto.auth.jwt.tokens import JwtTokensDto
-from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.services.jwt.issue_jwt import IssueJwt
 from domain.services.user.authenticate_user import AuthenticateUser
@@ -20,9 +19,8 @@ class LoginUserUseCase:
         user: UserEntity = await self._authenticate_user.authenticate_user(
             email_vo, password
         )
-        access_token: JwtEntity = self._issue_jwt.access(user)
-        refresh_token: JwtEntity = self._issue_jwt.refresh(user)
+        access_token: str = self._issue_jwt.issue_access_token(user)
+        refresh_token: str = self._issue_jwt.issue_refresh_token(user)
         return JwtTokensDto(
-            access_token=access_token.signature,
-            refresh_token=refresh_token.signature,
+            access_token=access_token, refresh_token=refresh_token
         )

@@ -19,8 +19,8 @@ from presentation.web.fastapi.api.v1.utils.routes_utils import create_route
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
     AuthenticatedUserResponseSchema,
 )
-from presentation.web.fastapi.schemas.response.auth.jwt.payload import (
-    JwtTokenPayloadResponseSchema,
+from presentation.web.fastapi.schemas.response.auth.jwt.claims import (
+    JwtTokenClaimsResponseSchema,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.tokens import (
     JwtTokensResponseSchema,
@@ -67,8 +67,8 @@ routes = [
         endpoint=verify_jwt_access_token_endpoint,
         tag=RouteTag.AUTH,
         summary="Verify JWT Token",
-        response_model=ItemResponseSchema[JwtTokenPayloadResponseSchema],
-        description="Endpoint to Verify a JWT Token and receive a JWT Token Payload.",
+        response_model=ItemResponseSchema[JwtTokenClaimsResponseSchema],
+        description="Endpoint to Verify a JWT Token and receive a JWT Token Claims.",
     ),
     create_route(
         name="get_authenticated_user",

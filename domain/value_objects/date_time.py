@@ -55,13 +55,13 @@ class DateTimeVo:
         return self.value.timestamp()
 
     # ----------------- Time Arithmetic -----------------
-    def plus(self, **kwargs) -> Self:
-        return type(self)(value=self.value + timedelta(**kwargs))
+    def plus(self, **kwargs) -> "DateTimeVo":
+        return DateTimeVo(value=self.value + timedelta(**kwargs))
 
-    def minus(self, **kwargs) -> Self:
-        return type(self)(value=self.value - timedelta(**kwargs))
+    def minus(self, **kwargs) -> "DateTimeVo":
+        return DateTimeVo(value=self.value - timedelta(**kwargs))
 
-    def expires_after(self, seconds: float) -> Self:
+    def expires_after(self, seconds: float) -> "DateTimeVo":
         return self.plus(seconds=seconds)
 
     # ----------------- State Checks -----------------

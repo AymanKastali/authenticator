@@ -1,6 +1,6 @@
+from domain.entities.auth.jwt.token import JwtEntity
 from domain.ports.services.jwt import JwtServicePort
-from domain.value_objects.jwt_header import JwtHeaderVo
-from domain.value_objects.jwt_payload import JwtPayloadVo
+from domain.value_objects.identifiers import UUIDVo
 
 
 class ValidateJwt:
@@ -9,18 +9,12 @@ class ValidateJwt:
     def __init__(self, jwt_service: JwtServicePort):
         self._jwt_service = jwt_service
 
-    def access(
-        self,
-        token: str,
-        subject: str | None = None,
-        headers: JwtHeaderVo | None = None,
-    ) -> JwtPayloadVo:
-        return self._jwt_service.verify(token, subject, headers)
+    def validate_access_token(
+        self, token: str, subject: UUIDVo | None = None
+    ) -> JwtEntity:
+        return self._jwt_service.verify_token(token, subject)
 
-    def refresh(
-        self,
-        token: str,
-        subject: str | None = None,
-        headers: JwtHeaderVo | None = None,
-    ) -> JwtPayloadVo:
-        return self._jwt_service.verify_refresh_token(token, subject, headers)
+    def validate_refresh_token(
+        self, token: str, subject: UUIDVo | None = None
+    ) -> JwtEntity:
+        return self._jwt_service.verify_refresh_token(token, subject)

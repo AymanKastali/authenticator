@@ -10,17 +10,18 @@ class LoginConfig:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class PasswordDomainConfig:
-    min_length: int = field(default=8)
-    max_length: int = field(default=128)
-    require_upper: bool = field(default=True)
-    require_lower: bool = field(default=True)
-    require_digit: bool = field(default=True)
-    require_special: bool = field(default=True)
+    min_length: int
+    max_length: int
+    require_upper: bool
+    require_lower: bool
+    require_digit: bool
+    require_special: bool
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class JwtDomainConfig:
-    access_token_exp_seconds: int = field(default=1800)  # 30 minutes
-    refresh_token_exp_seconds: int = field(default=604800)  # 7 days
+    access_token_exp_seconds: int
+    refresh_token_exp_seconds: int
+    algorithm: str
     issuer: str | None = field(default=None)
     audience: str | None = field(default=None)
