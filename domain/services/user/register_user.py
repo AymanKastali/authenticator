@@ -1,9 +1,8 @@
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserAlreadyExistsError
-from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.user import UserRepositoryPort
+from domain.services.password import PasswordDomainService
 from domain.value_objects.email import EmailVo
-from domain.value_objects.hashed_password import HashedPasswordVo
 
 
 class RegisterUser:
@@ -12,10 +11,10 @@ class RegisterUser:
     def __init__(
         self,
         user_repo: UserRepositoryPort,
-        password_policies: list[PolicyInterface],
+        password_service: PasswordDomainService,
     ):
         self._user_repo = user_repo
-        self._password_policies = password_policies
+        self._password_service = password_service
 
     async def register_local_user(
         self, email: EmailVo, plain_password: str
@@ -24,9 +23,8 @@ class RegisterUser:
         if existing:
             raise UserAlreadyExistsError(email.to_string())
 
-        hashed_password = HashedPasswordVo.create(
-            plain_password, self._password_policies
-        )
+        hashed_password = self._password_service.hash_password(plain_password)
+
         user = UserEntity.create_local(
             email=email, hashed_password=hashed_password
         )

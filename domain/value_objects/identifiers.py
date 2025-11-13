@@ -1,7 +1,7 @@
 import base64
 import os
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Self
 from uuid import UUID, uuid4
 
 
@@ -14,11 +14,11 @@ class UUIDVo:
         return UUIDVo(uuid4())
 
     @classmethod
-    def from_string(cls, value: str) -> "UUIDVo":
+    def from_string(cls, value: str) -> Self:
         return cls(UUID(value))
 
     @classmethod
-    def from_uuid(cls, value: UUID) -> "UUIDVo":
+    def from_uuid(cls, value: UUID) -> Self:
         return cls(value)
 
     def to_string(self) -> str:

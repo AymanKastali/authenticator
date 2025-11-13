@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from typing import Self
 
 from pwdlib import PasswordHash
 
@@ -12,16 +13,14 @@ class HashedPasswordVo:
     value: str
 
     @classmethod
-    def create(
-        cls, password: str, policies: list[PolicyInterface]
-    ) -> "HashedPasswordVo":
+    def create(cls, password: str, policies: list[PolicyInterface]) -> Self:
         for policy in policies:
             policy.enforce(password)
         hashed = password_hash.hash(password)
         return cls(value=hashed)
 
     @classmethod
-    def from_string(cls, hashed_value: str) -> "HashedPasswordVo":
+    def from_string(cls, hashed_value: str) -> Self:
         """
         Create a HashedPasswordVo instance from an existing hashed string.
         """

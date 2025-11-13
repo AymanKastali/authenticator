@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import ClassVar
+from typing import ClassVar, Self
 
 from domain.exceptions.domain_errors import InvalidValueError
 
@@ -34,7 +34,7 @@ class EmailVo:
             )
 
     @classmethod
-    def from_string(cls, email_str: str) -> "EmailVo":
+    def from_string(cls, email_str: str) -> Self:
         """
         Validate the string and return an EmailVo object.
         """

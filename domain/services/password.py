@@ -8,7 +8,7 @@ class PasswordDomainService:
 
     def hash_password(self, plain_password: str) -> HashedPasswordVo:
         """Hash a password after validating all policies."""
-        return HashedPasswordVo.from_plain(plain_password, self._policies)
+        return HashedPasswordVo.create(plain_password, self._policies)
 
     def verify_password(
         self, plain_password: str, hashed_password: HashedPasswordVo

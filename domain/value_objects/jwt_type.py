@@ -1,17 +1,8 @@
-from enum import StrEnum, auto
+from enum import auto
+
+from domain.value_objects.string_enum import StringEnumVo
 
 
-class JwtTypeVo(StrEnum):
+class JwtTypeVo(StringEnumVo):
     ACCESS = auto()
     REFRESH = auto()
-
-    @classmethod
-    def from_string(cls, value: str) -> "JwtTypeVo":
-        for member in cls:
-            if member.value.lower() == value.lower():
-                return member
-        raise ValueError(f"Invalid {cls.__name__} value: {value}")
-
-    @classmethod
-    def values(cls) -> list[str]:
-        return [member.value for member in cls]

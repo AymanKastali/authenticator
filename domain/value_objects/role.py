@@ -1,7 +1,9 @@
-from enum import StrEnum, auto
+from enum import auto
+
+from domain.value_objects.string_enum import StringEnumVo
 
 
-class RoleVo(StrEnum):
+class RoleVo(StringEnumVo):
     # Super admin roles
     SUPER_ADMIN = auto()
 
@@ -32,17 +34,3 @@ class RoleVo(StrEnum):
     ANALYST = auto()
     FINANCE = auto()
     MARKETING = auto()
-
-    @classmethod
-    def values(cls) -> list[str]:
-        return [member.value for member in cls]
-
-    @classmethod
-    def from_string(cls, value: str) -> "RoleVo":
-        """Convert a string to a RoleVo member, accepting lowercase input."""
-        for member in cls:
-            if member.value.upper() == value.upper():
-                return member
-        raise ValueError(
-            f"Invalid {cls.__name__} value: '{value}'. Allowed values: {cls.values()}"
-        )
