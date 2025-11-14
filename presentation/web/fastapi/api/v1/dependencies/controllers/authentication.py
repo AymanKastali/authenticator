@@ -1,11 +1,13 @@
 from fastapi import Depends
 
 from application.ports.services.logger import LoggerPort
-from application.use_cases.auth.registration.register import RegisterUserUseCase
+from application.use_cases.auth.register.register_user import (
+    RegisterUserUseCase,
+)
 from presentation.web.fastapi.api.v1.controllers.auth.registration.register import (
     RegisterUserController,
 )
-from presentation.web.fastapi.api.v1.dependencies.application.auth import (
+from presentation.web.fastapi.api.v1.dependencies.application.authientication import (
     register_user_uc_dependency,
 )
 from presentation.web.fastapi.api.v1.dependencies.infrastructure.logger import (

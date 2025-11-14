@@ -5,7 +5,7 @@ from fastapi import Depends, Request
 from presentation.web.fastapi.api.v1.controllers.auth.registration.register import (
     RegisterUserController,
 )
-from presentation.web.fastapi.api.v1.dependencies.controllers.auth import (
+from presentation.web.fastapi.api.v1.dependencies.controllers.authentication import (
     register_user_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.registration.login import (

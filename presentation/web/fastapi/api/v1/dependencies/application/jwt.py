@@ -3,7 +3,6 @@ from fastapi import Depends
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
-from application.use_cases.auth.jwt.login import LoginUserUseCase
 from application.use_cases.auth.jwt.logout import LogoutUserUseCase
 from application.use_cases.auth.jwt.refresh_tokens import RefreshTokensUseCase
 from application.use_cases.auth.jwt.verify_access_token import (
@@ -12,17 +11,20 @@ from application.use_cases.auth.jwt.verify_access_token import (
 from application.use_cases.auth.jwt.verify_refresh_token import (
     VerifyRefreshTokenUseCase,
 )
-from domain.services.jwt.issue_jwt import IssueJwt
-from domain.services.jwt.revoke_jwt import RevokeJwt
-from domain.services.jwt.validate_jwt import ValidateJwt
-from domain.services.user.authenticate_user import AuthenticateUser
+from application.use_cases.auth.login.jwt_login import JwtLoginUserUseCase
+from domain.services.auth.authenticate.authenticate_user import AuthenticateUser
+from domain.services.auth.jwt.issue_jwt import IssueJwt
+from domain.services.auth.jwt.revoke_jwt import RevokeJwt
+from domain.services.auth.jwt.validate_jwt import ValidateJwt
+from presentation.web.fastapi.api.v1.dependencies.domain.authentication import (
+    authenticate_user_dependency,
+)
 from presentation.web.fastapi.api.v1.dependencies.domain.jwt import (
     jwt_issuance_dependency,
     jwt_revocation_dependency,
     jwt_validation_dependency,
 )
 from presentation.web.fastapi.api.v1.dependencies.domain.user import (
-    authenticate_user_dependency,
     query_user_dependency,
 )
 
@@ -41,8 +43,8 @@ def get_authenticated_user_uc_dependency(
 def jwt_login_user_uc_dependency(
     authenticate_user: AuthenticateUser = Depends(authenticate_user_dependency),
     issue_jwt: IssueJwt = Depends(jwt_issuance_dependency),
-) -> LoginUserUseCase:
-    return LoginUserUseCase(
+) -> JwtLoginUserUseCase:
+    return JwtLoginUserUseCase(
         authenticate_user=authenticate_user, issue_jwt=issue_jwt
     )
 

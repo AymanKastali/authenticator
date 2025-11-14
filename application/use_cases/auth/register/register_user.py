@@ -1,7 +1,7 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
 from domain.entities.user import UserEntity
-from domain.services.user.register_user import RegisterUser
+from domain.services.auth.authenticate.register_user import RegisterUser
 from domain.value_objects.email import EmailVo
 
 

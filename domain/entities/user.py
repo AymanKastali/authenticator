@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Self
 
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
@@ -10,7 +11,7 @@ from domain.value_objects.user_status import UserStatusVo
 
 @dataclass(slots=True, kw_only=True)
 class UserEntity:
-    uid: UUIDVo = field(default_factory=UUIDVo.new)
+    uid: UUIDVo
     _email: EmailVo = field(repr=False)
     _hashed_password: HashedPasswordVo | None = field(default=None, repr=False)
     _status: UserStatusVo = field(default=UserStatusVo.PENDING_VERIFICATION)
@@ -86,26 +87,31 @@ class UserEntity:
             raise ValueError("Inactive users cannot be verified")
 
     # ----------------- Factory Methods -----------------
-    @staticmethod
+    @classmethod
     def create_local(
+        cls,
         email: EmailVo,
         hashed_password: HashedPasswordVo,
         roles: list[RoleVo] | None = None,
-    ) -> "UserEntity":
+    ) -> Self:
         """Create a local user pending verification"""
-        return UserEntity(
+        uid = UUIDVo.new()
+        return cls(
+            uid=uid,
             _email=email,
             _hashed_password=hashed_password,
             _status=UserStatusVo.PENDING_VERIFICATION,
             roles=roles or [RoleVo.USER],
         )
 
-    @staticmethod
+    @classmethod
     def create_external(
-        email: EmailVo, roles: list[RoleVo] | None = None
-    ) -> "UserEntity":
+        cls, email: EmailVo, roles: list[RoleVo] | None = None
+    ) -> Self:
         """Create an external (OAuth) verified user"""
-        return UserEntity(
+        uid = UUIDVo.new()
+        return cls(
+            uid=uid,
             _email=email,
             _hashed_password=None,
             _status=UserStatusVo.VERIFIED,

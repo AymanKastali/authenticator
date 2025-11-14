@@ -3,8 +3,8 @@ from application.mappers.user import UserMapper
 from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserNotFoundError
-from domain.services.jwt.revoke_jwt import RevokeJwt
-from domain.services.jwt.validate_jwt import ValidateJwt
+from domain.services.auth.jwt.revoke_jwt import RevokeJwt
+from domain.services.auth.jwt.validate_jwt import ValidateJwt
 from domain.services.user.query_user import QueryUser
 
 

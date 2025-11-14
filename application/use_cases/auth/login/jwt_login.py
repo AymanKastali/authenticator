@@ -1,11 +1,11 @@
 from application.dto.auth.jwt.tokens import JwtTokensDto
 from domain.entities.user import UserEntity
-from domain.services.jwt.issue_jwt import IssueJwt
-from domain.services.user.authenticate_user import AuthenticateUser
+from domain.services.auth.authenticate.authenticate_user import AuthenticateUser
+from domain.services.auth.jwt.issue_jwt import IssueJwt
 from domain.value_objects.email import EmailVo
 
 
-class LoginUserUseCase:
+class JwtLoginUserUseCase:
     """Authenticate a user and issue JWTs."""
 
     def __init__(

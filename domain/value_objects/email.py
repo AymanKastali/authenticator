@@ -5,7 +5,7 @@ from typing import ClassVar, Self
 from domain.exceptions.domain_errors import InvalidValueError
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class EmailVo:
     value: str
 

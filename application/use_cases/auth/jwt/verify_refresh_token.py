@@ -1,7 +1,7 @@
 from application.dto.auth.jwt.claims import JwtClaimsDto
 from application.mappers.jwt import JwtMapper
 from domain.entities.auth.jwt.token import JwtEntity
-from domain.services.jwt.validate_jwt import ValidateJwt
+from domain.services.auth.jwt.validate_jwt import ValidateJwt
 
 
 class VerifyRefreshTokenUseCase:

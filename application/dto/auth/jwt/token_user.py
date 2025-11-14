@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class TokenUserDto:
     uid: str
     email: str

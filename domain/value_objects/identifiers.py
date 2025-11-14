@@ -5,21 +5,21 @@ from typing import ClassVar, Self
 from uuid import UUID, uuid4
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class UUIDVo:
     value: UUID
 
-    @staticmethod
-    def new() -> "UUIDVo":
-        return UUIDVo(uuid4())
+    @classmethod
+    def new(cls) -> Self:
+        return cls(value=uuid4())
 
     @classmethod
     def from_string(cls, value: str) -> Self:
-        return cls(UUID(value))
+        return cls(value=UUID(value))
 
     @classmethod
     def from_uuid(cls, value: UUID) -> Self:
-        return cls(value)
+        return cls(value=value)
 
     def to_string(self) -> str:
         return str(self.value)
@@ -28,7 +28,7 @@ class UUIDVo:
         return self.value
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, slots=True, kw_only=True)
 class SessionIdVo:
     """
     Represents a session ID generated from a cryptographically secure
@@ -44,8 +44,8 @@ class SessionIdVo:
 
     value: str
 
-    @staticmethod
-    def new() -> "SessionIdVo":
+    @classmethod
+    def new(cls) -> Self:
         """
         Generates a new session ID using cryptographically secure random bytes
         and encodes it using URL-safe Base64.
@@ -63,4 +63,4 @@ class SessionIdVo:
             .decode("utf-8")
         )
 
-        return SessionIdVo(encoded_string)
+        return cls(value=encoded_string)

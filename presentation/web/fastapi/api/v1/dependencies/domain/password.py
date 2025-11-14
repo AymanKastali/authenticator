@@ -1,10 +1,24 @@
-from domain.services.password import PasswordDomainService
+from functools import lru_cache
+
+from domain.interfaces.policy import PolicyInterface
+from domain.services.password.hash import HashPassword
+from domain.services.password.verify import VerifyPassword
+from infrastructure.services.password.pwdlib_hasher import PwdLibPasswordHasher
 from presentation.web.fastapi.api.v1.dependencies.domain.policy import (
     password_policies,
 )
 
 
-def password_domain_service_dependency() -> PasswordDomainService:
-    """Provide password service implementation."""
-    policies = password_policies()
-    return PasswordDomainService(policies)
+@lru_cache
+def password_hasher_dependency() -> HashPassword:
+    """Provide password hasher implementation."""
+    hasher = PwdLibPasswordHasher()
+    policies: list[PolicyInterface] = password_policies()
+    return HashPassword(hasher=hasher, policies=policies)
+
+
+@lru_cache
+def password_verifier_dependency() -> VerifyPassword:
+    """Provide password verifier implementation."""
+    hasher = PwdLibPasswordHasher()
+    return VerifyPassword(hasher=hasher)

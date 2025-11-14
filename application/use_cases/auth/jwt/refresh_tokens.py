@@ -2,8 +2,8 @@ from application.dto.auth.jwt.tokens import JwtTokensDto
 from domain.entities.auth.jwt.token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserNotFoundError
-from domain.services.jwt.issue_jwt import IssueJwt
-from domain.services.jwt.validate_jwt import ValidateJwt
+from domain.services.auth.jwt.issue_jwt import IssueJwt
+from domain.services.auth.jwt.validate_jwt import ValidateJwt
 from domain.services.user.query_user import QueryUser
 
 

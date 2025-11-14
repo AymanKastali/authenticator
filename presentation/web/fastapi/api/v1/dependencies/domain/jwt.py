@@ -4,9 +4,9 @@ from domain.config.config_models import JwtDomainConfig
 from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.ports.services.jwt import JwtServicePort
-from domain.services.jwt.issue_jwt import IssueJwt
-from domain.services.jwt.revoke_jwt import RevokeJwt
-from domain.services.jwt.validate_jwt import ValidateJwt
+from domain.services.auth.jwt.issue_jwt import IssueJwt
+from domain.services.auth.jwt.revoke_jwt import RevokeJwt
+from domain.services.auth.jwt.validate_jwt import ValidateJwt
 from presentation.web.fastapi.api.v1.dependencies.domain.config import (
     jwt_domain_config_dependency,
 )

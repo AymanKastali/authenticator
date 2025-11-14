@@ -1,6 +1,8 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.ports.services.logger import LoggerPort
-from application.use_cases.auth.registration.register import RegisterUserUseCase
+from application.use_cases.auth.register.register_user import (
+    RegisterUserUseCase,
+)
 from presentation.web.fastapi.schemas.request.auth.registration.login import (
     LoginUserRequestSchema,
 )

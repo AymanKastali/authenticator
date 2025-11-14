@@ -4,12 +4,12 @@ from application.ports.services.logger import LoggerPort
 from application.use_cases.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserUseCase,
 )
-from application.use_cases.auth.jwt.login import LoginUserUseCase
 from application.use_cases.auth.jwt.logout import LogoutUserUseCase
 from application.use_cases.auth.jwt.refresh_tokens import RefreshTokensUseCase
 from application.use_cases.auth.jwt.verify_access_token import (
     VerifyAccessTokenUseCase,
 )
+from application.use_cases.auth.login.jwt_login import JwtLoginUserUseCase
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.get_authenticated_user import (
     GetAuthenticatedUserController,
 )
@@ -38,7 +38,7 @@ from presentation.web.fastapi.api.v1.dependencies.infrastructure.logger import (
 
 
 def jwt_login_controller_dependency(
-    login_user: LoginUserUseCase = Depends(jwt_login_user_uc_dependency),
+    login_user: JwtLoginUserUseCase = Depends(jwt_login_user_uc_dependency),
     logger: LoggerPort = Depends(get_console_json_logger),
 ) -> JwtLoginController:
     return JwtLoginController(login_user, logger)
