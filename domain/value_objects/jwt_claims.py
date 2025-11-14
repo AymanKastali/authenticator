@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from typing import Any, Mapping, Self
 
-from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.identifiers import UUIDVo
@@ -71,48 +70,6 @@ class JwtClaimsVo:
     def _validate_roles(self) -> None:
         if not all(isinstance(role, RoleVo) for role in self.roles):
             raise TypeError("All `roles` must be RoleVo instances")
-
-    # ----------------- Factory Method -----------------
-    @classmethod
-    def create(
-        cls,
-        *,
-        sub: UUIDVo,
-        typ: JwtTypeVo,
-        lifetime_seconds: int,
-        policies: list[PolicyInterface],
-        roles: list[RoleVo] | None = None,
-        email: EmailVo | None = None,
-        username: str | None = None,
-        iss: str | None = None,
-        aud: str | None = None,
-        nbf: DateTimeVo | None = None,
-        extras: dict[str, Any] | None = None,
-    ) -> Self:
-        """Factory for safely constructing a new claims VO."""
-        jti = UUIDVo.new()
-        now: DateTimeVo = DateTimeVo.now()
-        expiry: DateTimeVo = now.expires_after(seconds=lifetime_seconds)
-        roles = roles or []
-        extras = extras or {}
-        claims = cls(
-            jti=jti,
-            sub=sub,
-            typ=typ,
-            exp=expiry,
-            roles=roles,
-            email=email,
-            username=username,
-            iss=iss,
-            aud=aud,
-            iat=now,
-            nbf=nbf or now,
-            extras=extras,
-        )
-        if policies:
-            for policy in policies:
-                policy.enforce(claims)
-        return claims
 
     # ----------------- Serialization -----------------
     def to_dict(self) -> dict[str, object]:

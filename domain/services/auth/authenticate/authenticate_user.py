@@ -40,8 +40,8 @@ class AuthenticateUser:
             raise InvalidCredentialsError(string_email)
 
         string_uid = user.uid.to_string()
-        if not user.active:
+        if not user.is_active:
             raise UserInactiveError(string_uid)
-        if user.deleted:
+        if user.is_deleted:
             raise UserDeletedError(string_uid)
         return user

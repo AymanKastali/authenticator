@@ -1,7 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 
-from domain.utils.time import utc_now
 from domain.value_objects.identifiers import SessionIdVo, UUIDVo
 
 

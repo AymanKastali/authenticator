@@ -12,8 +12,8 @@ from presentation.web.fastapi.api.v1.endpoints.auth.jwt.logout import (
 from presentation.web.fastapi.api.v1.endpoints.auth.jwt.refresh_token import (
     refresh_jwt_token_endpoint,
 )
-from presentation.web.fastapi.api.v1.endpoints.auth.jwt.verify_token import (
-    verify_jwt_access_token_endpoint,
+from presentation.web.fastapi.api.v1.endpoints.auth.jwt.validate_token import (
+    validate_jwt_token_endpoint,
 )
 from presentation.web.fastapi.api.v1.utils.routes_utils import create_route
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
@@ -32,7 +32,7 @@ from presentation.web.fastapi.schemas.response.generic.success.item import (
 _BASE = "/jwt"
 _LOGIN = f"{_BASE}/login"
 _REFRESH_TOKEN = f"{_BASE}/token/refresh"
-_VERIFY_TOKEN = f"{_BASE}/token/verify"
+_VALIDATE_TOKEN = f"{_BASE}/token/validate"
 _AUTHENTICATED_USER = f"{_BASE}/me"
 _LOGOUT = f"{_BASE}/logout"
 
@@ -60,11 +60,11 @@ routes = [
         description="Endpoint to refresh a JWT Token and receive a JWT tokens.",
     ),
     create_route(
-        name="jwt_verify_token",
-        path=_VERIFY_TOKEN,
+        name="jwt_validate_token",
+        path=_VALIDATE_TOKEN,
         status_code=200,
         methods=[HttpMethod.POST],
-        endpoint=verify_jwt_access_token_endpoint,
+        endpoint=validate_jwt_token_endpoint,
         tag=RouteTag.AUTH,
         summary="Verify JWT Token",
         response_model=ItemResponseSchema[JwtTokenClaimsResponseSchema],

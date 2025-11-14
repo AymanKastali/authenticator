@@ -28,6 +28,9 @@ class JwtEntity:
     def is_active(self) -> bool:
         return self.status == JwtStatusVo.ACTIVE
 
+    def is_expired(self) -> bool:
+        return self.claims.exp.is_past()
+
     def _with_status(self, status: JwtStatusVo) -> Self:
         return type(self)(
             status=status, claims=self.claims, headers=self.headers
@@ -51,10 +54,6 @@ class JwtEntity:
             "claims": self.claims.to_dict(),
             "headers": self.headers.to_dict(),
         }
-
-    @classmethod
-    def create(cls, claims: JwtClaimsVo, headers: JwtHeaderVo) -> Self:
-        return cls(claims=claims, headers=headers, status=JwtStatusVo.ACTIVE)
 
     @classmethod
     def from_dict(cls, data: dict) -> Self:

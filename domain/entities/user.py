@@ -1,6 +1,9 @@
 from dataclasses import dataclass, field
-from typing import Self
 
+from domain.exceptions.domain_errors import (
+    DomainRuleViolationError,
+    InvalidValueError,
+)
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
@@ -11,17 +14,19 @@ from domain.value_objects.user_status import UserStatusVo
 
 @dataclass(slots=True, kw_only=True)
 class UserEntity:
+    """A domain entity representing a User with strong invariants and explicit construction."""
+
     uid: UUIDVo
     _email: EmailVo = field(repr=False)
-    _hashed_password: HashedPasswordVo | None = field(default=None, repr=False)
-    _status: UserStatusVo = field(default=UserStatusVo.PENDING_VERIFICATION)
-    created_at: DateTimeVo = field(default_factory=DateTimeVo.now)
-    updated_at: DateTimeVo = field(default_factory=DateTimeVo.now)
-    deleted_at: DateTimeVo | None = None
-    roles: list[RoleVo] = field(default_factory=lambda: [RoleVo.USER])
+    _hashed_password: HashedPasswordVo | None = field(repr=False)
+    _status: UserStatusVo
+    created_at: DateTimeVo
+    updated_at: DateTimeVo
+    deleted_at: DateTimeVo | None
+    roles: list[RoleVo]
 
     def __post_init__(self):
-        self.validate()
+        self._validate()
 
     # ----------------- Properties -----------------
     @property
@@ -37,30 +42,33 @@ class UserEntity:
         return self._status
 
     @property
-    def active(self) -> bool:
+    def is_active(self) -> bool:
         return self._status in {UserStatusVo.ACTIVE, UserStatusVo.VERIFIED}
 
     @property
-    def verified(self) -> bool:
+    def is_verified(self) -> bool:
         return self._status == UserStatusVo.VERIFIED
 
     @property
-    def deleted(self) -> bool:
+    def is_deleted(self) -> bool:
         return self.deleted_at is not None
 
     # ----------------- Status Transitions -----------------
     def activate(self):
-        self._set_status(UserStatusVo.ACTIVE)
+        self._change_status(UserStatusVo.ACTIVE)
 
     def deactivate(self):
-        self._set_status(UserStatusVo.INACTIVE)
+        self._change_status(UserStatusVo.INACTIVE)
 
     def mark_verified(self):
-        self._set_status(UserStatusVo.VERIFIED)
+        self._change_status(UserStatusVo.VERIFIED)
 
-    def _set_status(self, new_status: UserStatusVo):
+    def _change_status(self, new_status: UserStatusVo):
         if self._status == new_status:
-            raise ValueError(f"User is already {new_status.value}")
+            raise DomainRuleViolationError(
+                message=f"User is already in status: {new_status.value}",
+                rule_name="UserStatusTransitionRule",
+            )
         self._status = new_status
         self._touch()
 
@@ -73,47 +81,40 @@ class UserEntity:
     def _touch(self):
         self.updated_at = DateTimeVo.now()
 
-    # ----------------- Validation -----------------
-    def validate(self):
+    # ----------------- Validation (Atomic) -----------------
+    def _validate(self):
+        self._validate_dates()
+        self._validate_roles()
+        self._validate_status_invariants()
+
+    def _validate_dates(self):
         if self.created_at.is_future():
-            raise ValueError("created_at cannot be in the future")
+            raise InvalidValueError(
+                field_name="created_at",
+                message="created_at cannot be in the future",
+            )
         if self.updated_at.is_future():
-            raise ValueError("updated_at cannot be in the future")
-        if self.deleted_at is not None and self.deleted_at.is_future():
-            raise ValueError("deleted_at cannot be in the future")
+            raise InvalidValueError(
+                field_name="updated_at",
+                message="updated_at cannot be in the future",
+            )
+
+        if self.deleted_at and self.deleted_at.is_future():
+            raise InvalidValueError(
+                field_name="deleted_at",
+                message="deleted_at cannot be in the future",
+            )
+
+    def _validate_roles(self):
         if not self.roles or not all(isinstance(r, RoleVo) for r in self.roles):
-            raise ValueError("User must have at least one valid role")
-        if not self.active and self.verified:
-            raise ValueError("Inactive users cannot be verified")
+            raise InvalidValueError(
+                field_name="roles",
+                message="User must have at least one valid role",
+            )
 
-    # ----------------- Factory Methods -----------------
-    @classmethod
-    def create_local(
-        cls,
-        email: EmailVo,
-        hashed_password: HashedPasswordVo,
-        roles: list[RoleVo] | None = None,
-    ) -> Self:
-        """Create a local user pending verification"""
-        uid = UUIDVo.new()
-        return cls(
-            uid=uid,
-            _email=email,
-            _hashed_password=hashed_password,
-            _status=UserStatusVo.PENDING_VERIFICATION,
-            roles=roles or [RoleVo.USER],
-        )
-
-    @classmethod
-    def create_external(
-        cls, email: EmailVo, roles: list[RoleVo] | None = None
-    ) -> Self:
-        """Create an external (OAuth) verified user"""
-        uid = UUIDVo.new()
-        return cls(
-            uid=uid,
-            _email=email,
-            _hashed_password=None,
-            _status=UserStatusVo.VERIFIED,
-            roles=roles or [RoleVo.USER],
-        )
+    def _validate_status_invariants(self):
+        if not self.is_active and self.is_verified:
+            raise DomainRuleViolationError(
+                message="Inactive users cannot be verified",
+                rule_name="UserStatusRule",
+            )

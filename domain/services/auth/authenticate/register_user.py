@@ -1,5 +1,6 @@
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserAlreadyExistsError
+from domain.interfaces.user_factory import UserFactoryInterface
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.services.password.hash import HashPassword
 from domain.value_objects.email import EmailVo
@@ -8,8 +9,14 @@ from domain.value_objects.email import EmailVo
 class RegisterUser:
     """Responsible for registering new users."""
 
-    def __init__(self, user_repo: UserRepositoryPort, hasher: HashPassword):
+    def __init__(
+        self,
+        user_repo: UserRepositoryPort,
+        user_factory: UserFactoryInterface,
+        hasher: HashPassword,
+    ):
         self._user_repo = user_repo
+        self._user_factory = user_factory
         self._hasher = hasher
 
     async def register_local_user(
@@ -21,7 +28,7 @@ class RegisterUser:
 
         hashed_password = self._hasher.execute(plain_password)
 
-        user = UserEntity.create_local(
+        user = self._user_factory.create_local_user(
             email=email, hashed_password=hashed_password
         )
         await self._user_repo.save(user)
@@ -31,6 +38,6 @@ class RegisterUser:
         existing = await self._user_repo.get_user_by_email(email)
         if existing:
             raise UserAlreadyExistsError(email.to_string())
-        user = UserEntity.create_external(email=email)
+        user = self._user_factory.create_external_user(email=email)
         await self._user_repo.save(user)
         return user

@@ -1,7 +1,7 @@
 from itertools import groupby
 
 from application.dto.policies.app import PolicyDescriptionDto
-from application.services.policy import PolicyService
+from application.use_cases.list_policies import ListPoliciesUseCase
 from presentation.web.fastapi.schemas.response.generic.success.list import (
     ListResponseSchema,
 )
@@ -12,11 +12,11 @@ from presentation.web.fastapi.schemas.response.policy.list import (
 
 
 class ListPoliciesController:
-    def __init__(self, service: PolicyService):
+    def __init__(self, service: ListPoliciesUseCase):
         self._service = service
 
     def execute(self) -> ListResponseSchema[PoliciesResponseSchema]:
-        dto_list: list[PolicyDescriptionDto] = self._service.list()
+        dto_list: list[PolicyDescriptionDto] = self._service.execute()
 
         dto_list.sort(key=lambda x: x.category)
         grouped = groupby(dto_list, key=lambda x: x.category)

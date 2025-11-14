@@ -3,6 +3,8 @@ from fastapi import Depends
 from application.ports.services.logger import LoggerPort
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
+from domain.factories.user_factory import UserFactory
+from domain.interfaces.user_factory import UserFactoryInterface
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.services.user.query_user import QueryUser
 from presentation.db.in_memory.repositories import get_in_memory_user_repository
@@ -18,6 +20,10 @@ from presentation.web.fastapi.api.v1.dependencies.logger import (
 
 
 # Domain
+def user_factory_dependency() -> UserFactoryInterface:
+    return UserFactory()
+
+
 def query_user_dependency(
     user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
 ) -> QueryUser:

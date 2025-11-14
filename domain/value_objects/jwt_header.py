@@ -46,13 +46,3 @@ class JwtHeaderVo:
             typ=data.get("typ", _HEADER_TYPE),
             kid=data.get("kid"),
         )
-
-    @classmethod
-    def create(
-        cls,
-        *,
-        alg: JwtHeaderAlgorithmVo,
-        typ: str = _HEADER_TYPE,
-        kid: str | None = None,
-    ) -> Self:
-        return cls(alg=alg, typ=typ, kid=kid)

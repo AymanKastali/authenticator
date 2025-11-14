@@ -1,6 +1,6 @@
 from fastapi import Depends
 
-from application.services.policy import PolicyService
+from application.use_cases.list_policies import ListPoliciesUseCase
 from domain.factories.jwt_policy import JwtPolicyBuilder
 from domain.factories.password_policy import PasswordPolicyBuilder
 from domain.interfaces.policy import PolicyInterface
@@ -30,13 +30,13 @@ def jwt_policies() -> list[PolicyInterface]:
 
 
 # Application
-def policy_service_dependency() -> PolicyService:
+def list_policies_uc_dependency() -> ListPoliciesUseCase:
     policies = jwt_policies() + password_policies()
-    return PolicyService(policies)
+    return ListPoliciesUseCase(policies)
 
 
 # Presentation
 def list_policies_controller_dependency(
-    service: PolicyService = Depends(policy_service_dependency),
+    service: ListPoliciesUseCase = Depends(list_policies_uc_dependency),
 ) -> ListPoliciesController:
     return ListPoliciesController(service)

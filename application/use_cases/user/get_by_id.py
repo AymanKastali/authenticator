@@ -18,7 +18,7 @@ class GetUserByIdUseCase:
 
         if user is None:
             raise ValueError("User not found")
-        if not user.active:
+        if not user.is_active:
             raise ValueError("User is inactive")
 
         return UserMapper.to_public_dto_from_entity(user)

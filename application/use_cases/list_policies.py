@@ -2,11 +2,11 @@ from application.dto.policies.app import PolicyDescriptionDto
 from domain.interfaces.policy import PolicyInterface
 
 
-class PolicyService:
+class ListPoliciesUseCase:
     def __init__(self, policies: list[PolicyInterface]):
         self._policies = policies
 
-    def list(self) -> list[PolicyDescriptionDto]:
+    def execute(self) -> list[PolicyDescriptionDto]:
         return [
             PolicyDescriptionDto(
                 name=policy.describe().name,

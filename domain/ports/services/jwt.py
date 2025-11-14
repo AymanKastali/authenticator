@@ -1,21 +1,21 @@
 from abc import ABC, abstractmethod
-
-from domain.entities.auth.jwt.token import JwtEntity
-from domain.value_objects.identifiers import UUIDVo
+from typing import Any, Mapping
 
 
 class JwtServicePort(ABC):
-    """Port for token generation and verification."""
+    """
+    Port interface for JWT encoding and decoding.
+
+    This is an infrastructure-agnostic abstraction.
+    The domain layer should not depend on the JWT library directly.
+    """
 
     @abstractmethod
-    def sign_token(self, token: JwtEntity) -> str: ...
+    def encode(
+        self, claims: Mapping[str, Any], headers: Mapping[str, Any]
+    ) -> str: ...
 
     @abstractmethod
-    def verify_token(
-        self, token: str, subject: UUIDVo | None = None
-    ) -> JwtEntity: ...
-
-    @abstractmethod
-    def verify_refresh_token(
-        self, token: str, subject: UUIDVo | None = None
-    ) -> JwtEntity: ...
+    def decode(
+        self, token: str
+    ) -> tuple[Mapping[str, Any], Mapping[str, Any]]: ...
