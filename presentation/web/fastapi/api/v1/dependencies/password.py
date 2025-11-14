@@ -4,7 +4,7 @@ from domain.interfaces.policy import PolicyInterface
 from domain.services.password.hash import HashPassword
 from domain.services.password.verify import VerifyPassword
 from infrastructure.services.password.pwdlib_hasher import PwdLibPasswordHasher
-from presentation.web.fastapi.api.v1.dependencies.domain.policy import (
+from presentation.web.fastapi.api.v1.dependencies.policy import (
     password_policies,
 )
 

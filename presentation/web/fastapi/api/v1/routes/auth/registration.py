@@ -1,6 +1,6 @@
 from presentation.web.fastapi.api.metadata.http_methods import HttpMethod
 from presentation.web.fastapi.api.metadata.route_tags import RouteTag
-from presentation.web.fastapi.api.v1.endpoints.auth.registration.register import (
+from presentation.web.fastapi.api.v1.endpoints.auth.authenticate.register import (
     register_user_endpoint,
 )
 from presentation.web.fastapi.api.v1.utils.routes_utils import create_route

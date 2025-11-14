@@ -4,6 +4,7 @@ from domain.config.config_models import JwtDomainConfig, PasswordDomainConfig
 from infrastructure.config import jwt_config
 
 
+# Config
 @lru_cache
 def password_domain_config_dependency() -> PasswordDomainConfig:
     return PasswordDomainConfig(

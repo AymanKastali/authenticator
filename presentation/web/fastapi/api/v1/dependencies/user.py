@@ -3,21 +3,43 @@ from fastapi import Depends
 from application.ports.services.logger import LoggerPort
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
+from domain.ports.repositories.user import UserRepositoryPort
+from domain.services.user.query_user import QueryUser
+from presentation.db.in_memory.repositories import get_in_memory_user_repository
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
     GetAllUsersController,
 )
 from presentation.web.fastapi.api.v1.controllers.user.get_by_id import (
     GetUserByIdController,
 )
-from presentation.web.fastapi.api.v1.dependencies.application.user import (
-    get_user_all_users_uc_dependency,
-    get_user_by_id_uc_dependency,
-)
-from presentation.web.fastapi.api.v1.dependencies.infrastructure.logger import (
+from presentation.web.fastapi.api.v1.dependencies.logger import (
     get_console_json_logger,
 )
 
 
+# Domain
+def query_user_dependency(
+    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+) -> QueryUser:
+    return QueryUser(user_repo=user_repo)
+
+
+# Application
+def get_user_by_id_uc_dependency(
+    query_user=Depends(query_user_dependency),
+) -> GetUserByIdUseCase:
+    """Provide use case for registering a user"""
+    return GetUserByIdUseCase(query_user)
+
+
+def get_user_all_users_uc_dependency(
+    query_user=Depends(query_user_dependency),
+) -> GetAllUsersUseCase:
+    """Provide use case for registering a user"""
+    return GetAllUsersUseCase(query_user)
+
+
+# Presentation
 def get_user_by_id_controller_dependency(
     use_case: GetUserByIdUseCase = Depends(get_user_by_id_uc_dependency),
     logger: LoggerPort = Depends(get_console_json_logger),

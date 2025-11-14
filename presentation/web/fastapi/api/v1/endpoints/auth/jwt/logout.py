@@ -5,11 +5,9 @@ from fastapi import Depends, Request
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.logout import (
     JwtLogoutController,
 )
-from presentation.web.fastapi.api.v1.dependencies.controllers.jwt import (
-    jwt_logout_controller_dependency,
-)
-from presentation.web.fastapi.api.v1.dependencies.security.jwt import (
+from presentation.web.fastapi.api.v1.dependencies.jwt import (
     get_current_authenticated_user,
+    jwt_logout_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.logout import (
     LogoutJwtRequestSchema,
