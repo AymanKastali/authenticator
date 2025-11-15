@@ -19,7 +19,7 @@ from application.use_cases.auth.jwt.validate_refresh_token import (
 from application.use_cases.auth.login.jwt_login import JwtLoginUserUseCase
 from domain.config.config_models import JwtDomainConfig
 from domain.exceptions.domain_errors import JwtRevokedError, UserNotFoundError
-from domain.factories.jwt_factory import JwtFactory
+from domain.factories.entities.jwt import JwtEntityFactory
 from domain.interfaces.jwt_factory import JwtFactoryInterface
 from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
@@ -98,7 +98,7 @@ def jwt_factory_dependency(
     config: JwtDomainConfig = Depends(jwt_domain_config_dependency),
     policies: list[PolicyInterface] = Depends(jwt_policies),
 ) -> JwtFactoryInterface:
-    return JwtFactory(config=config, policies=policies)
+    return JwtEntityFactory(config=config, policies=policies)
 
 
 def jwt_issuance_dependency(

@@ -7,7 +7,8 @@ from domain.value_objects.jwt_status import JwtStatusVo
 from domain.value_objects.uuid_id import UUIDVo
 
 
-@dataclass(frozen=True, slots=True, kw_only=True)
+# Entities must be MUTABLE, Value Objects must not
+@dataclass(slots=True, kw_only=True)
 class JwtEntity:
     """Entity representing a full JWT (header + claims + signature)."""
 

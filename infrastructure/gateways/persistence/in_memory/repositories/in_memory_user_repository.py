@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from domain.entities.user import UserEntity
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.email import EmailVo
@@ -12,10 +14,10 @@ class InMemoryUserRepository(UserRepositoryPort):
         self._storage = storage
 
     async def save(self, user: UserEntity) -> None:
-        self._storage.users[user.uid.to_uuid()] = user
+        self._storage.users[UUID(user.uid.value)] = user
 
     async def get_user_by_id(self, user_id: UUIDVo) -> UserEntity | None:
-        return self._storage.users.get(user_id.to_uuid())
+        return self._storage.users.get(UUID(user_id.value))
 
     async def get_user_by_email(self, email: EmailVo) -> UserEntity | None:
         user = next(

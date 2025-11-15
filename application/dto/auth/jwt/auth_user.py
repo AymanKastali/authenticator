@@ -7,5 +7,4 @@ class AuthUserDto:
     email: str
     status: str
     created_at: str
-    updated_at: str
     roles: list[str] = field(default_factory=list)

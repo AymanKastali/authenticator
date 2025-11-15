@@ -1,6 +1,7 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
 from domain.entities.user import UserEntity
+from domain.factories.value_objects.email import EmailVoFactory
 from domain.services.auth.authenticate.register_user import RegisterUser
 from domain.value_objects.email import EmailVo
 
@@ -13,11 +14,11 @@ class RegisterUserUseCase:
         """
         Register a new user using the domain service.
         """
-        email_vo: EmailVo = EmailVo.from_string(email)
+        email_vo: EmailVo = EmailVoFactory.from_string(email)
 
-        user: UserEntity = await self._registration.register_local_user(
+        user: UserEntity = await self._registration.execute(
             email=email_vo, plain_password=password
         )
-        user.activate()
+        # user.activate()
 
         return UserMapper.to_auth_user_dto_from_entity(user)
