@@ -7,9 +7,9 @@ from domain.exceptions.domain_errors import (
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
-from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.role import RoleVo
 from domain.value_objects.user_status import UserStatusVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 @dataclass(slots=True, kw_only=True)

@@ -5,7 +5,7 @@ from fastapi import Depends, Request
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.validate_token import (
     ValidateJwtTokenController,
 )
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
+from presentation.web.fastapi.dependencies.jwt import (
     jwt_validate_token_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.validate_token import (

@@ -3,9 +3,9 @@ from typing import Any, Mapping, Self
 
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
-from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.role import RoleVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)

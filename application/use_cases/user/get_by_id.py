@@ -4,7 +4,7 @@ from application.dto.user.public import PublicUserDto
 from application.mappers.user import UserMapper
 from domain.entities.user import UserEntity
 from domain.services.user.query_user import QueryUser
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class GetUserByIdUseCase:

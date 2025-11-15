@@ -56,17 +56,17 @@ from presentation.web.fastapi.api.v1.controllers.auth.jwt.refresh_token import (
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.validate_token import (
     ValidateJwtTokenController,
 )
-from presentation.web.fastapi.api.v1.dependencies.authentication import (
+from presentation.web.fastapi.dependencies.authentication import (
     authenticate_user_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.config import (
+from presentation.web.fastapi.dependencies.config import (
     jwt_domain_config_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.logger import (
+from presentation.web.fastapi.dependencies.logger import (
     get_console_json_logger,
 )
-from presentation.web.fastapi.api.v1.dependencies.policy import jwt_policies
-from presentation.web.fastapi.api.v1.dependencies.user import (
+from presentation.web.fastapi.dependencies.policy import jwt_policies
+from presentation.web.fastapi.dependencies.user import (
     query_user_dependency,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (

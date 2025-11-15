@@ -6,12 +6,12 @@ from domain.entities.user import UserEntity
 from domain.interfaces.jwt_factory import JwtFactoryInterface
 from domain.interfaces.policy import PolicyInterface
 from domain.value_objects.date_time import DateTimeVo
-from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_claims import JwtClaimsVo
 from domain.value_objects.jwt_header import JwtHeaderVo
 from domain.value_objects.jwt_header_algorithm import JwtHeaderAlgorithmVo
 from domain.value_objects.jwt_status import JwtStatusVo
 from domain.value_objects.jwt_type import JwtTypeVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class JwtFactory(JwtFactoryInterface):

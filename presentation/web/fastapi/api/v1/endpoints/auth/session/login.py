@@ -5,7 +5,7 @@ from fastapi import Depends, Request, Response
 from presentation.web.fastapi.api.v1.controllers.auth.session.login import (
     SessionLoginController,
 )
-from presentation.web.fastapi.api.v1.dependencies.session import (
+from presentation.web.fastapi.dependencies.session import (
     session_auth_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.session.login import (

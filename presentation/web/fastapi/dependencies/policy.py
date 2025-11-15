@@ -7,7 +7,7 @@ from domain.interfaces.policy import PolicyInterface
 from presentation.web.fastapi.api.v1.controllers.app.list_policies import (
     ListPoliciesController,
 )
-from presentation.web.fastapi.api.v1.dependencies.config import (
+from presentation.web.fastapi.dependencies.config import (
     jwt_domain_config_dependency,
     password_domain_config_dependency,
 )

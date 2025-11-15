@@ -4,7 +4,7 @@ from redis.asyncio import Redis, RedisError
 
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
 from domain.value_objects.date_time import DateTimeVo
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class JwtRedisRepository(JwtRedisRepositoryPort):

@@ -3,7 +3,7 @@ from application.mappers.jwt import JwtMapper
 from domain.entities.jwt_token import JwtEntity
 from domain.services.auth.jwt.assert_jwt_revocation import AssertJwtRevocation
 from domain.services.auth.jwt.validate_jwt import ValidateJwt
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class ValidateAccessTokenUseCase:

@@ -1,7 +1,7 @@
 from domain.exceptions.domain_errors import UserNotFoundError
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.hashed_password import HashedPasswordVo
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class ManageUserPassword:

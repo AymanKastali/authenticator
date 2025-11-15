@@ -5,7 +5,7 @@ from fastapi import Depends, Request
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.refresh_token import (
     RefreshJwtTokenController,
 )
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
+from presentation.web.fastapi.dependencies.jwt import (
     jwt_refresh_tokens_controller_dependency,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.refresh_token import (

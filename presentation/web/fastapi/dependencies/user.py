@@ -7,15 +7,17 @@ from domain.factories.user_factory import UserFactory
 from domain.interfaces.user_factory import UserFactoryInterface
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.services.user.query_user import QueryUser
-from presentation.db.in_memory.repositories import get_in_memory_user_repository
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
     GetAllUsersController,
 )
 from presentation.web.fastapi.api.v1.controllers.user.get_by_id import (
     GetUserByIdController,
 )
-from presentation.web.fastapi.api.v1.dependencies.logger import (
+from presentation.web.fastapi.dependencies.logger import (
     get_console_json_logger,
+)
+from presentation.web.fastapi.dependencies.persistence import (
+    in_memory_user_repository,
 )
 
 
@@ -25,7 +27,7 @@ def user_factory_dependency() -> UserFactoryInterface:
 
 
 def query_user_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
 ) -> QueryUser:
     return QueryUser(user_repo=user_repo)
 

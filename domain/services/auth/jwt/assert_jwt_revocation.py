@@ -1,6 +1,6 @@
 from domain.exceptions.domain_errors import JwtRevokedError
 from domain.ports.repositories.jwt import JwtRedisRepositoryPort
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class AssertJwtRevocation:

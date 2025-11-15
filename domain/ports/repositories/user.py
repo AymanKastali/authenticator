@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 
 from domain.entities.user import UserEntity
 from domain.value_objects.email import EmailVo
-from domain.value_objects.identifiers import UUIDVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class UserRepositoryPort(ABC):

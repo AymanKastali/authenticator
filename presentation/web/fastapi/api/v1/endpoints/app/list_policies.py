@@ -5,10 +5,10 @@ from fastapi import Depends
 from presentation.web.fastapi.api.v1.controllers.app.list_policies import (
     ListPoliciesController,
 )
-from presentation.web.fastapi.api.v1.dependencies.jwt import (
+from presentation.web.fastapi.dependencies.jwt import (
     get_current_authenticated_user,
 )
-from presentation.web.fastapi.api.v1.dependencies.policy import (
+from presentation.web.fastapi.dependencies.policy import (
     list_policies_controller_dependency,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (

@@ -11,6 +11,6 @@ class GetAllUsersUseCase:
     async def execute(self) -> list[PublicUserDto]:
         users: list[UserEntity] = await self._query_user.get_all_users()
 
-        active_users = [u for u in users if u.active]
+        active_users = [u for u in users if u.is_active]
 
         return [UserMapper.to_public_dto_from_entity(u) for u in active_users]

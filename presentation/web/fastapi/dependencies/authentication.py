@@ -10,25 +10,27 @@ from domain.services.auth.authenticate.authenticate_user import AuthenticateUser
 from domain.services.auth.authenticate.register_user import RegisterUser
 from domain.services.password.hash import HashPassword
 from domain.services.password.verify import VerifyPassword
-from presentation.db.in_memory.repositories import get_in_memory_user_repository
 from presentation.web.fastapi.api.v1.controllers.auth.registration.register import (
     RegisterUserController,
 )
-from presentation.web.fastapi.api.v1.dependencies.logger import (
+from presentation.web.fastapi.dependencies.logger import (
     get_console_json_logger,
 )
-from presentation.web.fastapi.api.v1.dependencies.password import (
+from presentation.web.fastapi.dependencies.password import (
     password_hasher_dependency,
     password_verifier_dependency,
 )
-from presentation.web.fastapi.api.v1.dependencies.user import (
+from presentation.web.fastapi.dependencies.persistence import (
+    in_memory_user_repository,
+)
+from presentation.web.fastapi.dependencies.user import (
     user_factory_dependency,
 )
 
 
 # Domain
 def register_user_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
     user_factory: UserFactoryInterface = Depends(user_factory_dependency),
     hasher: HashPassword = Depends(password_hasher_dependency),
 ) -> RegisterUser:
@@ -38,7 +40,7 @@ def register_user_dependency(
 
 
 def authenticate_user_dependency(
-    user_repo: UserRepositoryPort = Depends(get_in_memory_user_repository),
+    user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
     verifier: VerifyPassword = Depends(password_verifier_dependency),
 ) -> AuthenticateUser:
     return AuthenticateUser(user_repo=user_repo, verifier=verifier)

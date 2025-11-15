@@ -1,6 +1,6 @@
 from application.dto.auth.session.persistence import PersistenceSessionDto
-from application.ports.repositories.session import SessionRepositoryPort
-from domain.entities.auth.session.session import SessionEntity
+from domain.entities.session import SessionEntity
+from domain.ports.repositories.session import SessionRepositoryPort
 from domain.services.user import UserDomainService
 from domain.value_objects.email import EmailVo
 

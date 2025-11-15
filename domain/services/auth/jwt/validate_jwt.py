@@ -2,8 +2,8 @@ from domain.entities.jwt_token import JwtEntity
 from domain.exceptions.domain_errors import JwtInvalidError
 from domain.interfaces.jwt_factory import JwtFactoryInterface
 from domain.ports.services.jwt import JwtServicePort
-from domain.value_objects.identifiers import UUIDVo
 from domain.value_objects.jwt_type import JwtTypeVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class ValidateJwt:
