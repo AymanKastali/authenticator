@@ -3,8 +3,8 @@ from fastapi import Depends
 from application.ports.services.logger import LoggerPort
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
-from domain.factories.user_factory import UserFactory
-from domain.interfaces.user_factory import UserFactoryInterface
+from domain.factories.entities.user import UserEntityFactory
+from domain.interfaces.user_factory import UserEntityFactoryInterface
 from domain.ports.repositories.user import UserRepositoryPort
 from domain.services.user.query_user import QueryUser
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
@@ -22,8 +22,8 @@ from presentation.web.fastapi.dependencies.persistence import (
 
 
 # Domain
-def user_factory_dependency() -> UserFactoryInterface:
-    return UserFactory()
+def user_entity_factory_dependency() -> UserEntityFactoryInterface:
+    return UserEntityFactory()
 
 
 def query_user_dependency(

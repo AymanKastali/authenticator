@@ -1,8 +1,8 @@
 from application.dto.auth.jwt.tokens import JwtTokensDto
 from domain.entities.user import UserEntity
+from domain.factories.value_objects.email import EmailVoFactory
 from domain.services.auth.authenticate.authenticate_user import AuthenticateUser
 from domain.services.auth.jwt.issue_jwt import IssueJwt
-from domain.value_objects.email import EmailVo
 
 
 class JwtLoginUserUseCase:
@@ -15,11 +15,13 @@ class JwtLoginUserUseCase:
         self._issue_jwt = issue_jwt
 
     async def execute(self, email: str, password: str) -> JwtTokensDto:
-        email_vo = EmailVo.from_string(email)
+        email_vo = EmailVoFactory.from_string(email)
         user: UserEntity = await self._authenticate_user.authenticate_user(
-            email_vo, password
+            email=email_vo, raw_password=password
         )
+        print("user: ", user)
         access_token: str = self._issue_jwt.issue_access_token(user)
+        print("access_token: ", access_token)
         refresh_token: str = self._issue_jwt.issue_refresh_token(user)
         return JwtTokensDto(
             access_token=access_token, refresh_token=refresh_token

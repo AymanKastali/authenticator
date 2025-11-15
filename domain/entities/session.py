@@ -5,7 +5,7 @@ from domain.value_objects.session_id import SessionIdVo
 from domain.value_objects.uuid_id import UUIDVo
 
 
-@dataclass(kw_only=True)
+@dataclass(slots=True, kw_only=True)
 class SessionEntity:
     uid: SessionIdVo
     user_id: UUIDVo
