@@ -2,17 +2,17 @@ from uuid import UUID
 
 from application.dto.user.public import PublicUserDto
 from application.mappers.user import UserMapper
+from application.repositories.user import UserRepository
 from domain.entities.user import UserEntity
-from domain.services.user.query_user import QueryUser
-from domain.value_objects.uuid_id import UUIDVo
+from domain.factories.value_objects.uuid import UUIDVoFactory
 
 
 class GetUserByIdUseCase:
-    def __init__(self, query_user: QueryUser):
-        self._query_user = query_user
+    def __init__(self, user_repo: UserRepository):
+        self._query_user = user_repo
 
     async def execute(self, user_id: UUID) -> PublicUserDto:
-        uuid_vo = UUIDVo.from_uuid(user_id)
+        uuid_vo = UUIDVoFactory.from_uuid(user_id)
 
         user: UserEntity | None = await self._query_user.get_user_by_id(uuid_vo)
 
@@ -21,4 +21,4 @@ class GetUserByIdUseCase:
         if not user.is_active:
             raise ValueError("User is inactive")
 
-        return UserMapper.to_public_dto_from_entity(user)
+        return UserMapper.to_public_dto(user)

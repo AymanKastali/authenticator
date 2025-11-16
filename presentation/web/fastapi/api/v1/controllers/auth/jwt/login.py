@@ -1,5 +1,5 @@
 from application.ports.services.logger import LoggerPort
-from application.use_cases.auth.login.jwt_login import JwtLoginUserUseCase
+from application.services.jwt.login import JwtLoginUserService
 from presentation.web.fastapi.schemas.request.auth.registration.login import (
     LoginUserRequestSchema,
 )
@@ -12,7 +12,7 @@ from presentation.web.fastapi.schemas.response.generic.success.item import (
 
 
 class JwtLoginController:
-    def __init__(self, login_user: JwtLoginUserUseCase, logger: LoggerPort):
+    def __init__(self, login_user: JwtLoginUserService, logger: LoggerPort):
         self._login_user = login_user
         self._logger = logger
 

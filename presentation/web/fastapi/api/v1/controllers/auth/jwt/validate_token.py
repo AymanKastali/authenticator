@@ -1,10 +1,10 @@
 from application.dto.auth.jwt.claims import JwtClaimsDto
 from application.ports.services.logger import LoggerPort
-from application.use_cases.auth.jwt.validate_access_token import (
-    ValidateAccessTokenUseCase,
+from application.services.jwt.validate_access_token import (
+    ValidateJwtAccessTokenService,
 )
-from application.use_cases.auth.jwt.validate_refresh_token import (
-    ValidateRefreshTokenUseCase,
+from application.services.jwt.validate_refresh_token import (
+    ValidateJwtRefreshTokenService,
 )
 from presentation.web.fastapi.schemas.request.auth.jwt.validate_token import (
     ValidateJwtTokenRequestSchema,
@@ -20,12 +20,12 @@ from presentation.web.fastapi.schemas.response.generic.success.item import (
 class ValidateJwtTokenController:
     def __init__(
         self,
-        validate_access_token: ValidateAccessTokenUseCase,
-        validate_refresh_token: ValidateRefreshTokenUseCase,
+        validate_access_token_service: ValidateJwtAccessTokenService,
+        validate_refresh_token_service: ValidateJwtRefreshTokenService,
         logger: LoggerPort,
     ):
-        self._validate_access_token = validate_access_token
-        self._validate_refresh_token = validate_refresh_token
+        self._validate_access_token_service = validate_access_token_service
+        self._validate_refresh_token_service = validate_refresh_token_service
         self._logger = logger
 
     async def execute(
@@ -36,13 +36,13 @@ class ValidateJwtTokenController:
         )
         if body.token_type == "access":
             claims_dto: JwtClaimsDto = (
-                await self._validate_access_token.execute(
+                await self._validate_access_token_service.execute(
                     body.token, body.subject
                 )
             )
         else:
             claims_dto: JwtClaimsDto = (
-                await self._validate_refresh_token.execute(body.token)
+                await self._validate_refresh_token_service.execute(body.token)
             )
         self._logger.info(
             f"[ValidateJwtTokenController] Token verification successful for subject={body.subject}"

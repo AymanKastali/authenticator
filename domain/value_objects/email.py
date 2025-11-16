@@ -1,45 +1,22 @@
-import re
 from dataclasses import dataclass
-from typing import ClassVar, Self
-
-from domain.exceptions.domain_errors import InvalidValueError
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class EmailVo:
-    value: str
+    """
+    Immutable Value Object representing an email.
+    All validation and normalization must be done in the factory.
+    """
 
-    # ----- Regex pattern as a class constant -----
-    EMAIL_PATTERN: ClassVar[str] = (
-        r"^[a-zA-Z0-9._%+-]+"  # Local part (username)
-        r"@"  # At sign
-        r"(?:[a-zA-Z0-9-]+"  # Domain part (non-capturing group)
-        r"\.)+"  # Must be followed by a dot (e.g., domain.)
-        r"[a-zA-Z]{2,63}$"  # TLD (2 to 63 letters) and end of string
-    )
+    _value: str
 
-    def __post_init__(self):
-        self._validate(self.value)
+    # ----------------- Convenience / Domain Methods -----------------
+    def domain(self) -> str:
+        return self._value.split("@")[1]
 
-    # ----- Validation -----
-    @classmethod
-    def _validate(cls, email: str) -> None:
-        if not isinstance(email, str):
-            raise InvalidValueError(
-                field_name="email", message="EmailVo must be a string."
-            )
-        if not re.fullmatch(cls.EMAIL_PATTERN, email):
-            raise InvalidValueError(
-                field_name="email", message="Invalid email format."
-            )
+    def username(self) -> str:
+        return self._value.split("@")[0]
 
-    @classmethod
-    def from_string(cls, email_str: str) -> Self:
-        """
-        Validate the string and return an EmailVo object.
-        """
-        cls._validate(email_str)
-        return cls(value=email_str)
-
-    def to_string(self) -> str:
-        return self.value
+    @property
+    def value(self) -> str:
+        return self._value

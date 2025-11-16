@@ -12,4 +12,4 @@ class PwdLibPasswordHasher(PasswordHasherInterface):
         return self._engine.hash(password)
 
     def verify(self, password: str, hashed: HashedPasswordVo) -> bool:
-        return self._engine.verify(password, hashed.to_string())
+        return self._engine.verify(password, hashed.value)
