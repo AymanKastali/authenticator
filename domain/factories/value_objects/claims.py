@@ -6,12 +6,14 @@ from domain.factories.value_objects.uuid import UUIDVoFactory
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.jwt_claims import JwtClaimsVo
 from domain.value_objects.role import RoleVo
+from domain.value_objects.uuid_id import UUIDVo
 
 
 class JwtClaimsVoFactory:
     @classmethod
     def create(
         cls,
+        subject: UUIDVo,
         token_type_str: str,
         lifetime_seconds: int,
         email_str: str,
@@ -21,7 +23,6 @@ class JwtClaimsVoFactory:
     ) -> JwtClaimsVo:
         now = DateTimeVoFactory.now()
         jti = UUIDVoFactory.new()
-        sub = UUIDVoFactory.new()
         exp = DateTimeVoFactory.expires_after(now, lifetime_seconds)
 
         email_vo = EmailVoFactory.create(email_str)
@@ -36,7 +37,7 @@ class JwtClaimsVoFactory:
 
         # Construct VO once validated
         return JwtClaimsVo(
-            sub=sub,
+            sub=subject,
             typ=token_type_vo,
             exp=exp,
             jti=jti,

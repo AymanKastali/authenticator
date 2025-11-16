@@ -1,7 +1,7 @@
 from uuid import UUID
 
+from application.ports.repositories.user import UserRepositoryPort
 from domain.entities.user import UserEntity
-from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.email import EmailVo
 from domain.value_objects.uuid_id import UUIDVo
 from infrastructure.gateways.persistence.in_memory.db.storage import (

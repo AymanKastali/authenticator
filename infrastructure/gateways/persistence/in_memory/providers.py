@@ -1,7 +1,7 @@
 from functools import cache
 
-from domain.ports.repositories.session import SessionRepositoryPort
-from domain.ports.repositories.user import UserRepositoryPort
+from application.ports.repositories.session import SessionRepositoryPort
+from application.ports.repositories.user import UserRepositoryPort
 from infrastructure.gateways.persistence.in_memory.db.storage import (
     InMemorySessionStorage,
     InMemoryUserStorage,

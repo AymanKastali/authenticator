@@ -1,12 +1,12 @@
 from fastapi import Depends
 
+from application.ports.repositories.user import UserRepositoryPort
 from application.ports.services.logger import LoggerPort
+from application.repositories.user import UserRepository
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
 from domain.factories.entities.user import UserEntityFactory
 from domain.interfaces.user_factory import UserEntityFactoryInterface
-from domain.ports.repositories.user import UserRepositoryPort
-from domain.services.user.query_user import QueryUser
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
     GetAllUsersController,
 )
@@ -26,25 +26,25 @@ def user_entity_factory_dependency() -> UserEntityFactoryInterface:
     return UserEntityFactory()
 
 
-def query_user_dependency(
+def user_repo_dependency(
     user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
-) -> QueryUser:
-    return QueryUser(user_repo=user_repo)
+) -> UserRepository:
+    return UserRepository(user_repo=user_repo)
 
 
 # Application
 def get_user_by_id_uc_dependency(
-    query_user=Depends(query_user_dependency),
+    user_repo=Depends(user_repo_dependency),
 ) -> GetUserByIdUseCase:
     """Provide use case for registering a user"""
-    return GetUserByIdUseCase(query_user)
+    return GetUserByIdUseCase(user_repo)
 
 
 def get_user_all_users_uc_dependency(
-    query_user=Depends(query_user_dependency),
+    user_repo=Depends(user_repo_dependency),
 ) -> GetAllUsersUseCase:
     """Provide use case for registering a user"""
-    return GetAllUsersUseCase(query_user)
+    return GetAllUsersUseCase(user_repo)
 
 
 # Presentation

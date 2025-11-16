@@ -1,10 +1,12 @@
+from application.use_cases.jwt.revoke_jwt import RevokeJwtUseCase
+from application.use_cases.jwt.validate_jwt import ValidateJwtUseCase
 from domain.entities.jwt_token import JwtEntity
-from domain.services.auth.jwt.revoke_jwt import RevokeJwt
-from domain.services.auth.jwt.validate_jwt import ValidateJwt
 
 
-class LogoutUserUseCase:
-    def __init__(self, validate_jwt: ValidateJwt, revoke_jwt: RevokeJwt):
+class JwtLogoutUserService:
+    def __init__(
+        self, validate_jwt: ValidateJwtUseCase, revoke_jwt: RevokeJwtUseCase
+    ):
         self._validate_jwt = validate_jwt
         self._revoke_jwt = revoke_jwt
 

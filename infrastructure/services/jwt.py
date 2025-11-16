@@ -8,7 +8,7 @@ from jwt import (
     get_unverified_header,
 )
 
-from domain.ports.services.jwt import JwtServicePort
+from application.ports.services.jwt import JwtServicePort
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
     JwtExpiredError,

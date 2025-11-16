@@ -1,6 +1,6 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.ports.services.logger import LoggerPort
-from application.use_cases.auth.register.register_user import (
+from application.use_cases.auth.register_user import (
     RegisterUserUseCase,
 )
 from presentation.web.fastapi.schemas.request.auth.registration.login import (
@@ -27,7 +27,7 @@ class RegisterUserController:
 
         self._logger.info(f"Registering user {email}")
         dto: AuthUserDto = await self._use_case.execute(
-            email=email, password=password
+            email=email, plain_password=password
         )
         user_response = RegisteredUserResponseSchema.model_validate(dto)
         self._logger.info(f"User {email} registered successfully")

@@ -75,6 +75,7 @@ class JwtEntityFactory(JwtFactoryInterface):
     ) -> JwtClaimsVo:
         # Delegates every detail to the JwtClaimsVoFactory
         claims = JwtClaimsVoFactory.create(
+            subject=user.uid,
             token_type_str=token_type,
             lifetime_seconds=lifetime_seconds,
             email_str=user.email.value,
@@ -82,7 +83,6 @@ class JwtEntityFactory(JwtFactoryInterface):
             issuer=self._config.issuer,
             audience=self._config.audience,
         )
-
         # Apply domain policies
         for policy in self._policies:
             policy.enforce(claims)

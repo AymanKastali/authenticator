@@ -1,16 +1,18 @@
 from application.dto.auth.jwt.claims import JwtClaimsDto
 from application.mappers.jwt import JwtMapper
+from application.use_cases.jwt.assert_jwt_revocation import (
+    AssertJwtRevocationUseCase,
+)
+from application.use_cases.jwt.validate_jwt import ValidateJwtUseCase
 from domain.entities.jwt_token import JwtEntity
 from domain.factories.value_objects.uuid import UUIDVoFactory
-from domain.services.auth.jwt.assert_jwt_revocation import AssertJwtRevocation
-from domain.services.auth.jwt.validate_jwt import ValidateJwt
 
 
-class ValidateAccessTokenUseCase:
+class ValidateJwtAccessTokenService:
     def __init__(
         self,
-        validate_jwt: ValidateJwt,
-        assert_jwt_revocation: AssertJwtRevocation,
+        validate_jwt: ValidateJwtUseCase,
+        assert_jwt_revocation: AssertJwtRevocationUseCase,
     ):
         self._validate_jwt = validate_jwt
         self._assert_jwt_revocation = assert_jwt_revocation
