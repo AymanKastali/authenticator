@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 
 
-class JwtRedisRepositoryPort(ABC):
-    """Abstract port for managing JWT blacklist."""
+class JwtBlacklistRepositoryPort(ABC):
+    """Domain-level port for managing JWT blacklisting."""
 
     @abstractmethod
-    async def blacklist_jwt(self, jti: str, expire_at: float) -> None: ...
+    async def add(self, jti: str, expires_at: int) -> None: ...
 
     @abstractmethod
-    async def is_jwt_blacklisted(self, jti: str) -> bool: ...
+    async def contains(self, jti: str) -> bool: ...

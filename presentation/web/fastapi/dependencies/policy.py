@@ -7,26 +7,32 @@ from domain.interfaces.policy import PolicyInterface
 from presentation.web.fastapi.api.v1.controllers.app.list_policies import (
     ListPoliciesController,
 )
-from presentation.web.fastapi.dependencies.config import (
-    jwt_domain_config_dependency,
-    password_domain_config_dependency,
-)
 
 
 # Domain
 def password_policies() -> list[PolicyInterface]:
-    config = password_domain_config_dependency()
     return (
-        PasswordPolicyBuilder(config)
-        .add_length_policy()
-        .add_complexity_policy()
+        PasswordPolicyBuilder()
+        .add_length_policy(min_length=8, max_length=128)
+        .add_complexity_policy(
+            require_upper=True,
+            require_lower=True,
+            require_digit=True,
+            require_special=True,
+        )
         .build()
     )
 
 
 def jwt_policies() -> list[PolicyInterface]:
-    config = jwt_domain_config_dependency()
-    return JwtPolicyBuilder(config).add_expiry_policy().build()
+    return (
+        JwtPolicyBuilder()
+        .add_expiry_policy(
+            access_token_max_age_seconds=1 * 60 * 60 * 24 * 7,  # 7 days
+            refresh_token_max_age_seconds=1 * 60 * 60 * 24 * 30,  # 30 days
+        )
+        .build()
+    )
 
 
 # Application

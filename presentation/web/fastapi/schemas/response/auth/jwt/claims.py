@@ -8,3 +8,4 @@ class JwtTokenClaimsResponseSchema(BaseModel):
     email: str | None = None
     username: str | None = None
     roles: list[str] = []
+    is_valid: bool = True

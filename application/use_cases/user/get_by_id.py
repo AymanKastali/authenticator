@@ -2,19 +2,21 @@ from uuid import UUID
 
 from application.dto.user.public import PublicUserDto
 from application.mappers.user import UserMapper
-from application.repositories.user import UserRepository
+from application.services.user import UserQueryService
 from domain.entities.user import UserEntity
 from domain.factories.value_objects.uuid import UUIDVoFactory
 
 
 class GetUserByIdUseCase:
-    def __init__(self, user_repo: UserRepository):
-        self._query_user = user_repo
+    def __init__(self, user_query_service: UserQueryService):
+        self._user_query_service = user_query_service
 
     async def execute(self, user_id: UUID) -> PublicUserDto:
         uuid_vo = UUIDVoFactory.from_uuid(user_id)
 
-        user: UserEntity | None = await self._query_user.get_user_by_id(uuid_vo)
+        user: UserEntity | None = await self._user_query_service.get_user_by_id(
+            uuid_vo
+        )
 
         if user is None:
             raise ValueError("User not found")

@@ -1,8 +1,8 @@
 from application.ports.services.jwt import JwtServicePort
 from domain.entities.jwt_token import JwtEntity
 from domain.exceptions.domain_errors import JwtInvalidError
+from domain.factories.value_objects.type import JwtTypeVoFactory
 from domain.interfaces.jwt_factory import JwtFactoryInterface
-from domain.value_objects.jwt_type import JwtTypeVo
 from domain.value_objects.uuid_id import UUIDVo
 
 
@@ -13,31 +13,19 @@ class ValidateJwtUseCase:
         self._service = service
         self._factory = factory
 
-    def validate_access_token(
-        self, token: str, subject: UUIDVo | None = None
+    def execute(
+        self, token: str, token_type: str, subject: UUIDVo | None = None
     ) -> JwtEntity:
         payload, headers_dict = self._service.decode(token)
-        token_entity = self._factory.from_decoded(payload, headers_dict)
+        token_entity: JwtEntity = self._factory.from_decoded(
+            payload, headers_dict
+        )
 
-        if token_entity.claims.typ != JwtTypeVo.ACCESS:
-            raise JwtInvalidError("Token is not an access token")
-
-        if subject and token_entity.claims.sub != subject:
-            raise JwtInvalidError("Token subject does not match")
-
-        if token_entity.is_expired():
-            raise JwtInvalidError("Token is expired")
-
-        return token_entity
-
-    def validate_refresh_token(
-        self, token: str, subject: UUIDVo | None = None
-    ) -> JwtEntity:
-        payload, headers_dict = self._service.decode(token)
-        token_entity = self._factory.from_decoded(payload, headers_dict)
-
-        if token_entity.claims.typ != JwtTypeVo.REFRESH:
-            raise JwtInvalidError("Token is not a refresh token")
+        if (
+            token_entity.claims.typ.value
+            != JwtTypeVoFactory.create(token_type).value
+        ):
+            raise JwtInvalidError(f"Token is not an {token_type} token")
 
         if subject and token_entity.claims.sub != subject:
             raise JwtInvalidError("Token subject does not match")

@@ -4,7 +4,7 @@ from domain.value_objects.email import EmailVo
 from domain.value_objects.uuid_id import UUIDVo
 
 
-class UserRepository:
+class UserQueryService:
     """Responsible for fetching users."""
 
     def __init__(self, user_repo: UserRepositoryPort):

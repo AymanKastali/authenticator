@@ -11,6 +11,6 @@ def jwt_config() -> JwtConfig:
 
 
 @lru_cache
-def redis_config() -> RedisConfig:
+def get_redis_config() -> RedisConfig:
     """Provide cached RedisConfig (singleton)."""
     return RedisConfig()

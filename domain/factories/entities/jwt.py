@@ -26,9 +26,7 @@ class JwtEntityFactory(JwtFactoryInterface):
     """
 
     def __init__(
-        self,
-        config: JwtDomainConfig,
-        policies: list[PolicyInterface],
+        self, config: JwtDomainConfig, policies: list[PolicyInterface]
     ):
         self._config = config
         self._policies = policies
@@ -85,6 +83,7 @@ class JwtEntityFactory(JwtFactoryInterface):
         )
         # Apply domain policies
         for policy in self._policies:
+            print("Applying policy:", policy.describe())
             policy.enforce(claims)
 
         return claims

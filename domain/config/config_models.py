@@ -9,16 +9,6 @@ class LoginConfig:
 
 
 @dataclass(frozen=True, slots=True, kw_only=True)
-class PasswordDomainConfig:
-    min_length: int
-    max_length: int
-    require_upper: bool
-    require_lower: bool
-    require_digit: bool
-    require_special: bool
-
-
-@dataclass(frozen=True, slots=True, kw_only=True)
 class JwtDomainConfig:
     access_token_exp_seconds: int
     refresh_token_exp_seconds: int

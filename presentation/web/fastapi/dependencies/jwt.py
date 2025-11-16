@@ -4,27 +4,19 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
-from application.ports.repositories.jwt import JwtRedisRepositoryPort
+from application.ports.repositories.jwt import JwtBlacklistRepositoryPort
 from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
 from application.services.jwt.get_authenticated_user import (
     GetJwtAuthenticatedUserService,
 )
+from application.services.jwt.jwt_blacklist import JwtBlacklistService
 from application.services.jwt.login import JwtLoginUserService
 from application.services.jwt.logout import JwtLogoutUserService
 from application.services.jwt.refresh_tokens import RefreshJwtTokensService
-from application.services.jwt.validate_access_token import (
-    ValidateJwtAccessTokenService,
-)
-from application.services.jwt.validate_refresh_token import (
-    ValidateJwtRefreshTokenService,
-)
+from application.services.jwt.validate_token import ValidateJwtTokenService
 from application.use_cases.auth.authenticate_user import AuthenticateUserUseCase
-from application.use_cases.jwt.assert_jwt_revocation import (
-    AssertJwtRevocationUseCase,
-)
 from application.use_cases.jwt.issue_jwt import IssueJwtUseCase
-from application.use_cases.jwt.revoke_jwt import RevokeJwtUseCase
 from application.use_cases.jwt.validate_jwt import ValidateJwtUseCase
 from domain.config.config_models import JwtDomainConfig
 from domain.exceptions.domain_errors import JwtRevokedError, UserNotFoundError
@@ -37,8 +29,8 @@ from infrastructure.exceptions.adapters_errors import (
     JwtExpiredError,
     JwtInvalidError,
 )
-from infrastructure.gateways.persistence.cache.redis.asynchronous.repository import (
-    JwtRedisRepository,
+from infrastructure.gateways.persistence.cache.repositories.jwt_blacklist import (
+    RedisJwtBlacklistRepository,
 )
 from infrastructure.services.jwt import JwtService
 from presentation.web.fastapi.api.v1.controllers.auth.jwt.get_authenticated_user import (
@@ -67,7 +59,7 @@ from presentation.web.fastapi.dependencies.logger import (
 )
 from presentation.web.fastapi.dependencies.policy import jwt_policies
 from presentation.web.fastapi.dependencies.user import (
-    user_repo_dependency,
+    user_query_service_dependency,
 )
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
     AuthenticatedUserResponseSchema,
@@ -88,9 +80,9 @@ def jwt_service_dependency(
     return JwtService(config)
 
 
-async def jwt_redis_dependency(request: Request) -> JwtRedisRepositoryPort:
-    redis_conn: Redis | None = getattr(request.app.state, "redis", None)
-    return JwtRedisRepository(redis_conn)
+async def jwt_redis_dependency(request: Request) -> JwtBlacklistRepositoryPort:
+    redis_client: Redis | None = getattr(request.app.state, "redis", None)
+    return RedisJwtBlacklistRepository(redis_client=redis_client)
 
 
 # Domain
@@ -109,16 +101,10 @@ def jwt_validation_uc_dependency(
     return ValidateJwtUseCase(service=service, factory=factory)
 
 
-def jwt_revocation_uc_dependency(
-    jwt_redis_repo: JwtRedisRepositoryPort = Depends(jwt_redis_dependency),
-) -> RevokeJwtUseCase:
-    return RevokeJwtUseCase(jwt_redis_repo=jwt_redis_repo)
-
-
-def jwt_assert_revocation_uc_dependency(
-    jwt_redis_repo: JwtRedisRepositoryPort = Depends(jwt_redis_dependency),
-) -> AssertJwtRevocationUseCase:
-    return AssertJwtRevocationUseCase(jwt_redis_repo=jwt_redis_repo)
+def jwt_blacklist_service_dependency(
+    repository: JwtBlacklistRepositoryPort = Depends(jwt_redis_dependency),
+) -> JwtBlacklistService:
+    return JwtBlacklistService(repository=repository)
 
 
 def jwt_issuance_uc_dependency(
@@ -130,15 +116,15 @@ def jwt_issuance_uc_dependency(
 
 def get_jwt_authenticated_user_service_dependency(
     validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
-    assert_jwt_revocation: AssertJwtRevocationUseCase = Depends(
-        jwt_assert_revocation_uc_dependency
+    blacklist_service: JwtBlacklistService = Depends(
+        jwt_blacklist_service_dependency
     ),
-    user_repo=Depends(user_repo_dependency),
+    user_query_service=Depends(user_query_service_dependency),
 ) -> GetJwtAuthenticatedUserService:
     return GetJwtAuthenticatedUserService(
         validate_jwt=validate_jwt,
-        assert_jwt_revocation=assert_jwt_revocation,
-        user_repo=user_repo,
+        blacklist_service=blacklist_service,
+        user_query_service=user_query_service,
     )
 
 
@@ -155,38 +141,36 @@ def jwt_login_user_service_dependency(
 
 def jwt_logout_user_service_dependency(
     validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
-    revoke_jwt: RevokeJwtUseCase = Depends(jwt_revocation_uc_dependency),
+    blacklist_service: JwtBlacklistService = Depends(
+        jwt_blacklist_service_dependency
+    ),
 ) -> JwtLogoutUserService:
     return JwtLogoutUserService(
-        validate_jwt=validate_jwt, revoke_jwt=revoke_jwt
+        validate_jwt=validate_jwt, blacklist_service=blacklist_service
     )
 
 
 def jwt_refresh_tokens_service_dependency(
     validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
     issue_jwt: IssueJwtUseCase = Depends(jwt_issuance_uc_dependency),
-    user_repo=Depends(user_repo_dependency),
+    user_query_service=Depends(user_query_service_dependency),
 ) -> RefreshJwtTokensService:
     return RefreshJwtTokensService(
-        user_repo=user_repo, issue_jwt=issue_jwt, validate_jwt=validate_jwt
+        user_query_service=user_query_service,
+        issue_jwt=issue_jwt,
+        validate_jwt=validate_jwt,
     )
 
 
-def jwt_validate_access_token_service_dependency(
+def jwt_validate_token_service_dependency(
     validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
-    assert_jwt_revocation: AssertJwtRevocationUseCase = Depends(
-        jwt_assert_revocation_uc_dependency
+    blacklist_service: JwtBlacklistService = Depends(
+        jwt_blacklist_service_dependency
     ),
-) -> ValidateJwtAccessTokenService:
-    return ValidateJwtAccessTokenService(
-        validate_jwt=validate_jwt, assert_jwt_revocation=assert_jwt_revocation
+) -> ValidateJwtTokenService:
+    return ValidateJwtTokenService(
+        validate_jwt=validate_jwt, blacklist_service=blacklist_service
     )
-
-
-def jwt_validate_refresh_token_service_dependency(
-    validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
-) -> ValidateJwtRefreshTokenService:
-    return ValidateJwtRefreshTokenService(validate_jwt=validate_jwt)
 
 
 # Presentation
@@ -218,18 +202,13 @@ def jwt_refresh_tokens_controller_dependency(
 
 
 def jwt_validate_token_controller_dependency(
-    validate_access_token: ValidateJwtAccessTokenService = Depends(
-        jwt_validate_access_token_service_dependency
-    ),
-    validate_refresh_token: ValidateJwtRefreshTokenService = Depends(
-        jwt_validate_refresh_token_service_dependency
+    validate_access_token: ValidateJwtTokenService = Depends(
+        jwt_validate_token_service_dependency
     ),
     logger: LoggerPort = Depends(get_console_json_logger),
 ) -> ValidateJwtTokenController:
     return ValidateJwtTokenController(
-        validate_access_token_service=validate_access_token,
-        validate_refresh_token_service=validate_refresh_token,
-        logger=logger,
+        validate_token=validate_access_token, logger=logger
     )
 
 

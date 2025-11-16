@@ -1,6 +1,6 @@
 from application.ports.repositories.session import SessionRepositoryPort
 from application.ports.repositories.user import UserRepositoryPort
-from infrastructure.gateways.persistence.in_memory.providers import (
+from infrastructure.gateways.persistence.providers import (
     provide_session_repository,
     provide_user_repository,
 )

@@ -1,20 +1,7 @@
 from functools import lru_cache
 
-from domain.config.config_models import JwtDomainConfig, PasswordDomainConfig
+from domain.config.config_models import JwtDomainConfig
 from infrastructure.config import jwt_config
-
-
-# Config
-@lru_cache
-def password_domain_config_dependency() -> PasswordDomainConfig:
-    return PasswordDomainConfig(
-        min_length=8,
-        max_length=128,
-        require_upper=True,
-        require_lower=True,
-        require_digit=True,
-        require_special=True,
-    )
 
 
 @lru_cache
