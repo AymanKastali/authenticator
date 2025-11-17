@@ -1,6 +1,10 @@
 from dataclasses import dataclass, field
 
-from domain.exceptions.domain_errors import DomainRuleViolationError
+from domain.exceptions.domain_errors import (
+    DomainRuleViolationError,
+    UserDeletedError,
+    UserInactiveError,
+)
 from domain.value_objects.date_time import DateTimeVo
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
@@ -67,3 +71,12 @@ class UserEntity:
                 rule_name="UserStatusTransitionRule",
             )
         self._status = new_status
+
+    # ----- Validations -----
+    def ensure_active(self):
+        if self.is_active is False:
+            raise UserInactiveError(self.uid.value)
+
+    def ensure_not_deleted(self):
+        if self.is_deleted is True:
+            raise UserDeletedError(self.uid.value)

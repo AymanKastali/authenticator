@@ -1,11 +1,11 @@
 from application.dto.auth.jwt.token_user import TokenUserDto
 from application.mappers.user import UserMapper
 from application.services.jwt.jwt_blacklist import JwtBlacklistService
-from application.services.user import UserQueryService
 from application.use_cases.jwt.validate_jwt import ValidateJwtUseCase
 from domain.entities.jwt_token import JwtEntity
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserNotFoundError
+from domain.ports.repositories.user import UserRepositoryPort
 
 
 class GetJwtAuthenticatedUserService:
@@ -13,11 +13,11 @@ class GetJwtAuthenticatedUserService:
         self,
         validate_jwt: ValidateJwtUseCase,
         blacklist_service: JwtBlacklistService,
-        user_query_service: UserQueryService,
+        user_repo: UserRepositoryPort,
     ):
         self._validate_jwt = validate_jwt
         self._blacklist_service = blacklist_service
-        self._user_query_service = user_query_service
+        self._user_repo = user_repo
 
     async def execute(self, token: str) -> TokenUserDto:
         token_entity: JwtEntity = self._validate_jwt.execute(
@@ -28,7 +28,7 @@ class GetJwtAuthenticatedUserService:
             token_entity.uid.value
         )
 
-        user: UserEntity | None = await self._user_query_service.get_user_by_id(
+        user: UserEntity | None = await self._user_repo.get_user_by_id(
             token_entity.subject
         )
         if user is None:

@@ -23,6 +23,7 @@ from domain.factories.entities.jwt import JwtEntityFactory
 from domain.interfaces.jwt_factory import JwtFactoryInterface
 from domain.interfaces.policy import PolicyInterface
 from domain.ports.repositories.jwt import JwtBlacklistRepositoryPort
+from domain.ports.repositories.user import UserRepositoryPort
 from infrastructure.config import jwt_config
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
@@ -57,10 +58,10 @@ from presentation.web.fastapi.dependencies.config import (
 from presentation.web.fastapi.dependencies.logger import (
     get_console_json_logger,
 )
-from presentation.web.fastapi.dependencies.policy import jwt_policies
-from presentation.web.fastapi.dependencies.user import (
-    user_query_service_dependency,
+from presentation.web.fastapi.dependencies.persistence import (
+    in_memory_user_repository,
 )
+from presentation.web.fastapi.dependencies.policy import jwt_policies
 from presentation.web.fastapi.schemas.response.auth.jwt.authenticated_user import (
     AuthenticatedUserResponseSchema,
 )
@@ -119,12 +120,12 @@ def get_jwt_authenticated_user_service_dependency(
     blacklist_service: JwtBlacklistService = Depends(
         jwt_blacklist_service_dependency
     ),
-    user_query_service=Depends(user_query_service_dependency),
+    user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
 ) -> GetJwtAuthenticatedUserService:
     return GetJwtAuthenticatedUserService(
         validate_jwt=validate_jwt,
         blacklist_service=blacklist_service,
-        user_query_service=user_query_service,
+        user_repo=user_repo,
     )
 
 
@@ -153,10 +154,10 @@ def jwt_logout_user_service_dependency(
 def jwt_refresh_tokens_service_dependency(
     validate_jwt: ValidateJwtUseCase = Depends(jwt_validation_uc_dependency),
     issue_jwt: IssueJwtUseCase = Depends(jwt_issuance_uc_dependency),
-    user_query_service=Depends(user_query_service_dependency),
+    user_repo: UserRepositoryPort = Depends(in_memory_user_repository),
 ) -> RefreshJwtTokensService:
     return RefreshJwtTokensService(
-        user_query_service=user_query_service,
+        user_repo=user_repo,
         issue_jwt=issue_jwt,
         validate_jwt=validate_jwt,
     )

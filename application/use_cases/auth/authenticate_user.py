@@ -1,8 +1,6 @@
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import (
     InvalidCredentialsError,
-    UserDeletedError,
-    UserInactiveError,
     UserNotFoundError,
 )
 from domain.interfaces.password_hasher import PasswordHasherInterface
@@ -43,9 +41,6 @@ class AuthenticateUserUseCase:
         ):
             raise InvalidCredentialsError(string_email)
 
-        string_uid = user.uid.value
-        if not user.is_active:
-            raise UserInactiveError(string_uid)
-        if user.is_deleted:
-            raise UserDeletedError(string_uid)
+        user.ensure_active()
+        user.ensure_not_deleted()
         return user
