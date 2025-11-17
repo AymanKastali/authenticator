@@ -1,4 +1,3 @@
-from application.ports.repositories.user import UserRepositoryPort
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import (
     InvalidCredentialsError,
@@ -7,6 +6,7 @@ from domain.exceptions.domain_errors import (
     UserNotFoundError,
 )
 from domain.interfaces.password_hasher import PasswordHasherInterface
+from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.email import EmailVo
 from domain.value_objects.hashed_password import HashedPasswordVo
 

@@ -83,7 +83,6 @@ class JwtEntityFactory(JwtFactoryInterface):
         )
         # Apply domain policies
         for policy in self._policies:
-            print("Applying policy:", policy.describe())
             policy.enforce(claims)
 
         return claims

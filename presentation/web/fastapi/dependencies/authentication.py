@@ -1,6 +1,5 @@
 from fastapi import Depends
 
-from application.ports.repositories.user import UserRepositoryPort
 from application.ports.services.logger import LoggerPort
 from application.use_cases.auth.authenticate_user import (
     AuthenticateUserUseCase,
@@ -9,6 +8,7 @@ from application.use_cases.auth.register_user import RegisterUserUseCase
 from domain.interfaces.password_hasher import PasswordHasherInterface
 from domain.interfaces.policy import PolicyInterface
 from domain.interfaces.user_factory import UserEntityFactoryInterface
+from domain.ports.repositories.user import UserRepositoryPort
 from presentation.web.fastapi.api.v1.controllers.auth.registration.register import (
     RegisterUserController,
 )

@@ -1,5 +1,5 @@
-from application.ports.repositories.jwt import JwtBlacklistRepositoryPort
 from domain.exceptions.domain_errors import JwtRevokedError
+from domain.ports.repositories.jwt import JwtBlacklistRepositoryPort
 
 
 class JwtBlacklistService:

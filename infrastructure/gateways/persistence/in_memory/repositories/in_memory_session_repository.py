@@ -1,5 +1,5 @@
 from application.dto.auth.session.persistence import PersistenceSessionDto
-from application.ports.repositories.session import SessionRepositoryPort
+from domain.ports.repositories.session import SessionRepositoryPort
 from infrastructure.gateways.persistence.in_memory.db.storage import (
     InMemorySessionStorage,
 )

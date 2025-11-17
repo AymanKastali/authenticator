@@ -1,6 +1,5 @@
 from application.dto.auth.jwt.auth_user import AuthUserDto
 from application.mappers.user import UserMapper
-from application.ports.repositories.user import UserRepositoryPort
 from domain.entities.user import UserEntity
 from domain.exceptions.domain_errors import UserAlreadyExistsError
 from domain.factories.value_objects.email import EmailVoFactory
@@ -10,6 +9,7 @@ from domain.factories.value_objects.hashed_password import (
 from domain.interfaces.password_hasher import PasswordHasherInterface
 from domain.interfaces.policy import PolicyInterface
 from domain.interfaces.user_factory import UserEntityFactoryInterface
+from domain.ports.repositories.user import UserRepositoryPort
 from domain.value_objects.email import EmailVo
 from domain.value_objects.role import RoleVo
 from domain.value_objects.user_status import UserStatusVo

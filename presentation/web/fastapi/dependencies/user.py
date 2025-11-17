@@ -1,12 +1,12 @@
 from fastapi import Depends
 
-from application.ports.repositories.user import UserRepositoryPort
 from application.ports.services.logger import LoggerPort
 from application.services.user import UserQueryService
 from application.use_cases.user.get_all import GetAllUsersUseCase
 from application.use_cases.user.get_by_id import GetUserByIdUseCase
 from domain.factories.entities.user import UserEntityFactory
 from domain.interfaces.user_factory import UserEntityFactoryInterface
+from domain.ports.repositories.user import UserRepositoryPort
 from presentation.web.fastapi.api.v1.controllers.user.get_all import (
     GetAllUsersController,
 )

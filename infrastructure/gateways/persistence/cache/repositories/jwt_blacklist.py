@@ -1,6 +1,6 @@
 from redis.asyncio import Redis
 
-from application.ports.repositories.jwt import JwtBlacklistRepositoryPort
+from domain.ports.repositories.jwt import JwtBlacklistRepositoryPort
 
 
 class RedisJwtBlacklistRepository(JwtBlacklistRepositoryPort):

@@ -4,7 +4,6 @@ from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import OAuth2PasswordBearer
 from redis.asyncio import Redis
 
-from application.ports.repositories.jwt import JwtBlacklistRepositoryPort
 from application.ports.services.jwt import JwtServicePort
 from application.ports.services.logger import LoggerPort
 from application.services.jwt.get_authenticated_user import (
@@ -23,6 +22,7 @@ from domain.exceptions.domain_errors import JwtRevokedError, UserNotFoundError
 from domain.factories.entities.jwt import JwtEntityFactory
 from domain.interfaces.jwt_factory import JwtFactoryInterface
 from domain.interfaces.policy import PolicyInterface
+from domain.ports.repositories.jwt import JwtBlacklistRepositoryPort
 from infrastructure.config import jwt_config
 from infrastructure.config.jwt import JwtConfig
 from infrastructure.exceptions.adapters_errors import (
